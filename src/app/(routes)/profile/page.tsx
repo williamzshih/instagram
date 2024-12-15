@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Settings, BadgeCheck } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
+import PostsGrid from "@/components/PostsGrid";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
@@ -15,7 +16,7 @@ export default function Profile() {
           <ChevronLeft />
         </Button>
         <div className="flex items-center justify-center gap-2">
-          <p className="text-2xl font-bold">username</p>
+          <p className="text-2xl font-bold">username123</p>
           <BadgeCheck />
         </div>
         <Button size="icon" variant="ghost">
@@ -31,7 +32,7 @@ export default function Profile() {
       </div>
       <p className="text-xl font-bold">Name</p>
       <p className="text-lg mb-4">Bio</p>
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 mb-4">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}
           className="text-lg"
@@ -47,6 +48,7 @@ export default function Profile() {
           Highlights
         </Button>
       </div>
+      {selectedTab === "posts" && <PostsGrid />}
     </div>
   );
 }
