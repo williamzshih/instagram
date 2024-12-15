@@ -5,7 +5,7 @@ import { ChevronLeft, Settings, BadgeCheck } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
-
+import Link from "next/link";
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
 
@@ -20,11 +20,13 @@ export default function Profile() {
           <BadgeCheck />
         </div>
         <Button size="icon" variant="ghost">
-          <Settings />
+          <Link href="/settings">
+            <Settings />
+          </Link>
         </Button>
       </div>
-      <div className="w-46 h-46 p-2 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
-        <div className="bg-white w-42 h-42 p-2 rounded-full">
+      <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
+        <div className="bg-white p-1 rounded-full">
           <Avatar className="w-40 h-40">
             <AvatarImage src="https://picsum.photos/200/300" />
           </Avatar>
