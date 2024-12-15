@@ -7,17 +7,14 @@ export default async function Home() {
   return (
     <div>
       {session ? (
-        <div>
-          <p>Signed in as {session.user?.email}</p>
-          <form
-            action={async () => {
-              "use server";
-              await signOut();
-            }}
-          >
-            <Button type="submit">Sign out</Button>
-          </form>
-        </div>
+        <form
+          action={async () => {
+            "use server";
+            await signOut();
+          }}
+        >
+          <Button type="submit">Sign out</Button>
+        </form>
       ) : (
         <form
           action={async () => {
