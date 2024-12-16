@@ -20,6 +20,7 @@
     "next-auth": "^5.0.0-beta.25",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.54.1",
     "react-masonry-css": "^1.0.16",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7"

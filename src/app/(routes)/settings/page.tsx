@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,9 +7,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
 import { prisma } from "@/db";
 import { auth } from "@/auth";
+import { useForm } from "react-hook-form";
 
-export default async function Settings() {
-  const session = await auth();
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 20;
+const NAME_MIN = 3;
+const NAME_MAX = 20;
+const BIO_MAX = 100;
+
+export default /*async*/ function Settings() {
+  // const session = await auth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({ mode: "onTouched" });
+
+  const usernameLength = watch("username")?.length ?? 0;
+  const nameLength = watch("name")?.length ?? 0;
+  const bioLength = watch("bio")?.length ?? 0;
+
+  const onSubmit = (data: any) => {
+    console.log(data);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
@@ -30,7 +53,7 @@ export default async function Settings() {
             </Avatar>
             <input
               id="avatar"
-              name="avatar"
+              {...register("avatar", { required: "Avatar is required" })}
               type="file"
               accept="image/*"
               className="hidden"
@@ -40,40 +63,113 @@ export default async function Settings() {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        action={async (formData) => {
-          "use server";
-          await prisma.user.update({
-            where: {
-              email: session?.user?.email ?? "",
-            },
-            data: {
-              avatar: formData.get("avatar") as string || "avatar",
-              username: formData.get("username") as string,
-              name: formData.get("name") as string,
-              bio: formData.get("bio") as string,
-            },
-          });
-        }}
+        // action={async (formData) => {
+        //   "use server";
+        //   await prisma.user.update({
+        //     where: {
+        //       email: session?.user?.email ?? "",
+        //     },
+        //     data: {
+        //       avatar: formData.get("avatar") as string || "avatar",
+        //       username: formData.get("username") as string,
+        //       name: formData.get("name") as string,
+        //       bio: formData.get("bio") as string,
+        //     },
+        //   });
+        // }}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex flex-col">
-          <p>Username</p>
-          <Input name="username" placeholder="Username" />
+          <div
+            className={`flex items-center justify-between ${
+              errors.username ? "text-red-500" : ""
+            }`}
+          >
+            Username
+            <p className="text-sm text-gray-500">
+              {usernameLength}/{USERNAME_MAX}
+            </p>
+          </div>
+          <Input
+            {...register("username", {
+              required: "Username is required",
+              minLength: {
+                value: USERNAME_MIN,
+                message: `Username must be at least ${USERNAME_MIN} characters long`,
+              },
+              maxLength: {
+                value: USERNAME_MAX,
+                message: `Username must be at most ${USERNAME_MAX} characters long`,
+              },
+            })}
+            placeholder="Username"
+            className={`${errors.username ? "border-red-500" : ""}`}
+          />
+          {errors.username && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.username.message?.toString() ?? "An error occurred"}
+            </p>
+          )}
         </div>
         <div className="flex flex-col">
-          <p>Name</p>
-          <Input name="name" placeholder="Name" />
+          <div
+            className={`flex items-center justify-between ${
+              errors.name ? "text-red-500" : ""
+            }`}
+          >
+            Name
+            <p className="text-sm text-gray-500">
+              {nameLength}/{NAME_MAX}
+            </p>
+          </div>
+          <Input
+            {...register("name", {
+              required: "Name is required",
+              minLength: {
+                value: NAME_MIN,
+                message: `Name must be at least ${NAME_MIN} characters long`,
+              },
+              maxLength: {
+                value: NAME_MAX,
+                message: `Name must be at most ${NAME_MAX} characters long`,
+              },
+            })}
+            placeholder="Name"
+            className={`${errors.name ? "border-red-500" : ""}`}
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.name.message?.toString() ?? "An error occurred"}
+            </p>
+          )}
         </div>
         <div className="flex flex-col">
-          <p>Bio</p>
-          <Textarea name="bio" className="h-20" placeholder="Bio" />
-        </div>
-        <div className="flex flex-col">
-          <p>Password</p>
-          <Input name="password" placeholder="Password" />
-        </div>
-        <div className="flex flex-col">
-          <p>Confirm Password</p>
-          <Input name="confirmPassword" placeholder="Confirm Password" />
+          <div
+            className={`flex items-center justify-between ${
+              errors.bio ? "text-red-500" : ""
+            }`}
+          >
+            Bio
+            <p className="text-sm text-gray-500">
+              {bioLength}/{BIO_MAX}
+            </p>
+          </div>
+          <Textarea
+            {...register("bio", {
+              required: "Bio is required",
+              maxLength: {
+                value: BIO_MAX,
+                message: `Bio must be at most ${BIO_MAX} characters long`,
+              },
+            })}
+            placeholder="Bio"
+            className={`h-20 ${errors.bio ? "border-red-500" : ""}`}
+          />
+          {errors.bio && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.bio.message?.toString() ?? "An error occurred"}
+            </p>
+          )}
         </div>
         <Button className="mt-4 w-fit">Save settings</Button>
       </form>
