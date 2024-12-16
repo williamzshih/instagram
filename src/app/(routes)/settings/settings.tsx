@@ -4,10 +4,11 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Session } from "next-auth";
-import { updateSettings } from "./actions";
+import { updateUser, getUser } from "./actions";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -19,9 +20,20 @@ export default function Settings({ session }: { session: Session | null }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isLoading },
     watch,
-  } = useForm({ mode: "onTouched" });
+  } = useForm({
+    mode: "onTouched",
+    defaultValues: async () => {
+      const user = await getUser(session?.user?.email ?? "");
+      return {
+        avatar: null,
+        username: user?.username ?? "",
+        name: user?.name ?? "",
+        bio: user?.bio ?? "",
+      };
+    },
+  });
 
   const usernameLength = watch("username")?.length ?? 0;
   const nameLength = watch("name")?.length ?? 0;
@@ -38,7 +50,7 @@ export default function Settings({ session }: { session: Session | null }) {
       });
     }
 
-    updateSettings(
+    updateUser(
       session?.user?.email ?? "",
       avatar,
       data.username,
@@ -46,6 +58,43 @@ export default function Settings({ session }: { session: Session | null }) {
       data.bio
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        <Skeleton className="mb-4 w-24 h-8" />
+        <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-gray-300 to-gray-400 mb-4">
+          <div className="p-1 bg-white rounded-full">
+            <Skeleton className="w-40 h-40 rounded-full" />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 w-1/2">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <Skeleton className="w-20 h-6" />
+              <Skeleton className="w-14 h-6" />
+            </div>
+            <Skeleton className="w-full h-9 rounded" />
+          </div>
+          <div className="flex flex-col gap-1 -mt-1">
+            <div className="flex items-center justify-between">
+              <Skeleton className="w-20 h-6" />
+              <Skeleton className="w-14 h-6" />
+            </div>
+            <Skeleton className="w-full h-9 rounded" />
+          </div>
+          <div className="flex flex-col gap-1 -mt-1">
+            <div className="flex items-center justify-between">
+              <Skeleton className="w-20 h-6" />
+              <Skeleton className="w-14 h-6" />
+            </div>
+            <Skeleton className="w-full h-20 rounded" />
+          </div>
+          <Skeleton className="mt-3 w-32 h-9 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
@@ -86,7 +135,7 @@ export default function Settings({ session }: { session: Session | null }) {
               errors.username ? "text-red-500" : ""
             }`}
           >
-            Username
+            <p>Username</p>
             <p className="text-sm text-gray-500">
               {usernameLength}/{USERNAME_MAX}
             </p>
@@ -118,7 +167,7 @@ export default function Settings({ session }: { session: Session | null }) {
               errors.name ? "text-red-500" : ""
             }`}
           >
-            Name
+            <p>Name</p>
             <p className="text-sm text-gray-500">
               {nameLength}/{NAME_MAX}
             </p>
@@ -150,7 +199,7 @@ export default function Settings({ session }: { session: Session | null }) {
               errors.bio ? "text-red-500" : ""
             }`}
           >
-            Bio
+            <p>Bio</p>
             <p className="text-sm text-gray-500">
               {bioLength}/{BIO_MAX}
             </p>

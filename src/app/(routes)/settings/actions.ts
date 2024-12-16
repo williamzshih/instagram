@@ -2,7 +2,7 @@
 
 import { prisma } from "@/db";
 
-export async function updateSettings(
+export async function updateUser(
   email: string,
   avatar: string,
   username: string,
@@ -18,4 +18,9 @@ export async function updateSettings(
       bio,
     },
   });
+}
+
+export async function getUser(email: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  return user;
 }
