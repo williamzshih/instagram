@@ -41,7 +41,7 @@ export default function Settings({ session }: { session: Session | null }) {
 
   const onSubmit = async (data: any) => {
     let avatar = "";
-    if (data.avatar[0]) {
+    if (data.avatar && data.avatar[0]) {
       const file = data.avatar[0];
       const reader = new FileReader();
       avatar = await new Promise((resolve) => {
