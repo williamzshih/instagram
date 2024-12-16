@@ -30,6 +30,20 @@ export default /*async*/ function Settings() {
 
   const onSubmit = (data: any) => {
     console.log(data);
+    // action={async (formData) => {
+        //   "use server";
+        //   await prisma.user.update({
+        //     where: {
+        //       email: session?.user?.email ?? "",
+        //     },
+        //     data: {
+        //       avatar: formData.get("avatar") as string || "avatar",
+        //       username: formData.get("username") as string,
+        //       name: formData.get("name") as string,
+        //       bio: formData.get("bio") as string,
+        //     },
+        //   });
+        // }}
   };
 
   return (
@@ -63,20 +77,6 @@ export default /*async*/ function Settings() {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        // action={async (formData) => {
-        //   "use server";
-        //   await prisma.user.update({
-        //     where: {
-        //       email: session?.user?.email ?? "",
-        //     },
-        //     data: {
-        //       avatar: formData.get("avatar") as string || "avatar",
-        //       username: formData.get("username") as string,
-        //       name: formData.get("name") as string,
-        //       bio: formData.get("bio") as string,
-        //     },
-        //   });
-        // }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex flex-col">
@@ -156,7 +156,6 @@ export default /*async*/ function Settings() {
           </div>
           <Textarea
             {...register("bio", {
-              required: "Bio is required",
               maxLength: {
                 value: BIO_MAX,
                 message: `Bio must be at most ${BIO_MAX} characters long`,

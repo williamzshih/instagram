@@ -12,7 +12,7 @@ model User {
   avatar    String
   username  String
   name      String
-  bio       String
+  bio       String?
   email     String @unique
   posts     Post[]
 }
