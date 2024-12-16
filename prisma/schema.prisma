@@ -13,6 +13,7 @@ model User {
   username  String
   name      String
   bio       String
+  email     String @unique
   posts     Post[]
 }
 

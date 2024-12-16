@@ -26,7 +26,7 @@ export default function Profile() {
         </Button>
       </div>
       <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
-        <div className="bg-white p-1 rounded-full">
+        <div className="p-1 bg-white rounded-full">
           <Avatar className="w-40 h-40">
             <AvatarImage src="https://picsum.photos/200/300" />
           </Avatar>
