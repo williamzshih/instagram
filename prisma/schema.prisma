@@ -8,13 +8,12 @@ datasource db {
 }
 
 model User {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  avatar    String
-  username  String
-  name      String
-  bio       String?
-  email     String @unique
-  posts     Post[]
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String
+  name     String
+  bio      String
+  email    String @unique
+  posts    Post[]
 }
 
 model Post {
@@ -23,5 +22,3 @@ model Post {
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
 }
-
-

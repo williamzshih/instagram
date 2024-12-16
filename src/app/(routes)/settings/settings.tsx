@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Session } from "next-auth";
-import { updateUser, getUser } from "./actions";
+import { updateUser, getUser } from "@/actions";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -27,37 +27,12 @@ export default function Settings({ session }: { session: Session | null }) {
     defaultValues: async () => {
       const user = await getUser(session?.user?.email ?? "");
       return {
-        avatar: null,
         username: user?.username ?? "",
         name: user?.name ?? "",
         bio: user?.bio ?? "",
       };
     },
   });
-
-  const usernameLength = watch("username")?.length ?? 0;
-  const nameLength = watch("name")?.length ?? 0;
-  const bioLength = watch("bio")?.length ?? 0;
-
-  const onSubmit = async (data: any) => {
-    let avatar = "";
-    if (data.avatar && data.avatar[0]) {
-      const file = data.avatar[0];
-      const reader = new FileReader();
-      avatar = await new Promise((resolve) => {
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    updateUser(
-      session?.user?.email ?? "",
-      avatar,
-      data.username,
-      data.name,
-      data.bio
-    );
-  };
 
   if (isLoading) {
     return (
@@ -117,7 +92,6 @@ export default function Settings({ session }: { session: Session | null }) {
             </Avatar>
             <input
               id="avatar"
-              {...register("avatar")}
               type="file"
               accept="image/*"
               className="hidden"
@@ -127,7 +101,14 @@ export default function Settings({ session }: { session: Session | null }) {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit((data) =>
+          updateUser(
+            session?.user?.email ?? "",
+            data.username,
+            data.name,
+            data.bio
+          )
+        )}
       >
         <div className="flex flex-col">
           <div
@@ -137,7 +118,7 @@ export default function Settings({ session }: { session: Session | null }) {
           >
             <p>Username</p>
             <p className="text-sm text-gray-500">
-              {usernameLength}/{USERNAME_MAX}
+              {watch("username")?.length ?? 0}/{USERNAME_MAX}
             </p>
           </div>
           <Input
@@ -157,7 +138,7 @@ export default function Settings({ session }: { session: Session | null }) {
           />
           {errors.username && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.username.message?.toString() ?? "An error occurred"}
+              {errors.username.message ?? "An error occurred"}
             </p>
           )}
         </div>
@@ -169,7 +150,7 @@ export default function Settings({ session }: { session: Session | null }) {
           >
             <p>Name</p>
             <p className="text-sm text-gray-500">
-              {nameLength}/{NAME_MAX}
+              {watch("name")?.length ?? 0}/{NAME_MAX}
             </p>
           </div>
           <Input
@@ -189,7 +170,7 @@ export default function Settings({ session }: { session: Session | null }) {
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.name.message?.toString() ?? "An error occurred"}
+              {errors.name.message ?? "An error occurred"}
             </p>
           )}
         </div>
@@ -201,7 +182,7 @@ export default function Settings({ session }: { session: Session | null }) {
           >
             <p>Bio</p>
             <p className="text-sm text-gray-500">
-              {bioLength}/{BIO_MAX}
+              {watch("bio")?.length ?? 0}/{BIO_MAX}
             </p>
           </div>
           <Textarea
@@ -216,7 +197,7 @@ export default function Settings({ session }: { session: Session | null }) {
           />
           {errors.bio && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.bio.message?.toString() ?? "An error occurred"}
+              {errors.bio.message ?? "An error occurred"}
             </p>
           )}
         </div>
