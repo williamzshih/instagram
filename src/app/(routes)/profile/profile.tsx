@@ -46,7 +46,7 @@ export default function Profile({ session }: { session: Session | null }) {
       <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
         <div className="p-1 bg-white rounded-full">
           <Avatar className="w-40 h-40">
-            <AvatarImage src="https://picsum.photos/200/300" />
+            <AvatarImage src="https://picsum.photos/200/300" alt="Avatar" />
           </Avatar>
         </div>
       </div>

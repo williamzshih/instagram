@@ -9,6 +9,7 @@ import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Session } from "next-auth";
 import { updateUser, getUser } from "@/actions";
+import { useState } from "react";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -17,6 +18,38 @@ const NAME_MAX = 20;
 const BIO_MAX = 100;
 
 export default function Settings({ session }: { session: Session | null }) {
+  const [file, setFile] = useState<File>();
+  const [url, setUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const uploadFile = async () => {
+    try {
+      if (!file) {
+        alert("No file selected");
+        return;
+      }
+
+      setUploading(true);
+      const data = new FormData();
+      data.set("file", file);
+      const uploadRequest = await fetch("/api/files", {
+        method: "POST",
+        body: data,
+      });
+      const signedUrl = await uploadRequest.json();
+      setUrl(signedUrl);
+      setUploading(false);
+    } catch (e) {
+      console.log(e);
+      setUploading(false);
+      alert("Trouble uploading file");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFile(e.target?.files?.[0]);
+  };
+
   const {
     register,
     handleSubmit,
@@ -82,7 +115,11 @@ export default function Settings({ session }: { session: Session | null }) {
           >
             <Avatar className="w-40 h-40 rounded-full relative group">
               <AvatarImage
-                src="https://picsum.photos/200/300"
+                src={
+                  url ||
+                  "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
+                }
+                alt="Avatar"
                 className="w-40 h-40 rounded-full group-hover:brightness-75"
               />
               <Upload
@@ -95,10 +132,14 @@ export default function Settings({ session }: { session: Session | null }) {
               type="file"
               accept="image/*"
               className="hidden"
+              onChange={handleChange}
             />
           </label>
         </div>
       </div>
+      <Button type="button" disabled={uploading} onClick={uploadFile}>
+        {uploading ? "Uploading..." : "Upload"}
+      </Button>
       <form
         className="flex flex-col gap-2 w-1/2"
         onSubmit={handleSubmit((data) =>
