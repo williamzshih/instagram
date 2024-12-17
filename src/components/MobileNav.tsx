@@ -4,7 +4,7 @@ import { House, Search, Plus, LayoutGrid, User } from "lucide-react";
 
 export default function MobileNav() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex items-center justify-center">
+    <div className="fixed bottom-0 left-0 right-0 flex items-center justify-center md:hidden">
       <div className="w-full p-2 flex items-center justify-evenly rounded-t-lg bg-white">
         <Button variant="ghost" size="icon">
           <Link href="/">
