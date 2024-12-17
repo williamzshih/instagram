@@ -4,6 +4,7 @@ import { prisma } from "@/utils/db";
 
 export async function updateUser(
   email: string,
+  avatar: string,
   username: string,
   name: string,
   bio: string
@@ -11,6 +12,7 @@ export async function updateUser(
   await prisma.user.update({
     where: { email },
     data: {
+      avatar,
       username,
       name,
       bio,

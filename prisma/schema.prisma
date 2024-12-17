@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
+  avatar   String @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   username String
   name     String
   bio      String

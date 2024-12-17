@@ -13,6 +13,7 @@ export default function Profile({ session }: { session: Session | null }) {
   const [selectedTab, setSelectedTab] = useState("posts");
   const [user, setUser] = useState<{
     id: string;
+    avatar: string;
     username: string;
     name: string;
     bio: string;
@@ -45,8 +46,15 @@ export default function Profile({ session }: { session: Session | null }) {
       </div>
       <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
         <div className="p-1 bg-white rounded-full">
-          <Avatar className="w-40 h-40">
-            <AvatarImage src="https://picsum.photos/200/300" alt="Avatar" />
+          <Avatar className="w-40 h-40 rounded-full">
+            <AvatarImage
+              src={
+                user?.avatar ??
+                "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
+              }
+              alt="Avatar"
+              className="w-40 h-40 rounded-full object-cover"
+            />
           </Avatar>
         </div>
       </div>

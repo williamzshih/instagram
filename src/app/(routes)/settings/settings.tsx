@@ -38,6 +38,7 @@ export default function Settings({ session }: { session: Session | null }) {
       });
       const url = await uploadRequest.json();
       setUrl(url);
+      setValue("avatar", url);
     } catch (e) {
       console.log(e);
       toast.error("Trouble uploading file");
@@ -49,11 +50,15 @@ export default function Settings({ session }: { session: Session | null }) {
     handleSubmit,
     formState: { errors, isLoading },
     watch,
+    setValue,
   } = useForm({
     mode: "onTouched",
     defaultValues: async () => {
       const user = await getUser(session?.user?.email ?? "");
       return {
+        avatar:
+          user?.avatar ??
+          "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
         username: user?.username ?? "",
         name: user?.name ?? "",
         bio: user?.bio ?? "",
@@ -110,7 +115,7 @@ export default function Settings({ session }: { session: Session | null }) {
             <Avatar className="w-40 h-40 rounded-full relative group">
               <AvatarImage
                 src={
-                  url ||
+                  watch("avatar") ||
                   "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                 }
                 alt="Avatar"
@@ -121,7 +126,7 @@ export default function Settings({ session }: { session: Session | null }) {
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
               />
             </Avatar>
-            <input
+            <Input
               id="avatar"
               type="file"
               accept="image/*"
@@ -136,6 +141,7 @@ export default function Settings({ session }: { session: Session | null }) {
         onSubmit={handleSubmit(async (data) => {
           await updateUser(
             session?.user?.email ?? "",
+            data.avatar,
             data.username,
             data.name,
             data.bio
