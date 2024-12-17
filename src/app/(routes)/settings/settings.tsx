@@ -36,18 +36,14 @@ export default function Settings({ session }: { session: Session | null }) {
         method: "POST",
         body: data,
       });
-      const signedUrl = await uploadRequest.json();
-      setUrl(signedUrl);
+      const url = await uploadRequest.json();
+      setUrl(url);
       setUploading(false);
     } catch (e) {
       console.log(e);
       setUploading(false);
       alert("Trouble uploading file");
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target?.files?.[0]);
   };
 
   const {
@@ -132,7 +128,7 @@ export default function Settings({ session }: { session: Session | null }) {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleChange}
+              onChange={(e) => setFile(e.target.files?.[0])}
             />
           </label>
         </div>

@@ -34,7 +34,7 @@ export default function Profile({ session }: { session: Session | null }) {
           <ChevronLeft />
         </Button>
         <div className="flex items-center justify-center gap-2">
-          <p className="text-2xl font-bold">{user?.username}</p>
+          <p className="text-2xl font-bold">{user?.username ?? ""}</p>
           <BadgeCheck />
         </div>
         <Button size="icon" variant="ghost">
@@ -50,8 +50,8 @@ export default function Profile({ session }: { session: Session | null }) {
           </Avatar>
         </div>
       </div>
-      <p className="text-xl font-bold">{user?.name}</p>
-      <p className="text-lg mb-4">{user?.bio}</p>
+      <p className="text-xl font-bold">{user?.name ?? ""}</p>
+      <p className="text-lg mb-4">{user?.bio ?? ""}</p>
       <div className="flex items-center justify-center gap-2 mb-4">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}
