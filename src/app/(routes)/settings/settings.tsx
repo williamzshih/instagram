@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { Session } from "next-auth";
 import { updateUser, getUser } from "@/utils/actions";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -18,12 +20,13 @@ const NAME_MAX = 20;
 const BIO_MAX = 100;
 
 export default function Settings({ session }: { session: Session | null }) {
+  const router = useRouter();
   const [url, setUrl] = useState("");
 
   const uploadFile = async (file: File | null | undefined) => {
     try {
       if (!file) {
-        alert("No file selected");
+        toast.error("No file selected");
         return;
       }
 
@@ -37,7 +40,7 @@ export default function Settings({ session }: { session: Session | null }) {
       setUrl(url);
     } catch (e) {
       console.log(e);
-      alert("Trouble uploading file");
+      toast.error("Trouble uploading file");
     }
   };
 
@@ -130,14 +133,16 @@ export default function Settings({ session }: { session: Session | null }) {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        onSubmit={handleSubmit((data) =>
-          updateUser(
+        onSubmit={handleSubmit(async (data) => {
+          await updateUser(
             session?.user?.email ?? "",
             data.username,
             data.name,
             data.bio
-          )
-        )}
+          );
+          toast.success("Settings updated");
+          router.push("/profile");
+        })}
       >
         <div className="flex flex-col">
           <div
