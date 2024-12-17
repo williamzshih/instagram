@@ -18,18 +18,15 @@ const NAME_MAX = 20;
 const BIO_MAX = 100;
 
 export default function Settings({ session }: { session: Session | null }) {
-  const [file, setFile] = useState<File>();
   const [url, setUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
 
-  const uploadFile = async () => {
+  const uploadFile = async (file: File | null | undefined) => {
     try {
       if (!file) {
         alert("No file selected");
         return;
       }
 
-      setUploading(true);
       const data = new FormData();
       data.set("file", file);
       const uploadRequest = await fetch("/api/files", {
@@ -38,10 +35,8 @@ export default function Settings({ session }: { session: Session | null }) {
       });
       const url = await uploadRequest.json();
       setUrl(url);
-      setUploading(false);
     } catch (e) {
       console.log(e);
-      setUploading(false);
       alert("Trouble uploading file");
     }
   };
@@ -116,7 +111,7 @@ export default function Settings({ session }: { session: Session | null }) {
                   "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                 }
                 alt="Avatar"
-                className="w-40 h-40 rounded-full group-hover:brightness-75"
+                className="w-40 h-40 rounded-full group-hover:brightness-75 object-cover"
               />
               <Upload
                 size={40}
@@ -128,14 +123,11 @@ export default function Settings({ session }: { session: Session | null }) {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0])}
+              onChange={(e) => uploadFile(e.target.files?.[0])}
             />
           </label>
         </div>
       </div>
-      <Button type="button" disabled={uploading} onClick={uploadFile}>
-        {uploading ? "Uploading..." : "Upload"}
-      </Button>
       <form
         className="flex flex-col gap-2 w-1/2"
         onSubmit={handleSubmit((data) =>
