@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/db";
+import { prisma } from "@/utils/db";
 
 export async function updateUser(
   email: string,

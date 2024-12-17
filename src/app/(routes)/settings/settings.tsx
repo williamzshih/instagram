@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Session } from "next-auth";
-import { updateUser, getUser } from "@/actions";
+import { updateUser, getUser } from "@/utils/actions";
 import { useState } from "react";
 
 const USERNAME_MIN = 3;

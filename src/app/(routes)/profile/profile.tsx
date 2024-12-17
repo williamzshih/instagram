@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
 import { Session } from "next-auth";
-import { getUser } from "@/actions";
+import { getUser } from "@/utils/actions";
 
 export default function Profile({ session }: { session: Session | null }) {
   const [selectedTab, setSelectedTab] = useState("posts");
