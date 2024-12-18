@@ -61,3 +61,24 @@ export async function createComment(comment: string, postId: string) {
     data: { comment, postId, email: session?.user?.email || "" },
   });
 }
+
+export async function createLike(postId: string) {
+  const session = await auth();
+  await prisma.like.create({
+    data: { email: session?.user?.email || "", postId },
+  });
+}
+
+export async function deleteLike(postId: string) {
+  const session = await auth();
+  await prisma.like.delete({
+    where: { email: session?.user?.email || "", postId },
+  });
+}
+
+export async function getLike(postId: string) {
+  const session = await auth();
+  return await prisma.like.findUnique({
+    where: { email: session?.user?.email || "", postId },
+  });
+}
