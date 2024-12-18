@@ -41,23 +41,16 @@ export async function createPost(image: string, caption: string) {
   ).id;
 }
 
-export async function getPosts() {
-  const session = await auth();
-  return await prisma.post.findMany({
-    where: { email: session?.user?.email || "" },
-    include: {
-      user: true,
-      comments: true,
-    },
-  });
-}
-
 export async function getPost(id: string) {
   return await prisma.post.findUnique({
     where: { id },
     include: {
       user: true,
-      comments: true,
+      comments: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
 }
@@ -66,15 +59,5 @@ export async function createComment(comment: string, postId: string) {
   const session = await auth();
   await prisma.comment.create({
     data: { comment, postId, email: session?.user?.email || "" },
-  });
-}
-
-export async function getComments(postId: string) {
-  return await prisma.comment.findMany({
-    where: { postId },
-    include: {
-      user: true,
-      post: true,
-    },
   });
 }

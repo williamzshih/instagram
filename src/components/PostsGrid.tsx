@@ -1,16 +1,8 @@
-import {
-  Post as PostType,
-  Comment as CommentType,
-  User as UserType,
-} from "@prisma/client";
+import { Post as PostType } from "@prisma/client";
 import Masonry from "react-masonry-css";
 import Link from "next/link";
 
-export default function PostsGrid({
-  posts,
-}: {
-  posts: (PostType & { user: UserType; comments: CommentType[] })[];
-}) {
+export default function PostsGrid({ posts }: { posts: PostType[] }) {
   return (
     <div className="w-11/12 mx-auto">
       <Masonry

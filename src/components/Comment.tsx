@@ -1,14 +1,10 @@
-import {
-  Comment as CommentType,
-  Post as PostType,
-  User as UserType,
-} from "@prisma/client";
+import { Comment as CommentType, User as UserType } from "@prisma/client";
 import { Avatar, AvatarImage } from "./ui/avatar";
 
 export default async function Comment({
   comment,
 }: {
-  comment: CommentType & { user: UserType; post: PostType };
+  comment: CommentType & { user: UserType };
 }) {
   return (
     <div className="flex flex-col">

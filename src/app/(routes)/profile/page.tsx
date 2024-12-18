@@ -6,7 +6,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
-import { getPosts, getUser } from "@/utils/actions";
+import { getUser } from "@/utils/actions";
 import {
   Post as PostType,
   User as UserType,
@@ -18,15 +18,10 @@ export default function Profile() {
   const [user, setUser] = useState<
     (UserType & { posts: PostType[]; comments: CommentType[] }) | null
   >(null);
-  const [posts, setPosts] = useState<
-    (PostType & { user: UserType; comments: CommentType[] })[]
-  >([]);
 
   useEffect(() => {
     const fetchUser = async () => setUser(await getUser());
-    const fetchPosts = async () => setPosts(await getPosts());
     fetchUser();
-    fetchPosts();
   }, []);
 
   return (
@@ -77,7 +72,7 @@ export default function Profile() {
           Highlights
         </Button>
       </div>
-      {selectedTab === "posts" && <PostsGrid posts={posts} />}
+      {selectedTab === "posts" && <PostsGrid posts={user?.posts || []} />}
     </div>
   );
 }
