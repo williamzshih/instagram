@@ -27,7 +27,6 @@ export async function getUser() {
     where: { email: session?.user?.email || "" },
     include: {
       posts: true,
-      comments: true,
     },
   });
 }
