@@ -1,7 +1,7 @@
 import { Comment as CommentType, User as UserType } from "@prisma/client";
 import { Avatar, AvatarImage } from "./ui/avatar";
 
-export default async function Comment({
+export default function Comment({
   comment,
 }: {
   comment: CommentType & { user: UserType };
