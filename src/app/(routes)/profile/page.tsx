@@ -24,6 +24,14 @@ export default function Profile() {
     fetchUser();
   }, []);
 
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        User not found
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="flex items-center justify-between w-full mb-4">
@@ -31,7 +39,7 @@ export default function Profile() {
           <ChevronLeft />
         </Button>
         <div className="flex items-center justify-center gap-2">
-          <p className="text-2xl font-bold">{user?.username || ""}</p>
+          <p className="text-2xl font-bold">{user.username}</p>
           <BadgeCheck />
         </div>
         <Button size="icon" variant="ghost">
@@ -44,18 +52,15 @@ export default function Profile() {
         <div className="p-1 bg-white rounded-full">
           <Avatar className="w-40 h-40 rounded-full">
             <AvatarImage
-              src={
-                user?.avatar ||
-                "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
-              }
+              src={user.avatar}
               alt="Avatar"
               className="w-40 h-40 rounded-full object-cover"
             />
           </Avatar>
         </div>
       </div>
-      <p className="text-xl font-bold">{user?.name || ""}</p>
-      <p className="text-lg mb-4">{user?.bio || ""}</p>
+      <p className="text-xl font-bold">{user.name}</p>
+      <p className="text-lg mb-4">{user.bio}</p>
       <div className="flex items-center justify-center gap-2 mb-4">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}
@@ -72,7 +77,7 @@ export default function Profile() {
           Highlights
         </Button>
       </div>
-      {selectedTab === "posts" && <PostsGrid posts={user?.posts || []} />}
+      {selectedTab === "posts" && <PostsGrid posts={user.posts} />}
     </div>
   );
 }

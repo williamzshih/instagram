@@ -21,10 +21,10 @@ export async function updateUser(
   });
 }
 
-export async function getUser(email?: string) {
+export async function getUser() {
   const session = await auth();
   return await prisma.user.findUnique({
-    where: { email: email || session?.user?.email || "" },
+    where: { email: session?.user?.email || "" },
     include: {
       posts: true,
       comments: true,
