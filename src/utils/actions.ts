@@ -32,7 +32,7 @@ export async function createPost(image: string, caption: string) {
   const session = await auth();
   return (
     await prisma.post.create({
-      data: { email: session?.user?.email ?? "", image, caption },
+      data: { image, caption, email: session?.user?.email ?? "" },
     })
   ).id;
 }
@@ -47,5 +47,12 @@ export async function getPosts() {
 export async function getPost(id: string) {
   return await prisma.post.findUnique({
     where: { id },
+  });
+}
+
+export async function createComment(comment: string) {
+  const session = await auth();
+  await prisma.comment.create({
+    data: { comment, email: session?.user?.email ?? "" },
   });
 }

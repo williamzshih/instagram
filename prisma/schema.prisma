@@ -22,3 +22,9 @@ model Post {
   caption String
   email   String @unique
 }
+
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment String
+  email   String @unique
+}
