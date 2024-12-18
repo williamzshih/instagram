@@ -3,18 +3,18 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/actions";
+import Image from "next/image";
 
 const CAPTION_MAX = 1000;
 
 export default function Create() {
   const router = useRouter();
-  const [url, setUrl] = useState("");
 
   const {
     register,
@@ -44,7 +44,6 @@ export default function Create() {
         body: data,
       });
       const url = await uploadRequest.json();
-      setUrl(url);
       setValue("image", url);
     } catch (e) {
       console.log(e);
@@ -53,45 +52,45 @@ export default function Create() {
   };
 
   return (
-    <form
-      className="flex flex-col items-center justify-center p-4"
-      onSubmit={handleSubmit(async (data) => {
-        await createPost(data.image, data.caption);
-        toast.success("Post created");
-        router.push("/");
-      })}
-    >
-      <div className="flex items-center justify-around w-full">
-        <div className="w-96 h-96 rounded-lg bg-gray-200 flex items-center justify-center">
-          <img
+    <div className="flex flex-col items-center justify-center p-4">
+      <div className="w-96 h-96 rounded-lg bg-gray-200 flex items-center justify-center mb-4">
+        <Label
+          htmlFor="upload"
+          className="w-96 h-96 rounded-lg relative group block cursor-pointer"
+        >
+          <Image
             src={watch("image")}
             alt="Uploaded image"
-            className="w-96 h-96 rounded-lg object-cover"
+            className="w-96 h-96 rounded-lg group-hover:brightness-75 object-cover"
           />
-          <label
-            htmlFor="upload"
-            className="w-96 h-96 rounded-lg relative group block cursor-pointer"
-          >
-            <Upload
-              size={40}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-500"
-            />
-            <Input
-              id="upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => uploadFile(e.target.files?.[0])}
-            />
-          </label>
-        </div>
+          <Upload
+            size={40}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-500"
+          />
+          <Input
+            id="upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => uploadFile(e.target.files?.[0])}
+          />
+        </Label>
+      </div>
+      <form
+        className="flex flex-col gap-2 w-1/2"
+        onSubmit={handleSubmit(async (data) => {
+          await createPost(data.image, data.caption);
+          toast.success("Post created");
+          router.push("/");
+        })}
+      >
         <div className="flex flex-col">
           <div
             className={`flex items-center justify-between ${
               errors.caption ? "text-red-500" : ""
             }`}
           >
-            <p>Caption</p>
+            <Label>Caption</Label>
             <p className="text-sm text-gray-500">
               {watch("caption")?.length ?? 0}/{CAPTION_MAX}
             </p>
@@ -112,10 +111,10 @@ export default function Create() {
             </p>
           )}
         </div>
-      </div>
-      <Button className="mt-4 w-fit" type="submit">
-        Create post
-      </Button>
-    </form>
+        <Button className="mt-4 w-fit" type="submit">
+          Create post
+        </Button>
+      </form>
+    </div>
   );
 }

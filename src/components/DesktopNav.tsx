@@ -11,10 +11,10 @@ export default function DesktopNav() {
       <Button variant="ghost" className="w-fit p-2">
         <Link href="/">
           <div className="flex items-center gap-2">
-            <Image src={igLogo} alt="Instagram Logo" width={30} height={30} />
+            <Image src={igLogo} alt="Instagram logo" width={30} height={30} />
             <Image
               src={igText}
-              alt="Instagram Text"
+              alt="Instagram text"
               width={100}
               height={100}
               className="mt-1"

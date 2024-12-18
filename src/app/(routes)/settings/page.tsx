@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { updateUser, getUser } from "@/utils/actions";
-import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +20,6 @@ const BIO_MAX = 100;
 
 export default function Settings() {
   const router = useRouter();
-  const [url, setUrl] = useState("");
 
   const {
     register,
@@ -57,7 +56,6 @@ export default function Settings() {
         body: data,
       });
       const url = await uploadRequest.json();
-      setUrl(url);
       setValue("avatar", url);
     } catch (e) {
       console.log(e);
@@ -107,7 +105,7 @@ export default function Settings() {
       <p className="text-2xl font-bold mb-4">Settings</p>
       <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
         <div className="p-1 bg-white rounded-full">
-          <label
+          <Label
             htmlFor="avatar"
             className="w-40 h-40 rounded-full block cursor-pointer"
           >
@@ -132,7 +130,7 @@ export default function Settings() {
               className="hidden"
               onChange={(e) => uploadFile(e.target.files?.[0])}
             />
-          </label>
+          </Label>
         </div>
       </div>
       <form
@@ -149,7 +147,7 @@ export default function Settings() {
               errors.username ? "text-red-500" : ""
             }`}
           >
-            <p>Username</p>
+            <Label>Username</Label>
             <p className="text-sm text-gray-500">
               {watch("username")?.length ?? 0}/{USERNAME_MAX}
             </p>
@@ -181,7 +179,7 @@ export default function Settings() {
               errors.name ? "text-red-500" : ""
             }`}
           >
-            <p>Name</p>
+            <Label>Name</Label>
             <p className="text-sm text-gray-500">
               {watch("name")?.length ?? 0}/{NAME_MAX}
             </p>
@@ -213,7 +211,7 @@ export default function Settings() {
               errors.bio ? "text-red-500" : ""
             }`}
           >
-            <p>Bio</p>
+            <Label>Bio</Label>
             <p className="text-sm text-gray-500">
               {watch("bio")?.length ?? 0}/{BIO_MAX}
             </p>
