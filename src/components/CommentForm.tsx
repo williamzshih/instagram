@@ -45,9 +45,11 @@ export default function CommentForm() {
           </p>
         )}
       </div>
-      <Button className="mt-4 w-fit" type="submit">
-        Post comment
-      </Button>
+      <div className="flex justify-end">
+        <Button className="mt-4 w-fit" type="submit">
+          Post comment
+        </Button>
+      </div>
     </form>
   );
 }
