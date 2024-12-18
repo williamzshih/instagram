@@ -6,22 +6,19 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
-import { getUser } from "@/utils/actions";
+import { getPosts, getUser } from "@/utils/actions";
+import { Post, User } from "@prisma/client";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [user, setUser] = useState<{
-    id: string;
-    avatar: string;
-    username: string;
-    name: string;
-    bio: string;
-    email: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchUser = async () => setUser(await getUser());
+    const fetchPosts = async () => setPosts(await getPosts());
     fetchUser();
+    fetchPosts();
   }, []);
 
   return (
@@ -72,7 +69,7 @@ export default function Profile() {
           Highlights
         </Button>
       </div>
-      {selectedTab === "posts" && <PostsGrid />}
+      {selectedTab === "posts" && <PostsGrid posts={posts} />}
     </div>
-  );
+  );  
 }

@@ -34,3 +34,10 @@ export async function createPost(image: string, caption: string) {
     data: { email: session?.user?.email ?? "", image, caption },
   });
 }
+
+export async function getPosts() {
+  const session = await auth();
+  return await prisma.post.findMany({
+    where: { email: session?.user?.email ?? "" },
+  });
+}
