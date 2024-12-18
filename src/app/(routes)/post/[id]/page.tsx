@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getPost } from "@/utils/actions";
+import { getLike, getPost, toggleLike } from "@/utils/actions";
 import CommentForm from "@/components/CommentForm";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
@@ -11,10 +11,10 @@ import {
   Post as PostType,
   User as UserType,
   Comment as CommentType,
+  Like as LikeType,
 } from "@prisma/client";
 
 export default function Post({ params }: { params: { id: string } }) {
-  const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [post, setPost] = useState<
     | (PostType & {
@@ -23,10 +23,13 @@ export default function Post({ params }: { params: { id: string } }) {
       })
     | null
   >(null);
+  const [like, setLike] = useState<LikeType | null>(null);
 
   useEffect(() => {
     const fetchPost = async () => setPost(await getPost(params.id));
     fetchPost();
+    const fetchLike = async () => setLike(await getLike(params.id));
+    fetchLike();
   }, []);
 
   if (!post) {
@@ -50,10 +53,10 @@ export default function Post({ params }: { params: { id: string } }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setLiked(!liked)}
+              onClick={async () => setLike(await toggleLike(post.id))}
             >
-              {liked ? (
-                <Heart size={32} absoluteStrokeWidth fill="red" stroke="red" />
+              {like ? (
+                <Heart size={32} absoluteStrokeWidth stroke="red" fill="red" />
               ) : (
                 <Heart size={32} absoluteStrokeWidth />
               )}
