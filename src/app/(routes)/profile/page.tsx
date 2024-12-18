@@ -7,12 +7,20 @@ import { useEffect, useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
 import { getPosts, getUser } from "@/utils/actions";
-import { Post, User } from "@prisma/client";
+import {
+  Post as PostType,
+  User as UserType,
+  Comment as CommentType,
+} from "@prisma/client";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [user, setUser] = useState<
+    (UserType & { posts: PostType[]; comments: CommentType[] }) | null
+  >(null);
+  const [posts, setPosts] = useState<
+    (PostType & { user: UserType; comments: CommentType[] })[]
+  >([]);
 
   useEffect(() => {
     const fetchUser = async () => setUser(await getUser());
@@ -28,7 +36,7 @@ export default function Profile() {
           <ChevronLeft />
         </Button>
         <div className="flex items-center justify-center gap-2">
-          <p className="text-2xl font-bold">{user?.username ?? ""}</p>
+          <p className="text-2xl font-bold">{user?.username || ""}</p>
           <BadgeCheck />
         </div>
         <Button size="icon" variant="ghost">
@@ -42,7 +50,7 @@ export default function Profile() {
           <Avatar className="w-40 h-40 rounded-full">
             <AvatarImage
               src={
-                user?.avatar ??
+                user?.avatar ||
                 "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
               }
               alt="Avatar"
@@ -51,8 +59,8 @@ export default function Profile() {
           </Avatar>
         </div>
       </div>
-      <p className="text-xl font-bold">{user?.name ?? ""}</p>
-      <p className="text-lg mb-4">{user?.bio ?? ""}</p>
+      <p className="text-xl font-bold">{user?.name || ""}</p>
+      <p className="text-lg mb-4">{user?.bio || ""}</p>
       <div className="flex items-center justify-center gap-2 mb-4">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}
@@ -71,5 +79,5 @@ export default function Profile() {
       </div>
       {selectedTab === "posts" && <PostsGrid posts={posts} />}
     </div>
-  );  
+  );
 }

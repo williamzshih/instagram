@@ -97,7 +97,7 @@ export default function Create() {
           >
             <Label>Caption</Label>
             <p className="text-sm text-gray-500">
-              {watch("caption")?.length ?? 0}/{CAPTION_MAX}
+              {watch("caption")?.length || 0}/{CAPTION_MAX}
             </p>
           </div>
           <Textarea
@@ -112,7 +112,7 @@ export default function Create() {
           />
           {errors.caption && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.caption.message ?? "An error occurred"}
+              {errors.caption.message || "An error occurred"}
             </p>
           )}
         </div>

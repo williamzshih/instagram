@@ -47,7 +47,7 @@ export default function CommentForm({ postId }: { postId: string }) {
         />
         {errors.comment && (
           <p className="text-red-500 text-sm mt-1">
-            {errors.comment.message ?? "An error occurred"}
+            {errors.comment.message || "An error occurred"}
           </p>
         )}
       </div>

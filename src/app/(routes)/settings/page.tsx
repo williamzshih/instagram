@@ -33,11 +33,11 @@ export default function Settings() {
       const user = await getUser();
       return {
         avatar:
-          user?.avatar ??
+          user?.avatar ||
           "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
-        username: user?.username ?? "",
-        name: user?.name ?? "",
-        bio: user?.bio ?? "",
+        username: user?.username || "",
+        name: user?.name || "",
+        bio: user?.bio || "",
       };
     },
   });
@@ -149,7 +149,7 @@ export default function Settings() {
           >
             <Label>Username</Label>
             <p className="text-sm text-gray-500">
-              {watch("username")?.length ?? 0}/{USERNAME_MAX}
+              {watch("username")?.length || 0}/{USERNAME_MAX}
             </p>
           </div>
           <Input
@@ -169,7 +169,7 @@ export default function Settings() {
           />
           {errors.username && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.username.message ?? "An error occurred"}
+              {errors.username.message || "An error occurred"}
             </p>
           )}
         </div>
@@ -181,7 +181,7 @@ export default function Settings() {
           >
             <Label>Name</Label>
             <p className="text-sm text-gray-500">
-              {watch("name")?.length ?? 0}/{NAME_MAX}
+              {watch("name")?.length || 0}/{NAME_MAX}
             </p>
           </div>
           <Input
@@ -201,7 +201,7 @@ export default function Settings() {
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.name.message ?? "An error occurred"}
+              {errors.name.message || "An error occurred"}
             </p>
           )}
         </div>
@@ -213,7 +213,7 @@ export default function Settings() {
           >
             <Label>Bio</Label>
             <p className="text-sm text-gray-500">
-              {watch("bio")?.length ?? 0}/{BIO_MAX}
+              {watch("bio")?.length || 0}/{BIO_MAX}
             </p>
           </div>
           <Textarea
@@ -228,7 +228,7 @@ export default function Settings() {
           />
           {errors.bio && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.bio.message ?? "An error occurred"}
+              {errors.bio.message || "An error occurred"}
             </p>
           )}
         </div>
