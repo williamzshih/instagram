@@ -1,6 +1,6 @@
 import { Post } from "@prisma/client";
 import Masonry from "react-masonry-css";
-import Image from "next/image";
+import Link from "next/link";
 
 export default function PostsGrid({ posts }: { posts: Post[] }) {
   return (
@@ -16,9 +16,9 @@ export default function PostsGrid({ posts }: { posts: Post[] }) {
         columnClassName="pl-4"
       >
         {posts.map((post) => (
-          <div className="mb-4">
+          <Link href={`/post/${post.id}`} className="mb-4">
             <img src={post.image} alt="Post" />
-          </div>
+          </Link>
         ))}
       </Masonry>
     </div>

@@ -30,9 +30,11 @@ export async function getUser() {
 
 export async function createPost(image: string, caption: string) {
   const session = await auth();
-  await prisma.post.create({
-    data: { email: session?.user?.email ?? "", image, caption },
-  });
+  return (
+    await prisma.post.create({
+      data: { email: session?.user?.email ?? "", image, caption },
+    })
+  ).id;
 }
 
 export async function getPosts() {
