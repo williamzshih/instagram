@@ -29,9 +29,12 @@ export default async function Post({ params }: { params: { id: string } }) {
               <p className="text-sm text-gray-500">@{user?.username ?? ""}</p>
             </div>
           </div>
-          <p className="bg-gray-100 p-2 rounded-lg mb-4">
+          <p className="bg-gray-100 p-2 rounded-lg">
             {post?.caption ?? ""}
           </p>
+          <div className="text-sm text-gray-500 text-right mb-4">
+            {post?.createdAt.toLocaleDateString() ?? ""}
+          </div>
           <div className="w-full h-px bg-gray-200 mb-4"></div>
           {comments.map((comment) => (
             <Comment comment={comment} />

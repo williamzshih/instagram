@@ -23,7 +23,10 @@ export default async function Comment({ comment }: { comment: CommentType }) {
           <p className="text-sm text-gray-500">@{user?.username ?? ""}</p>
         </div>
       </div>
-      <p className="bg-gray-100 p-2 rounded-lg mb-4">{comment.comment}</p>
+      <p className="bg-gray-100 p-2 rounded-lg">{comment.comment}</p>
+      <div className="text-sm text-gray-500 text-right">
+        {comment.createdAt.toLocaleDateString()}
+      </div>
     </div>
   );
 }
