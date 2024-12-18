@@ -50,9 +50,9 @@ export async function getPost(id: string) {
   });
 }
 
-export async function createComment(comment: string) {
+export async function createComment(comment: string, postId: string) {
   const session = await auth();
   await prisma.comment.create({
-    data: { comment, email: session?.user?.email ?? "" },
+    data: { comment, postId, email: session?.user?.email ?? "" },
   });
 }

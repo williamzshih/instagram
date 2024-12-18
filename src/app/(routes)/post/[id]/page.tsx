@@ -42,7 +42,7 @@ export default async function Post({ params }: { params: { id: string } }) {
                 className="w-12 h-12 rounded-full object-cover"
               />
             </Avatar>
-            <CommentForm />
+            <CommentForm postId={post?.id ?? ""} />
           </div>
         </div>
       </div>

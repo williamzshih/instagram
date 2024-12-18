@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const COMMENT_MAX = 1000;
 
-export default function CommentForm() {
+export default function CommentForm({ postId }: { postId: string }) {
   const {
     register,
     handleSubmit,
@@ -23,7 +23,7 @@ export default function CommentForm() {
     <form
       className="flex flex-col gap-2 w-full"
       onSubmit={handleSubmit(async (data) => {
-        await createComment(data.comment);
+        await createComment(data.comment, postId);
         toast.success("Comment created");
       })}
     >
