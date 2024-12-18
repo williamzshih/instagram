@@ -108,7 +108,7 @@ export default function Create() {
               },
             })}
             placeholder="Caption"
-            className={`h-20 ${errors.caption ? "border-red-500" : ""}`}
+            className={`h-52 ${errors.caption ? "border-red-500" : ""}`}
           />
           {errors.caption && (
             <p className="text-red-500 text-sm mt-1">
