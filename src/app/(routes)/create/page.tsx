@@ -53,6 +53,7 @@ export default function Create() {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
+      <p className="text-2xl font-bold mb-4">Create Post</p>
       <div className="w-96 h-96 rounded-lg bg-gray-200 flex items-center justify-center mb-4">
         <Label
           htmlFor="upload"
@@ -60,12 +61,16 @@ export default function Create() {
         >
           <Image
             src={watch("image")}
-            alt="Uploaded image"
+            alt=""
             className="w-96 h-96 rounded-lg group-hover:brightness-75 object-cover"
+            width={384}
+            height={384}
           />
           <Upload
             size={40}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-500"
+            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 ${
+              watch("image") ? "text-white" : "text-gray-500"
+            }`}
           />
           <Input
             id="upload"

@@ -102,7 +102,7 @@ export default function Settings() {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <p className="text-2xl font-bold mb-4">Settings</p>
+      <p className="text-2xl font-bold mb-4">Profile Settings</p>
       <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
         <div className="p-1 bg-white rounded-full">
           <Label
