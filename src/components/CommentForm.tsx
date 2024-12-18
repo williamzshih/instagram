@@ -5,14 +5,18 @@ import { createComment } from "@/utils/actions";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const COMMENT_MAX = 1000;
 
 export default function CommentForm({ postId }: { postId: string }) {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
       comment: "",
@@ -25,6 +29,8 @@ export default function CommentForm({ postId }: { postId: string }) {
       onSubmit={handleSubmit(async (data) => {
         await createComment(data.comment, postId);
         toast.success("Comment created");
+        reset();
+        router.refresh();
       })}
     >
       <div className="flex flex-col">

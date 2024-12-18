@@ -56,3 +56,9 @@ export async function createComment(comment: string, postId: string) {
     data: { comment, postId, email: session?.user?.email ?? "" },
   });
 }
+
+export async function getComments(postId: string) {
+  return await prisma.comment.findMany({
+    where: { postId },
+  });
+}

@@ -8,14 +8,14 @@ export default async function Comment({ comment }: { comment: CommentType }) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 mb-4">
-        <Avatar className="w-16 h-16 rounded-full">
+        <Avatar className="w-12 h-12 rounded-full">
           <AvatarImage
             src={
               user?.avatar ??
               "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
             }
             alt="Avatar"
-            className="w-16 h-16 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover"
           />
         </Avatar>
         <div className="flex flex-col items-center justify-center">

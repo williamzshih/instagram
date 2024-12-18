@@ -1,10 +1,12 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getPost, getUser } from "@/utils/actions";
+import { getPost, getUser, getComments } from "@/utils/actions";
 import CommentForm from "@/components/CommentForm";
+import Comment from "@/components/Comment";
 
 export default async function Post({ params }: { params: { id: string } }) {
   const post = await getPost(params.id);
   const user = await getUser(post?.email ?? "");
+  const comments = await getComments(params.id);
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
@@ -31,6 +33,9 @@ export default async function Post({ params }: { params: { id: string } }) {
             {post?.caption ?? ""}
           </p>
           <div className="w-full h-px bg-gray-200 mb-4"></div>
+          {comments.map((comment) => (
+            <Comment comment={comment} />
+          ))}
           <div className="flex justify-center gap-2">
             <Avatar className="w-12 h-12 rounded-full">
               <AvatarImage
@@ -42,7 +47,7 @@ export default async function Post({ params }: { params: { id: string } }) {
                 className="w-12 h-12 rounded-full object-cover"
               />
             </Avatar>
-            <CommentForm postId={post?.id ?? ""} />
+            <CommentForm postId={params.id} />
           </div>
         </div>
       </div>
