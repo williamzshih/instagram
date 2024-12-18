@@ -50,6 +50,7 @@ export async function getPost(id: string) {
           user: true,
         },
       },
+      likes: true,
     },
   });
 }

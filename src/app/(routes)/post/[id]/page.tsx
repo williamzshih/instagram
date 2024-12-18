@@ -20,6 +20,7 @@ export default function Post({ params }: { params: { id: string } }) {
     | (PostType & {
         user: UserType;
         comments: (CommentType & { user: UserType })[];
+        likes: LikeType[];
       })
     | null
   >(null);
@@ -30,7 +31,7 @@ export default function Post({ params }: { params: { id: string } }) {
     fetchPost();
     const fetchLike = async () => setLike(await getLike(params.id));
     fetchLike();
-  }, []);
+  }, [like]);
 
   if (!post) {
     return (
@@ -50,17 +51,20 @@ export default function Post({ params }: { params: { id: string } }) {
             className="rounded-lg object-cover mb-4"
           />
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={async () => setLike(await toggleLike(post.id))}
-            >
-              {like ? (
-                <Heart size={32} absoluteStrokeWidth stroke="red" fill="red" />
-              ) : (
-                <Heart size={32} absoluteStrokeWidth />
-              )}
-            </Button>
+            <div className="flex items-center justify-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={async () => setLike(await toggleLike(post.id))}
+              >
+                {like ? (
+                  <Heart size={32} absoluteStrokeWidth stroke="red" fill="red" />
+                ) : (
+                  <Heart size={32} absoluteStrokeWidth />
+                )}
+              </Button>
+              <p>{post.likes.length}</p>
+            </div>
             <Button
               variant="ghost"
               size="icon"
