@@ -1,12 +1,33 @@
+"use client";
+
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getPost } from "@/utils/actions";
 import CommentForm from "@/components/CommentForm";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import {
+  Post as PostType,
+  User as UserType,
+  Comment as CommentType,
+} from "@prisma/client";
 
-export default async function Post({ params }: { params: { id: string } }) {
-  const post = await getPost(params.id);
+export default function Post({ params }: { params: { id: string } }) {
+  const [liked, setLiked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [post, setPost] = useState<
+    | (PostType & {
+        user: UserType;
+        comments: (CommentType & { user: UserType })[];
+      })
+    | null
+  >(null);
+
+  useEffect(() => {
+    const fetchPost = async () => setPost(await getPost(params.id));
+    fetchPost();
+  }, []);
 
   if (!post) {
     return (
@@ -26,11 +47,32 @@ export default async function Post({ params }: { params: { id: string } }) {
             className="rounded-lg object-cover mb-4"
           />
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon">
-              <Heart size={32} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLiked(!liked)}
+            >
+              {liked ? (
+                <Heart size={32} absoluteStrokeWidth fill="red" stroke="red" />
+              ) : (
+                <Heart size={32} absoluteStrokeWidth />
+              )}
             </Button>
-            <Button variant="ghost" size="icon">
-              <Bookmark size={32} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setBookmarked(!bookmarked)}
+            >
+              {bookmarked ? (
+                <Bookmark
+                  size={32}
+                  absoluteStrokeWidth
+                  fill="black"
+                  stroke="black"
+                />
+              ) : (
+                <Bookmark size={32} absoluteStrokeWidth />
+              )}
             </Button>
           </div>
         </div>
