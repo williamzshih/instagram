@@ -21,10 +21,10 @@ export async function updateUser(
   });
 }
 
-export async function getUser() {
+export async function getUser(email?: string) {
   const session = await auth();
   return await prisma.user.findUnique({
-    where: { email: session?.user?.email ?? "" },
+    where: { email: email ?? session?.user?.email ?? "" },
   });
 }
 
@@ -41,5 +41,11 @@ export async function getPosts() {
   const session = await auth();
   return await prisma.post.findMany({
     where: { email: session?.user?.email ?? "" },
+  });
+}
+
+export async function getPost(id: string) {
+  return await prisma.post.findUnique({
+    where: { id },
   });
 }
