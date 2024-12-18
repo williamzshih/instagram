@@ -62,7 +62,7 @@ export default function Create() {
           <Image
             src={watch("image")}
             alt=""
-            className="w-96 h-96 rounded-lg group-hover:brightness-75 object-cover"
+            className="w-96 h-96 rounded-lg object-cover group-hover:brightness-75"
             width={384}
             height={384}
           />
