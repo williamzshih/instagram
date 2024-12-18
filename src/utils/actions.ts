@@ -1,16 +1,17 @@
 "use server";
 
 import { prisma } from "@/utils/db";
+import { auth } from "@/auth";
 
 export async function updateUser(
-  email: string,
   avatar: string,
   username: string,
   name: string,
   bio: string
 ) {
+  const session = await auth();
   await prisma.user.update({
-    where: { email },
+    where: { email: session?.user?.email ?? "" },
     data: {
       avatar,
       username,
@@ -20,7 +21,16 @@ export async function updateUser(
   });
 }
 
-export async function getUser(email: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
-  return user;
+export async function getUser() {
+  const session = await auth();
+  return await prisma.user.findUnique({
+    where: { email: session?.user?.email ?? "" },
+  });
+}
+
+export async function createPost(image: string, caption: string) {
+  const session = await auth();
+  await prisma.post.create({
+    data: { email: session?.user?.email ?? "", image, caption },
+  });
 }

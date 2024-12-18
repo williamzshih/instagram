@@ -5,26 +5,69 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createPost } from "@/utils/actions";
 
 const CAPTION_MAX = 1000;
 
 export default function Create() {
+  const router = useRouter();
+  const [url, setUrl] = useState("");
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm({
     mode: "onTouched",
     defaultValues: {
+      image: "",
       caption: "",
     },
   });
 
+  const uploadFile = async (file: File | null | undefined) => {
+    try {
+      if (!file) {
+        toast.error("No file selected");
+        return;
+      }
+
+      const data = new FormData();
+      data.set("file", file);
+      const uploadRequest = await fetch("/api/files", {
+        method: "POST",
+        body: data,
+      });
+      const url = await uploadRequest.json();
+      setUrl(url);
+      setValue("image", url);
+    } catch (e) {
+      console.log(e);
+      toast.error("Trouble uploading file");
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center p-4">
+    <form
+      className="flex flex-col items-center justify-center p-4"
+      onSubmit={handleSubmit(async (data) => {
+        await createPost(data.image, data.caption);
+        toast.success("Post created");
+        router.push("/");
+      })}
+    >
       <div className="flex items-center justify-around w-full">
         <div className="w-96 h-96 rounded-lg bg-gray-200 flex items-center justify-center">
+          <img
+            src={watch("image")}
+            alt="Uploaded image"
+            className="w-96 h-96 rounded-lg object-cover"
+          />
           <label
             htmlFor="upload"
             className="w-96 h-96 rounded-lg relative group block cursor-pointer"
@@ -38,6 +81,7 @@ export default function Create() {
               type="file"
               accept="image/*"
               className="hidden"
+              onChange={(e) => uploadFile(e.target.files?.[0])}
             />
           </label>
         </div>
@@ -70,8 +114,8 @@ export default function Create() {
         </div>
       </div>
       <Button className="mt-4 w-fit" type="submit">
-        Create
+        Create post
       </Button>
-    </div>
+    </form>
   );
 }
