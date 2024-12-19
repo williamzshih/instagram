@@ -9,49 +9,49 @@ datasource db {
 
 model User {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
   avatar    String    @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   username  String
   name      String
   bio       String
-  email     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
   posts     Post[]
   comments  Comment[]
   likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Post {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
   image     String
   caption   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
   user      User      @relation(fields: [email], references: [email])
-  email     String    @unique
   comments  Comment[]
   likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Comment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  postId    String   @db.ObjectId
   comment   String
+  user      User     @relation(fields: [email], references: [email])
+  post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    String   @db.ObjectId
-  user      User     @relation(fields: [email], references: [email])
-  email     String   @unique
 }
 
 model Like {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  postId    String   @db.ObjectId
+  user      User     @relation(fields: [email], references: [email])
+  post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [email], references: [email])
-  email     String   @unique
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    String   @db.ObjectId
 
   @@unique([email, postId])
 }
