@@ -1,8 +1,9 @@
 "use server";
 
-import { prisma } from "@/utils/db";
+import { PrismaClient, Like as LikeType } from "@prisma/client";
 import { auth } from "@/auth";
-import { Like as LikeType } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function getEmail() {
   const session = await auth();
@@ -61,7 +62,7 @@ export async function createPost(image: string, caption: string) {
     const email = await getEmail();
     return (
       await prisma.post.create({
-        data: { image, caption, email },
+        data: { email, image, caption },
       })
     ).id;
   } catch (error) {
@@ -96,11 +97,11 @@ export async function getPost(id: string) {
   }
 }
 
-export async function createComment(comment: string, postId: string) {
+export async function createComment(postId: string, comment: string) {
   try {
     const email = await getEmail();
     await prisma.comment.create({
-      data: { comment, postId, email },
+      data: { email, postId, comment },
     });
   } catch (error) {
     console.error("Error creating comment:", error);

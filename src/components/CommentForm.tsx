@@ -6,11 +6,25 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 const COMMENT_MAX = 1000;
 
 export default function CommentForm({ postId }: { postId: string }) {
   const router = useRouter();
+
+  const { mutate } = useMutation({
+    mutationFn: (comment: string) => createComment(postId, comment),
+    onError: (err) => {
+      console.log("Error creating comment:", err);
+      toast.error("Error creating comment");
+    },
+    onSuccess: () => {
+      toast.success("Comment created");
+      reset();
+      router.refresh();
+    },
+  });
 
   const {
     register,
@@ -26,17 +40,7 @@ export default function CommentForm({ postId }: { postId: string }) {
   return (
     <form
       className="flex flex-col gap-2 w-full"
-      onSubmit={handleSubmit(async (data) => {
-        try {
-          await createComment(data.comment, postId);
-          toast.success("Comment created");
-          reset();
-          router.refresh();
-        } catch (error) {
-          console.error("Error creating comment:", error);
-          toast.error("Error creating comment");
-        }
-      })}
+      onSubmit={handleSubmit(({ comment }) => mutate(comment))}
     >
       <div className="flex flex-col">
         <Textarea

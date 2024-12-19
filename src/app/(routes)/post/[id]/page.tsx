@@ -20,26 +20,26 @@ export default function Post({ params }: { params: { id: string } }) {
   const queryClient = useQueryClient();
 
   const {
-    isPending: isPostPending,
-    isError: isPostError,
     data: post,
-    error: postError,
+    isPending: isGetPostPending,
+    isError: isGetPostError,
+    error: getPostError,
   } = useQuery({
     queryKey: ["post", params.id],
     queryFn: () => getPost(params.id),
   });
 
   const {
-    isPending: isLikePending,
-    isError: isLikeError,
     data: like,
-    error: likeError,
+    isPending: isGetLikePending,
+    isError: isGetLikeError,
+    error: getLikeError,
   } = useQuery({
     queryKey: ["like", params.id],
     queryFn: () => getLike(params.id),
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending: isUpdateLikePending } = useMutation({
     mutationFn: ({ like }: { like: LikeType | null }) =>
       updateLike(like, params.id),
     onMutate: async ({ like }) => {
@@ -84,7 +84,7 @@ export default function Post({ params }: { params: { id: string } }) {
     },
   });
 
-  if (isPostPending || isLikePending) {
+  if (isGetPostPending || isGetLikePending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
         <div className="grid md:grid-cols-2 gap-4 w-full">
@@ -123,19 +123,19 @@ export default function Post({ params }: { params: { id: string } }) {
     );
   }
 
-  if (isPostError || isLikeError) {
-    if (postError) {
-      console.error("Error fetching post:", postError);
+  if (isGetPostError || isGetLikeError) {
+    if (isGetPostError) {
+      console.error("Error fetching post:", getPostError);
       toast.error("Error fetching post");
     }
-    if (likeError) {
-      console.error("Error fetching like:", likeError);
+    if (isGetLikeError) {
+      console.error("Error fetching like:", getLikeError);
       toast.error("Error fetching like");
     }
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        {postError && <p>Error fetching post: {postError.message}</p>}
-        {likeError && <p>Error fetching like: {likeError.message}</p>}
+        {isGetPostError && <p>Error fetching post: {getPostError.message}</p>}
+        {isGetLikeError && <p>Error fetching like: {getLikeError.message}</p>}
       </div>
     );
   }
@@ -146,7 +146,7 @@ export default function Post({ params }: { params: { id: string } }) {
         <div className="flex flex-col">
           <img
             src={post.image}
-            alt="Post"
+            alt="Post image"
             className="rounded-lg object-cover mb-2"
           />
           <div className="flex items-center justify-between">
@@ -154,7 +154,6 @@ export default function Post({ params }: { params: { id: string } }) {
               <Button
                 variant="ghost"
                 size="icon"
-                disabled={isPending}
                 onClick={() => mutate({ like })}
               >
                 <Heart

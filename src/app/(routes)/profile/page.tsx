@@ -15,9 +15,9 @@ export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
 
   const {
+    data: user,
     isPending,
     isError,
-    data: user,
     error,
   } = useQuery({
     queryKey: ["user"],

@@ -10,11 +10,25 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/actions";
 import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
 
 const CAPTION_MAX = 1000;
 
 export default function Create() {
   const router = useRouter();
+
+  const { mutate } = useMutation({
+    mutationFn: ({ image, caption }: { image: string; caption: string }) =>
+      createPost(image, caption),
+    onError: (err) => {
+      console.log("Error creating post:", err);
+      toast.error("Error creating post");
+    },
+    onSuccess: (id: string) => {
+      toast.success("Post created");
+      router.push(`/post/${id}`);
+    },
+  });
 
   const {
     register,
@@ -61,7 +75,7 @@ export default function Create() {
         >
           <Image
             src={watch("image")}
-            alt=""
+            alt="Uploaded image"
             className="w-96 h-96 rounded-lg object-cover group-hover:brightness-75"
             width={384}
             height={384}
@@ -83,16 +97,7 @@ export default function Create() {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            const id = await createPost(data.image, data.caption);
-            toast.success("Post created");
-            router.push(`/post/${id}`);
-          } catch (error) {
-            console.error("Error creating post:", error);
-            toast.error("Error creating post");
-          }
-        })}
+        onSubmit={handleSubmit((data) => mutate(data))}
       >
         <div className="flex flex-col">
           <div

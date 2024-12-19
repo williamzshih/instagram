@@ -19,7 +19,7 @@ export default function PostsGrid({ posts }: { posts: PostType[] }) {
           <Link href={`/post/${post.id}`} className="mb-4" key={post.id}>
             <img
               src={post.image}
-              alt="Post"
+              alt="Post image"
               className="rounded-lg object-cover"
             />
           </Link>

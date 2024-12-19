@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { updateUser, getUser } from "@/utils/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -22,26 +23,50 @@ export default function Settings() {
   const router = useRouter();
 
   const {
+    data: user,
+    isPending,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: ({
+      avatar,
+      username,
+      name,
+      bio,
+    }: {
+      avatar: string;
+      username: string;
+      name: string;
+      bio: string;
+    }) => updateUser(avatar, username, name, bio),
+    onError: (err) => {
+      console.log("Error updating user:", err);
+      toast.error("Error updating user");
+    },
+    onSuccess: () => {
+      toast.success("User updated");
+      router.push("/profile");
+    },
+  });
+
+  const {
     register,
     handleSubmit,
-    formState: { errors, isLoading },
+    formState: { errors },
     watch,
     setValue,
   } = useForm({
     mode: "onTouched",
-    defaultValues: async () => {
-      try {
-        const user = await getUser();
-        return {
-          avatar: user.avatar,
-          username: user.username,
-          name: user.name,
-          bio: user.bio,
-        };
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Error fetching user");
-      }
+    values: {
+      avatar: user?.avatar || "",
+      username: user?.username || "",
+      name: user?.name || "",
+      bio: user?.bio || "",
     },
   });
 
@@ -66,7 +91,7 @@ export default function Settings() {
     }
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
         <Skeleton className="mb-4 w-24 h-8" />
@@ -99,6 +124,16 @@ export default function Settings() {
           </div>
           <Skeleton className="mt-3 w-32 h-9 rounded" />
         </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    console.error("Error fetching user:", error);
+    toast.error("Error fetching user");
+    return (
+      <div className="flex flex-col items-center justify-center p-4 text-red-500">
+        Error fetching user: {error.message}
       </div>
     );
   }
@@ -138,16 +173,7 @@ export default function Settings() {
       </div>
       <form
         className="flex flex-col gap-2 w-1/2"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            await updateUser(data.avatar, data.username, data.name, data.bio);
-            toast.success("User updated");
-            router.push("/profile");
-          } catch (error) {
-            console.error("Error updating user:", error);
-            toast.error("Error updating user");
-          }
-        })}
+        onSubmit={handleSubmit((data) => mutate(data))}
       >
         <div className="flex flex-col">
           <div

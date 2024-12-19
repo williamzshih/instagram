@@ -158,7 +158,7 @@ export default function Post({ params }: { params: { id: string } }) {
             <div className="flex flex-col">
               <img
                 src={post.image}
-                alt="Post"
+                alt="Post image"
                 className="rounded-lg object-cover mb-2"
               />
               <div className="flex items-center justify-between">
