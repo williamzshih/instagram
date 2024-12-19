@@ -3,28 +3,47 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Settings, BadgeCheck } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
-import { getUser } from "@/utils/actions";
-import { Post as PostType, User as UserType } from "@prisma/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { getUser } from "@/utils/actions";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [user, setUser] = useState<UserType & { posts: PostType[] }>();
 
-  useEffect(() => {
-    const fetchUser = async () => {
+  const {
+    isLoading,
+    isError,
+    data: user,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
       try {
-        setUser(await getUser());
+        return await getUser();
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error fetching user", error);
         toast.error("Error fetching user");
       }
-    };
-    fetchUser();
-  }, []);
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        Loading...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        Error fetching user
+      </div>
+    );
+  }
 
   if (!user) {
     return (

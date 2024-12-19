@@ -4,6 +4,7 @@ import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import MobileNav from "@/components/MobileNav";
 import DesktopNav from "@/components/DesktopNav";
+import QueryProvider from "@/utils/QueryProvider";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -33,13 +34,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {modal}
-        <div className="flex">
-          <DesktopNav />
-          <div className="flex-1">{children}</div>
-        </div>
-        <MobileNav />
-        <Toaster closeButton richColors />
+        <QueryProvider>
+          {modal}
+          <div className="flex">
+            <DesktopNav />
+            <div className="flex-1">{children}</div>
+          </div>
+          <MobileNav />
+          <Toaster closeButton richColors />
+        </QueryProvider>
       </body>
     </html>
   );
