@@ -141,7 +141,7 @@ export default function Post({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center p-4 overflow-scroll">
       <div className="grid md:grid-cols-2 gap-4 w-full">
         <div className="flex flex-col">
           <img

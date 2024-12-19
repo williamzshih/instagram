@@ -151,7 +151,7 @@ export default function Post({ params }: { params: { id: string } }) {
 
   return (
     <Dialog defaultOpen>
-      <DialogContent className="sm:max-w-[95vw] h-[95vh]">
+      <DialogContent className="sm:max-w-[95vw] h-[95vh] overflow-scroll">
         <div className="flex flex-col items-center p-4">
           <div className="grid md:grid-cols-2 gap-4 w-full">
             <div className="flex flex-col">
