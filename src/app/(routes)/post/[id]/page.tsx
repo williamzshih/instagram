@@ -8,6 +8,7 @@ import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Like as LikeType,
   Post as PostType,
@@ -86,7 +87,38 @@ export default function Post({ params }: { params: { id: string } }) {
   if (isPostPending || isLikePending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <div className="grid md:grid-cols-2 gap-4 w-full">
+          <div className="flex flex-col">
+            <Skeleton className="w-full h-96 rounded-lg mb-2" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center justify-center gap-1">
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-6 w-6" />
+              </div>
+              <Skeleton className="h-10 w-10" />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <Skeleton className="w-16 h-16 rounded-full" />
+              <div className="flex flex-col items-center justify-center gap-1">
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-[19px] w-20" />
+              </div>
+            </div>
+            <Skeleton className="h-10 rounded-lg mb-1" />
+            <Skeleton className="w-24 h-5 self-end mb-3" />
+            <Skeleton className="w-full h-px mb-4" />
+            <div className="flex flex-col gap-1">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="flex items-center gap-2 mb-4">
+                  <Skeleton className="w-12 h-10 rounded-full" />
+                  <Skeleton className="w-full h-6" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -149,7 +181,7 @@ export default function Post({ params }: { params: { id: string } }) {
               />
             </Avatar>
             <div className="flex flex-col items-center justify-center">
-              {post.user.name}
+              <p>{post.user.name}</p>
               <p className="text-sm text-gray-500">@{post.user.username}</p>
             </div>
           </div>
