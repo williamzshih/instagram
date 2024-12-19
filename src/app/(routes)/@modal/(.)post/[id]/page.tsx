@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getLike, getPost, updateLike } from "@/utils/actions";
-import CommentForm from "@/components/CommentForm";
+// import CommentForm from "@/components/CommentForm";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,9 @@ export default function Post({ params }: { params: { id: string } }) {
   const queryClient = useQueryClient();
 
   const {
+    data: post,
     isPending: isPostPending,
     isError: isPostError,
-    data: post,
     error: postError,
   } = useQuery({
     queryKey: ["post", params.id],
@@ -32,9 +32,9 @@ export default function Post({ params }: { params: { id: string } }) {
   });
 
   const {
+    data: like,
     isPending: isLikePending,
     isError: isLikeError,
-    data: like,
     error: likeError,
   } = useQuery({
     queryKey: ["like", params.id],
@@ -213,7 +213,7 @@ export default function Post({ params }: { params: { id: string } }) {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 </Avatar>
-                <CommentForm postId={params.id} />
+                {/* <CommentForm postId={params.id} /> */}
               </div>
             </div>
           </div>

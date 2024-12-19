@@ -1,8 +1,13 @@
 "use client";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getLike, getPost, updateLike } from "@/utils/actions";
-import CommentForm from "@/components/CommentForm";
+import {
+  getLike,
+  getPost,
+  updateLike,
+  createComment,
+  getUser,
+} from "@/utils/actions";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +20,10 @@ import {
   User as UserType,
   Comment as CommentType,
 } from "@prisma/client";
+import { useForm } from "react-hook-form";
+import { Textarea } from "@/components/ui/textarea";
+
+const COMMENT_MAX = 1000;
 
 export default function Post({ params }: { params: { id: string } }) {
   const queryClient = useQueryClient();
@@ -39,10 +48,19 @@ export default function Post({ params }: { params: { id: string } }) {
     queryFn: () => getLike(params.id),
   });
 
-  const { mutate, isPending: isUpdateLikePending } = useMutation({
-    mutationFn: ({ like }: { like: LikeType | null }) =>
-      updateLike(like, params.id),
-    onMutate: async ({ like }) => {
+  const {
+    data: user,
+    isPending: isGetUserPending,
+    isError: isGetUserError,
+    error: getUserError,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+  });
+
+  const { mutate: updateLikeMutate } = useMutation({
+    mutationFn: (like: LikeType | null) => updateLike(like, params.id),
+    onMutate: async (like) => {
       await queryClient.cancelQueries({ queryKey: ["post", params.id] });
       await queryClient.cancelQueries({ queryKey: ["like", params.id] });
 
@@ -61,13 +79,11 @@ export default function Post({ params }: { params: { id: string } }) {
           ...old,
           likes: like
             ? old.likes.filter((l) => l.id !== like.id)
-            : [...old.likes, { id: "temp" }],
+            : [...old.likes, {}],
         })
       );
 
-      queryClient.setQueryData(["like", params.id], () =>
-        like ? null : { id: "temp" }
-      );
+      queryClient.setQueryData(["like", params.id], () => (like ? null : {}));
 
       return { previousPost, previousLike };
     },
@@ -84,7 +100,64 @@ export default function Post({ params }: { params: { id: string } }) {
     },
   });
 
-  if (isGetPostPending || isGetLikePending) {
+  const { mutate: createCommentMutate } = useMutation({
+    mutationFn: (comment: string) => createComment(params.id, comment),
+    onMutate: async (comment) => {
+      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
+
+      const previousPost = queryClient.getQueryData(["post", params.id]);
+
+      queryClient.setQueryData(
+        ["post", params.id],
+        (
+          old: PostType & {
+            user: UserType;
+            comments: (CommentType & { user: UserType })[];
+            likes: LikeType[];
+          }
+        ) => ({
+          ...old,
+          comments: [
+            ...old.comments,
+            {
+              comment: comment,
+              createdAt: new Date(),
+              user: {
+                avatar: user?.avatar || "",
+                username: user?.username || "",
+                name: user?.name || "",
+              },
+            },
+          ],
+        })
+      );
+
+      return { previousPost };
+    },
+    onError: (err, _, context) => {
+      console.log("Error creating comment:", err);
+      toast.error("Error creating comment");
+
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
+    },
+    onSuccess: () => toast.success("Comment created"),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      comment: "",
+    },
+  });
+
+  if (isGetPostPending || isGetLikePending || isGetUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
         <div className="grid md:grid-cols-2 gap-4 w-full">
@@ -123,7 +196,7 @@ export default function Post({ params }: { params: { id: string } }) {
     );
   }
 
-  if (isGetPostError || isGetLikeError) {
+  if (isGetPostError || isGetLikeError || isGetUserError) {
     if (isGetPostError) {
       console.error("Error fetching post:", getPostError);
       toast.error("Error fetching post");
@@ -132,10 +205,15 @@ export default function Post({ params }: { params: { id: string } }) {
       console.error("Error fetching like:", getLikeError);
       toast.error("Error fetching like");
     }
+    if (isGetUserError) {
+      console.error("Error fetching user:", getUserError);
+      toast.error("Error fetching user");
+    }
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
         {isGetPostError && <p>Error fetching post: {getPostError.message}</p>}
         {isGetLikeError && <p>Error fetching like: {getLikeError.message}</p>}
+        {isGetUserError && <p>Error fetching user: {getUserError.message}</p>}
       </div>
     );
   }
@@ -154,7 +232,7 @@ export default function Post({ params }: { params: { id: string } }) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => mutate({ like })}
+                onClick={() => updateLikeMutate(like)}
               >
                 <Heart
                   size={32}
@@ -192,15 +270,45 @@ export default function Post({ params }: { params: { id: string } }) {
           {post.comments.map((comment) => (
             <Comment comment={comment} key={comment.id} />
           ))}
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 mt-4">
             <Avatar className="w-12 h-12 rounded-full">
               <AvatarImage
-                src={post.user.avatar}
+                src={user.avatar}
                 alt="Avatar"
                 className="w-12 h-12 rounded-full object-cover"
               />
             </Avatar>
-            <CommentForm postId={params.id} />
+            <form
+              className="flex flex-col gap-2 w-full"
+              onSubmit={handleSubmit(({ comment }) => {
+                reset();
+                createCommentMutate(comment);
+              })}
+            >
+              <div className="flex flex-col">
+                <Textarea
+                  {...register("comment", {
+                    required: "Comment is required",
+                    maxLength: {
+                      value: COMMENT_MAX,
+                      message: `Comment must be at most ${COMMENT_MAX} characters long`,
+                    },
+                  })}
+                  placeholder="Comment"
+                  className={`h-24 ${errors.comment ? "border-red-500" : ""}`}
+                />
+                {errors.comment && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.comment.message || "An error occurred"}
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <Button className="mt-4 w-fit" type="submit">
+                  Post comment
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
