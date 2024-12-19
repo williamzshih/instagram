@@ -28,10 +28,10 @@ export default function Post({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const fetchPost = async () => setPost(await getPost(params.id));
-    fetchPost();
     const fetchLike = async () => setLike(await getLike(params.id));
+    fetchPost();
     fetchLike();
-  }, [like]);
+  }, []);
 
   if (!post) {
     return (
