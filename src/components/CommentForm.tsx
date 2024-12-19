@@ -27,10 +27,15 @@ export default function CommentForm({ postId }: { postId: string }) {
     <form
       className="flex flex-col gap-2 w-full"
       onSubmit={handleSubmit(async (data) => {
-        await createComment(data.comment, postId);
-        toast.success("Comment created");
-        reset();
-        router.refresh();
+        try {
+          await createComment(data.comment, postId);
+          toast.success("Comment created");
+          reset();
+          router.refresh();
+        } catch (error) {
+          console.error("Error creating comment:", error);
+          toast.error("Error creating comment");
+        }
       })}
     >
       <div className="flex flex-col">

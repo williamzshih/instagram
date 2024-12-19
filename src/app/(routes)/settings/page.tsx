@@ -30,15 +30,18 @@ export default function Settings() {
   } = useForm({
     mode: "onTouched",
     defaultValues: async () => {
-      const user = await getUser();
-      return {
-        avatar:
-          user?.avatar ||
-          "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
-        username: user?.username || "",
-        name: user?.name || "",
-        bio: user?.bio || "",
-      };
+      try {
+        const user = await getUser();
+        return {
+          avatar: user.avatar,
+          username: user.username,
+          name: user.name,
+          bio: user.bio,
+        };
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Error fetching user");
+      }
     },
   });
 
@@ -136,9 +139,14 @@ export default function Settings() {
       <form
         className="flex flex-col gap-2 w-1/2"
         onSubmit={handleSubmit(async (data) => {
-          await updateUser(data.avatar, data.username, data.name, data.bio);
-          toast.success("Settings updated");
-          router.push("/profile");
+          try {
+            await updateUser(data.avatar, data.username, data.name, data.bio);
+            toast.success("User updated");
+            router.push("/profile");
+          } catch (error) {
+            console.error("Error updating user:", error);
+            toast.error("Error updating user");
+          }
         })}
       >
         <div className="flex flex-col">

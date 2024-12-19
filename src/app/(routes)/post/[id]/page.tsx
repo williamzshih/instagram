@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getLike, getPost, toggleLike } from "@/utils/actions";
+import { getLike, getPost, updateLike } from "@/utils/actions";
 import CommentForm from "@/components/CommentForm";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
@@ -13,23 +13,40 @@ import {
   Comment as CommentType,
   Like as LikeType,
 } from "@prisma/client";
+import { toast } from "sonner";
 
 export default function Post({ params }: { params: { id: string } }) {
   const [bookmarked, setBookmarked] = useState(false);
   const [post, setPost] = useState<
-    | (PostType & {
-        user: UserType;
-        comments: (CommentType & { user: UserType })[];
-        likes: LikeType[];
-      })
-    | null
-  >(null);
+    PostType & {
+      user: UserType;
+      comments: (CommentType & { user: UserType })[];
+      likes: LikeType[];
+    }
+  >();
   const [like, setLike] = useState<LikeType | null>(null);
 
   useEffect(() => {
-    const fetchPost = async () => setPost(await getPost(params.id));
-    const fetchLike = async () => setLike(await getLike(params.id));
+    const fetchPost = async () => {
+      try {
+        setPost(await getPost(params.id));
+      } catch (error) {
+        console.error("Error fetching post:", error);
+        toast.error("Error fetching post");
+      }
+    };
     fetchPost();
+  }, []);
+
+  useEffect(() => {
+    const fetchLike = async () => {
+      try {
+        setLike(await getLike(params.id));
+      } catch (error) {
+        console.error("Error fetching like:", error);
+        toast.error("Error fetching like");
+      }
+    };
     fetchLike();
   }, []);
 
@@ -55,7 +72,14 @@ export default function Post({ params }: { params: { id: string } }) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={async () => setLike(await toggleLike(post.id))}
+                onClick={async () => {
+                  try {
+                    setLike(await updateLike(post.id));
+                  } catch (error) {
+                    console.error("Error updating like:", error);
+                    toast.error("Error updating like");
+                  }
+                }}
               >
                 {like ? (
                   <Heart

@@ -7,20 +7,22 @@ import { useEffect, useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
 import { getUser } from "@/utils/actions";
-import {
-  Post as PostType,
-  User as UserType,
-  Comment as CommentType,
-} from "@prisma/client";
+import { Post as PostType, User as UserType } from "@prisma/client";
+import { toast } from "sonner";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [user, setUser] = useState<
-    (UserType & { posts: PostType[]; comments: CommentType[] }) | null
-  >(null);
+  const [user, setUser] = useState<UserType & { posts: PostType[] }>();
 
   useEffect(() => {
-    const fetchUser = async () => setUser(await getUser());
+    const fetchUser = async () => {
+      try {
+        setUser(await getUser());
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Error fetching user");
+      }
+    };
     fetchUser();
   }, []);
 

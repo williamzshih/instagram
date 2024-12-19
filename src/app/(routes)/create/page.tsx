@@ -84,9 +84,14 @@ export default function Create() {
       <form
         className="flex flex-col gap-2 w-1/2"
         onSubmit={handleSubmit(async (data) => {
-          const id = await createPost(data.image, data.caption);
-          toast.success("Post created");
-          router.push(`/post/${id}`);
+          try {
+            const id = await createPost(data.image, data.caption);
+            toast.success("Post created");
+            router.push(`/post/${id}`);
+          } catch (error) {
+            console.error("Error creating post:", error);
+            toast.error("Error creating post");
+          }
         })}
       >
         <div className="flex flex-col">
