@@ -58,7 +58,12 @@ export default function Post({ params }: { params: { id: string } }) {
                 onClick={async () => setLike(await toggleLike(post.id))}
               >
                 {like ? (
-                  <Heart size={32} absoluteStrokeWidth stroke="red" fill="red" />
+                  <Heart
+                    size={32}
+                    absoluteStrokeWidth
+                    stroke="red"
+                    fill="red"
+                  />
                 ) : (
                   <Heart size={32} absoluteStrokeWidth />
                 )}
