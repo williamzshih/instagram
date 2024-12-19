@@ -2,7 +2,7 @@
 
 import { prisma } from "@/utils/db";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { Like as LikeType } from "@prisma/client";
 
 async function getEmail() {
   const session = await auth();
@@ -120,10 +120,8 @@ export async function getLike(postId: string) {
   }
 }
 
-export async function updateLike(postId: string) {
+export async function updateLike(like: LikeType | null, postId: string) {
   try {
-    const like = await getLike(postId);
-
     if (like) {
       await prisma.like.delete({
         where: { id: like.id },

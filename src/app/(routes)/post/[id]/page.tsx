@@ -6,54 +6,104 @@ import CommentForm from "@/components/CommentForm";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
+  Like as LikeType,
   Post as PostType,
   User as UserType,
   Comment as CommentType,
-  Like as LikeType,
 } from "@prisma/client";
-import { toast } from "sonner";
 
 export default function Post({ params }: { params: { id: string } }) {
-  const [bookmarked, setBookmarked] = useState(false);
-  const [post, setPost] = useState<
-    PostType & {
-      user: UserType;
-      comments: (CommentType & { user: UserType })[];
-      likes: LikeType[];
-    }
-  >();
-  const [like, setLike] = useState<LikeType | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        setPost(await getPost(params.id));
-      } catch (error) {
-        console.error("Error fetching post:", error);
-        toast.error("Error fetching post");
-      }
-    };
-    fetchPost();
-  }, []);
+  const {
+    isPending: isPostPending,
+    isError: isPostError,
+    data: post,
+    error: postError,
+  } = useQuery({
+    queryKey: ["post", params.id],
+    queryFn: () => getPost(params.id),
+  });
 
-  useEffect(() => {
-    const fetchLike = async () => {
-      try {
-        setLike(await getLike(params.id));
-      } catch (error) {
-        console.error("Error fetching like:", error);
-        toast.error("Error fetching like");
-      }
-    };
-    fetchLike();
-  }, []);
+  const {
+    isPending: isLikePending,
+    isError: isLikeError,
+    data: like,
+    error: likeError,
+  } = useQuery({
+    queryKey: ["like", params.id],
+    queryFn: () => getLike(params.id),
+  });
 
-  if (!post) {
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({ like }: { like: LikeType | null }) =>
+      updateLike(like, params.id),
+    onMutate: async ({ like }) => {
+      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
+      await queryClient.cancelQueries({ queryKey: ["like", params.id] });
+
+      const previousPost = queryClient.getQueryData(["post", params.id]);
+      const previousLike = queryClient.getQueryData(["like", params.id]);
+
+      queryClient.setQueryData(
+        ["post", params.id],
+        (
+          old: PostType & {
+            user: UserType;
+            comments: (CommentType & { user: UserType })[];
+            likes: LikeType[];
+          }
+        ) => ({
+          ...old,
+          likes: like
+            ? old.likes.filter((l) => l.id !== like.id)
+            : [...old.likes, { id: "temp" }],
+        })
+      );
+
+      queryClient.setQueryData(["like", params.id], () =>
+        like ? null : { id: "temp" }
+      );
+
+      return { previousPost, previousLike };
+    },
+    onError: (err, _, context) => {
+      console.log("Error updating like:", err);
+      toast.error("Error updating like");
+
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
+      queryClient.setQueryData(["like", params.id], context?.previousLike);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+      queryClient.invalidateQueries({ queryKey: ["like", params.id] });
+    },
+  });
+
+  if (isPostPending || isLikePending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Post not found
+        Loading...
+      </div>
+    );
+  }
+
+  if (isPostError || isLikeError) {
+    if (postError) {
+      console.error("Error fetching post:", postError);
+      toast.error("Error fetching post");
+    }
+    if (likeError) {
+      console.error("Error fetching like:", likeError);
+      toast.error("Error fetching like");
+    }
+    return (
+      <div className="flex flex-col items-center justify-center p-4 text-red-500">
+        {postError && <p>Error fetching post: {postError.message}</p>}
+        {likeError && <p>Error fetching like: {likeError.message}</p>}
       </div>
     );
   }
@@ -65,50 +115,27 @@ export default function Post({ params }: { params: { id: string } }) {
           <img
             src={post.image}
             alt="Post"
-            className="rounded-lg object-cover mb-4"
+            className="rounded-lg object-cover mb-2"
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={async () => {
-                  try {
-                    setLike(await updateLike(post.id));
-                  } catch (error) {
-                    console.error("Error updating like:", error);
-                    toast.error("Error updating like");
-                  }
-                }}
+                disabled={isPending}
+                onClick={() => mutate({ like })}
               >
-                {like ? (
-                  <Heart
-                    size={32}
-                    absoluteStrokeWidth
-                    stroke="red"
-                    fill="red"
-                  />
-                ) : (
-                  <Heart size={32} absoluteStrokeWidth />
-                )}
+                <Heart
+                  size={32}
+                  absoluteStrokeWidth
+                  stroke={like ? "red" : "black"}
+                  fill={like ? "red" : "white"}
+                />
               </Button>
               <p>{post.likes.length}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setBookmarked(!bookmarked)}
-            >
-              {bookmarked ? (
-                <Bookmark
-                  size={32}
-                  absoluteStrokeWidth
-                  fill="black"
-                  stroke="black"
-                />
-              ) : (
-                <Bookmark size={32} absoluteStrokeWidth />
-              )}
+            <Button variant="ghost" size="icon">
+              <Bookmark size={32} absoluteStrokeWidth />
             </Button>
           </div>
         </div>
@@ -132,7 +159,7 @@ export default function Post({ params }: { params: { id: string } }) {
           </div>
           <div className="w-full h-px bg-gray-200 mb-4"></div>
           {post.comments.map((comment) => (
-            <Comment comment={comment} />
+            <Comment comment={comment} key={comment.id} />
           ))}
           <div className="flex justify-center gap-2">
             <Avatar className="w-12 h-12 rounded-full">

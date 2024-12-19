@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function PostsGrid({ posts }: { posts: PostType[] }) {
   return (
-    <div className="w-11/12 mx-auto">
+    <div className="w-full mx-auto">
       <Masonry
         breakpointCols={{
           default: 4,
