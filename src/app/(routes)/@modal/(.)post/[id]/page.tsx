@@ -16,8 +16,9 @@ import {
   Comment as CommentType,
 } from "@prisma/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-
+import { useRouter } from "next/navigation";
 export default function Post({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const {
@@ -87,7 +88,7 @@ export default function Post({ params }: { params: { id: string } }) {
 
   if (isPostPending || isLikePending) {
     return (
-      <Dialog defaultOpen>
+      <Dialog defaultOpen onOpenChange={() => router.back()}>
         <DialogContent className="sm:max-w-[95vw] h-[95vh]">
           <div className="flex flex-col items-center p-4">
             <div className="grid md:grid-cols-2 gap-4 w-full">
@@ -138,7 +139,7 @@ export default function Post({ params }: { params: { id: string } }) {
       toast.error("Error fetching like");
     }
     return (
-      <Dialog defaultOpen>
+      <Dialog defaultOpen onOpenChange={() => router.back()}>
         <DialogContent className="sm:max-w-[95vw] h-[95vh]">
           <div className="flex flex-col items-center justify-center p-4 text-red-500">
             {postError && <p>Error fetching post: {postError.message}</p>}
@@ -150,7 +151,7 @@ export default function Post({ params }: { params: { id: string } }) {
   }
 
   return (
-    <Dialog defaultOpen>
+    <Dialog defaultOpen onOpenChange={() => router.back()}>
       <DialogContent className="sm:max-w-[95vw] h-[95vh] overflow-scroll">
         <div className="flex flex-col items-center p-4">
           <div className="grid md:grid-cols-2 gap-4 w-full">
