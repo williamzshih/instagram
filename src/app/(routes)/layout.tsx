@@ -41,7 +41,7 @@ export default function RootLayout({
             <div className="flex-1">{children}</div>
           </div>
           <MobileNav />
-          <Toaster closeButton richColors />
+          <Toaster closeButton richColors position="bottom-left" />
         </QueryProvider>
       </body>
     </html>
