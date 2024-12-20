@@ -23,6 +23,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const COMMENT_MAX = 1000;
 
@@ -160,7 +161,7 @@ export default function Post({ params }: { params: { id: string } }) {
 
   if (isGetPostPending || isGetLikePending || isGetUserPending) {
     return (
-      <div className="overflow-y-scroll">
+      <ScrollArea>
         <div className="flex flex-col items-center justify-center p-4">
           <div className="grid md:grid-cols-2 gap-4 w-full">
             <div className="flex flex-col">
@@ -195,7 +196,7 @@ export default function Post({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-      </div>
+      </ScrollArea>
     );
   }
 
@@ -213,13 +214,13 @@ export default function Post({ params }: { params: { id: string } }) {
       toast.error("Error fetching user");
     }
     return (
-      <div className="overflow-y-scroll">
+      <ScrollArea>
         <div className="flex flex-col items-center justify-center p-4 text-red-500">
           {isGetPostError && <p>Error fetching post: {getPostError.message}</p>}
           {isGetLikeError && <p>Error fetching like: {getLikeError.message}</p>}
           {isGetUserError && <p>Error fetching user: {getUserError.message}</p>}
         </div>
-      </div>
+      </ScrollArea>
     );
   }
 
@@ -228,7 +229,7 @@ export default function Post({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="overflow-y-scroll">
+    <ScrollArea>
       <div className="flex flex-col items-center justify-center p-4">
         <div className="grid md:grid-cols-2 gap-4 w-full">
           <div className="flex flex-col">
@@ -323,6 +324,6 @@ export default function Post({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }
