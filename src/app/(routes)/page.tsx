@@ -39,18 +39,18 @@ export default function Home() {
     <div className="flex flex-col justify-center items-center p-4">
       {session ? (
         <Button
-          onClick={() => {
-            signOutAction();
-            queryClient.invalidateQueries({ queryKey: ["session"] });
+          onClick={async () => {
+            await signOutAction();
+            queryClient.clear();
           }}
         >
           Sign out
         </Button>
       ) : (
         <Button
-          onClick={() => {
-            signInAction();
-            queryClient.invalidateQueries({ queryKey: ["session"] });
+          onClick={async () => {
+            await signInAction();
+            queryClient.clear();
           }}
         >
           Sign in
