@@ -20,22 +20,10 @@ export default function Home() {
 
   const { mutate: signIn } = useMutation({
     mutationFn: () => signInAction(),
-    onError: (err) => {
-      console.log("Error signing in:", err);
-      toast.error("Error signing in");
-    },
-    onSuccess: () => {
-      toast.success("Signed in");
-      queryClient.clear();
-    },
   });
 
   const { mutate: signOut } = useMutation({
     mutationFn: () => signOutAction(),
-    onError: (err) => {
-      console.log("Error signing out:", err);
-      toast.error("Error signing out");
-    },
     onSuccess: () => {
       toast.success("Signed out");
       queryClient.clear();
