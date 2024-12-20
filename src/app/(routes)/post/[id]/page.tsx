@@ -22,6 +22,7 @@ import {
 } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
 const COMMENT_MAX = 1000;
 
@@ -275,7 +276,7 @@ export default function Post({ params }: { params: { id: string } }) {
             <div className="text-sm text-gray-500 text-right mb-4">
               {post.createdAt.toLocaleDateString()}
             </div>
-            <div className="w-full h-px bg-gray-200 mb-4"></div>
+            <Separator />
             {post.comments.map((comment) => (
               <Comment comment={comment} key={comment.id} />
             ))}
