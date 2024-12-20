@@ -172,10 +172,10 @@ export default function Settings() {
         </div>
       </div>
       <form
-        className="flex flex-col gap-2 w-1/2"
+        className="flex flex-col items-center gap-2 w-1/2"
         onSubmit={handleSubmit((data) => mutate(data))}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <div
             className={`flex items-center justify-between ${
               errors.username ? "text-red-500" : ""
@@ -207,7 +207,7 @@ export default function Settings() {
             </p>
           )}
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <div
             className={`flex items-center justify-between ${
               errors.name ? "text-red-500" : ""
@@ -239,7 +239,7 @@ export default function Settings() {
             </p>
           )}
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <div
             className={`flex items-center justify-between ${
               errors.bio ? "text-red-500" : ""
