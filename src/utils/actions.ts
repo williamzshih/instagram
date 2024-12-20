@@ -1,12 +1,20 @@
 "use server";
 
 import { PrismaClient, Like as LikeType } from "@prisma/client";
-import { auth, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 
 const prisma = new PrismaClient();
 
+export async function signInAction() {
+  await signIn("google");
+}
+
 export async function signOutAction() {
   await signOut();
+}
+
+export async function getSession() {
+  return await auth();
 }
 
 async function getEmail() {
