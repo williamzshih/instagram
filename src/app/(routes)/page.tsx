@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { signInAction, signOutAction, getSession } from "@/utils/actions";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -16,6 +16,30 @@ export default function Home() {
   } = useQuery({
     queryKey: ["session"],
     queryFn: () => getSession(),
+  });
+
+  const { mutate: signIn } = useMutation({
+    mutationFn: () => signInAction(),
+    onError: (err) => {
+      console.log("Error signing in:", err);
+      toast.error("Error signing in");
+    },
+    onSuccess: () => {
+      toast.success("Signed in");
+      queryClient.clear();
+    },
+  });
+
+  const { mutate: signOut } = useMutation({
+    mutationFn: () => signOutAction(),
+    onError: (err) => {
+      console.log("Error signing out:", err);
+      toast.error("Error signing out");
+    },
+    onSuccess: () => {
+      toast.success("Signed out");
+      queryClient.clear();
+    },
   });
 
   if (isPending)
@@ -38,23 +62,9 @@ export default function Home() {
   return (
     <div className="flex flex-col justify-center items-center p-4">
       {session ? (
-        <Button
-          onClick={async () => {
-            await signOutAction();
-            queryClient.clear();
-          }}
-        >
-          Sign out
-        </Button>
+        <Button onClick={() => signOut()}>Sign out</Button>
       ) : (
-        <Button
-          onClick={async () => {
-            await signInAction();
-            queryClient.clear();
-          }}
-        >
-          Sign in
-        </Button>
+        <Button onClick={() => signIn()}>Sign in</Button>
       )}
     </div>
   );

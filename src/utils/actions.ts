@@ -14,7 +14,12 @@ export async function signOutAction() {
 }
 
 export async function getSession() {
-  return await auth();
+  try {
+    return await auth();
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    throw new Error("Error fetching session");
+  }
 }
 
 async function getEmail() {
