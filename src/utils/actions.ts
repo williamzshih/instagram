@@ -18,7 +18,7 @@ export async function getSession() {
 }
 
 async function getEmail() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.email) {
     throw new Error("Not authenticated");
   }
