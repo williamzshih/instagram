@@ -13,12 +13,8 @@ export async function signOutAction() {
   await signOut();
 }
 
-export async function getSession() {
-  return await auth();
-}
-
 async function getEmail() {
-  const session = await getSession();
+  const session = await auth();
   if (!session?.user?.email) {
     throw new Error("Not authenticated");
   }
