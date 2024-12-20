@@ -1,9 +1,13 @@
 "use server";
 
 import { PrismaClient, Like as LikeType } from "@prisma/client";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 
 const prisma = new PrismaClient();
+
+export async function signOutAction() {
+  await signOut();
+}
 
 async function getEmail() {
   const session = await auth();

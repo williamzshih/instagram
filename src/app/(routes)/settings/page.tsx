@@ -8,10 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { updateUser, getUser } from "@/utils/actions";
+import { updateUser, getUser, signOutAction } from "@/utils/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -20,6 +20,7 @@ const NAME_MAX = 20;
 const BIO_MAX = 100;
 
 export default function Settings() {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
@@ -270,6 +271,16 @@ export default function Settings() {
           Save settings
         </Button>
       </form>
+      <Button
+        className="mt-4 w-fit"
+        onClick={async () => {
+          await signOutAction();
+          queryClient.clear();
+          router.push("/");
+        }}
+      >
+        Sign out
+      </Button>
     </div>
   );
 }
