@@ -64,6 +64,10 @@ export default function Profile() {
     );
   }
 
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="flex items-center justify-between w-full mb-4">

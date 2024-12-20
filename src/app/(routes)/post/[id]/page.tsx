@@ -222,6 +222,10 @@ export default function Post({ params }: { params: { id: string } }) {
     );
   }
 
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
   return (
     <div className="overflow-y-scroll">
       <div className="flex flex-col items-center justify-center p-4">

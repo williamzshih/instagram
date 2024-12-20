@@ -54,10 +54,6 @@ export async function getUser() {
       },
     });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     return user;
   } catch (error) {
     console.error("Error fetching user:", error);
