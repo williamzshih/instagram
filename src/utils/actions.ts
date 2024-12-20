@@ -70,6 +70,41 @@ export async function getUser() {
   }
 }
 
+export async function getUserByEmail(email: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    console.error(`Error fetching user by email: ${(error as Error).message}`);
+    throw new Error(
+      `Error fetching user by email: ${(error as Error).message}`
+    );
+  }
+}
+
+export async function searchUsers(q: string) {
+  try {
+    return await prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: q, mode: "insensitive" } },
+          { name: { contains: q, mode: "insensitive" } },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error(`Error searching users: ${(error as Error).message}`);
+    throw new Error(`Error searching users: ${(error as Error).message}`);
+  }
+}
+
 export async function createPost(image: string, caption: string) {
   try {
     const email = await getEmail();
@@ -107,6 +142,23 @@ export async function getPost(id: string) {
   } catch (error) {
     console.error("Error fetching post:", error);
     throw new Error("Error fetching post");
+  }
+}
+
+export async function searchPosts(q: string) {
+  try {
+    const posts = await prisma.post.findMany({
+      where: { caption: { contains: q, mode: "insensitive" } },
+    });
+    return await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        user: await getUserByEmail(post.email),
+      }))
+    );
+  } catch (error) {
+    console.error(`Error searching posts: ${(error as Error).message}`);
+    throw new Error(`Error searching posts: ${(error as Error).message}`);
   }
 }
 
