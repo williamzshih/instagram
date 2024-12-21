@@ -3,6 +3,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Modal({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -18,8 +19,8 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         }
       }}
     >
-      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh]">
-        {children}
+      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] flex flex-col">
+        <ScrollArea>{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );
