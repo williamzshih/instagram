@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
 
 const COMMENT_MAX = 1000;
 
@@ -233,10 +234,12 @@ export default function Post({ params }: { params: { id: string } }) {
       <div className="flex flex-col items-center justify-center p-4">
         <div className="grid md:grid-cols-2 gap-4 w-full">
           <div className="flex flex-col">
-            <img
+            <Image
               src={post.image}
               alt="Post image"
               className="rounded-lg object-cover mb-2"
+              width={384}
+              height={384}
             />
             <div className="flex items-center justify-between">
               <div className="flex items-center justify-center gap-1">

@@ -9,10 +9,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
 export default function SearchResults({ q }: { q: string }) {
-  if (!q) {
-    return;
-  }
-
   const {
     data: users,
     isPending: isUsersPending,
@@ -41,6 +37,10 @@ export default function SearchResults({ q }: { q: string }) {
     queryKey: ["user"],
     queryFn: () => getUser(),
   });
+
+  if (!q) {
+    return;
+  }
 
   if (isUsersPending || isPostsPending || isCurrentUserPending) {
     return (
