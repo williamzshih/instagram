@@ -4,6 +4,7 @@ import {
   PrismaClient,
   Like as LikeType,
   Follow as FollowType,
+  Prisma,
 } from "@prisma/client";
 import { auth, signIn, signOut } from "@/auth";
 
@@ -181,6 +182,38 @@ export async function getPost(id: string) {
   } catch (error) {
     console.error("Error fetching post:", error);
     throw new Error("Error fetching post", { cause: error });
+  }
+}
+
+export async function getPosts(sortBy: string) {
+  try {
+    let orderBy: Prisma.PostOrderByWithRelationInput;
+
+    switch (sortBy) {
+      case "newest":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "oldest":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "most-popular":
+        orderBy = {
+          likes: {
+            _count: "desc",
+          },
+        };
+        break;
+      default:
+        orderBy = { createdAt: "desc" };
+        break;
+    }
+
+    return await prisma.post.findMany({
+      orderBy,
+    });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    throw new Error("Error fetching posts", { cause: error });
   }
 }
 
