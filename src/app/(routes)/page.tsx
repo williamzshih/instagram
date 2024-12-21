@@ -69,7 +69,7 @@ export default function Home() {
       {user.following
         .flatMap((user) => user.whoTheyreFollowing.posts)
         .map((post) => (
-          <Post key={post.id} params={{ id: post.id }} hideComments />
+          <Post key={post.id} params={{ id: post.id }} fromHome />
         ))}
     </div>
   );

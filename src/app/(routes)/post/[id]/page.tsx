@@ -18,18 +18,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const COMMENT_MAX = 1000;
 
 export default function PostPage({
   params,
-  hideComments = false,
+  fromHome = false,
 }: {
   params: { id: string };
-  hideComments?: boolean;
+  fromHome?: boolean;
 }) {
   const queryClient = useQueryClient();
-  const [hideCommentsState, setHideCommentsState] = useState(hideComments);
+  const [hideComments, setHideComments] = useState(fromHome);
+  const router = useRouter();
 
   const {
     data: post,
@@ -181,9 +183,14 @@ export default function PostPage({
           <Image
             src={post.image}
             alt="Post image"
-            className="rounded-lg"
             width={3840}
             height={3840}
+            {...(fromHome
+              ? {
+                  className: "rounded-lg cursor-pointer",
+                  onClick: () => router.push(`/post/${post.id}`),
+                }
+              : { className: "rounded-lg" })}
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center gap-1">
@@ -217,7 +224,7 @@ export default function PostPage({
             {post.comments.length}{" "}
             {post.comments.length === 1 ? "comment" : "comments"}
           </p>
-          {hideCommentsState
+          {hideComments
             ? null
             : post.comments.map((comment) => (
                 <Comment
@@ -232,9 +239,9 @@ export default function PostPage({
               variant="ghost"
               size="sm"
               className="w-fit self-center"
-              onClick={() => setHideCommentsState(!hideCommentsState)}
+              onClick={() => setHideComments(!hideComments)}
             >
-              {hideCommentsState ? "Show comments" : "Hide comments"}
+              {hideComments ? "Show comments" : "Hide comments"}
             </Button>
           )}
           <div className="flex justify-center gap-2">
