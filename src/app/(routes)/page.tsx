@@ -59,7 +59,9 @@ export default function Home() {
             key={user.whoTheyreFollowing.id}
             className="flex flex-col items-center justify-center gap-1"
           >
-            <ProfilePicture user={user.whoTheyreFollowing} size={20} />
+            <div className="w-24 h-24">
+              <ProfilePicture user={user.whoTheyreFollowing} size={20} />
+            </div>
             <p className="text-sm text-gray-500">
               {user.whoTheyreFollowing.username}
             </p>
