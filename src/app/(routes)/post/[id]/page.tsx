@@ -17,12 +17,19 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import UserHeader from "@/components/UserHeader";
+import { useState } from "react";
 
 const COMMENT_MAX = 1000;
 
-export default function PostPage({ params }: { params: { id: string } }) {
+export default function PostPage({
+  params,
+  hideComments = false,
+}: {
+  params: { id: string };
+  hideComments?: boolean;
+}) {
   const queryClient = useQueryClient();
+  const [hideCommentsState, setHideCommentsState] = useState(hideComments);
 
   const {
     data: post,
@@ -206,14 +213,30 @@ export default function PostPage({ params }: { params: { id: string } }) {
             createdAt={post.createdAt}
           />
           <Separator />
-          {post.comments.map((comment) => (
-            <Comment
-              user={comment.user}
-              comment={comment.comment}
-              createdAt={comment.createdAt}
-              key={comment.id}
-            />
-          ))}
+          <p className="text-sm text-gray-500">
+            {post.comments.length}{" "}
+            {post.comments.length === 1 ? "comment" : "comments"}
+          </p>
+          {hideCommentsState
+            ? null
+            : post.comments.map((comment) => (
+                <Comment
+                  user={comment.user}
+                  comment={comment.comment}
+                  createdAt={comment.createdAt}
+                  key={comment.id}
+                />
+              ))}
+          {post.comments.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-fit self-center"
+              onClick={() => setHideCommentsState(!hideCommentsState)}
+            >
+              {hideCommentsState ? "Show comments" : "Hide comments"}
+            </Button>
+          )}
           <div className="flex justify-center gap-2">
             <Avatar className="w-12 h-12">
               <AvatarImage
