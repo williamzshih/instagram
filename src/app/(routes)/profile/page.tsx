@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
+import ProfilePicture from "@/components/ProfilePicture";
 
-export default function Profile() {
+export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState("posts");
 
   const {
@@ -31,8 +31,8 @@ export default function Profile() {
   }
 
   if (error) {
-    console.error(`Error fetching user: ${error.message}`);
-    toast.error(`Error fetching user: ${error.message}`);
+    console.error("Error fetching user:", error);
+    toast.error("Error fetching user");
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
         <p>Error fetching user: {error.message}</p>
@@ -59,17 +59,7 @@ export default function Profile() {
           </Link>
         </Button>
       </div>
-      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
-        <div className="p-1 rounded-full bg-white">
-          <Avatar className="w-40 h-40">
-            <AvatarImage
-              src={user.avatar}
-              alt="User avatar"
-              className="object-cover"
-            />
-          </Avatar>
-        </div>
-      </div>
+      <ProfilePicture user={user} />
       <p className="text-xl font-bold">{user.name}</p>
       <p className="text-lg">{user.bio}</p>
       <div className="flex items-center justify-center gap-2">

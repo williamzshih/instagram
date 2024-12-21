@@ -1,10 +1,10 @@
 import Modal from "@/components/Modal";
-import Post from "@/app/(routes)/post/[id]/page";
+import PostPage from "@/app/(routes)/post/[id]/page";
 
-export default function PostModal({ params }: { params: { id: string } }) {
+export default function PostModalPage({ params }: { params: { id: string } }) {
   return (
     <Modal>
-      <Post params={params} />
+      <PostPage params={params} />
     </Modal>
   );
 }

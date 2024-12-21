@@ -5,7 +5,7 @@ import SearchResults from "@/components/SearchResults";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 
-export default function Search() {
+export default function SearchPage() {
   const { register, watch } = useForm();
   const search = watch("search");
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -20,7 +20,7 @@ export default function Search() {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <Input {...register("search")} placeholder="Search" className="w-3/4" />
+      <Input {...register("search")} placeholder="Search" />
       <SearchResults q={debouncedSearch} />
     </div>
   );

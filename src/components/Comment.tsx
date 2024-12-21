@@ -1,29 +1,21 @@
-import { Comment as CommentType, User as UserType } from "@prisma/client";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { User as UserType } from "@prisma/client";
+import UserHeader from "@/components/UserHeader";
 
 export default function Comment({
+  user,
   comment,
+  createdAt,
 }: {
-  comment: CommentType & { user: UserType };
+  user: UserType;
+  comment: string;
+  createdAt: Date;
 }) {
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <Avatar className="w-12 h-12 rounded-full">
-          <AvatarImage
-            src={comment.user.avatar}
-            alt="Avatar"
-            className="w-12 h-12 rounded-full object-cover"
-          />
-        </Avatar>
-        <div className="flex flex-col items-center justify-center">
-          {comment.user.name}
-          <p className="text-sm text-gray-500">@{comment.user.username}</p>
-        </div>
-      </div>
-      <p className="bg-gray-100 p-2 rounded-lg">{comment.comment}</p>
+    <div className="flex flex-col gap-4">
+      <UserHeader user={user} />
+      <p className="bg-gray-100 p-2 rounded-lg">{comment}</p>
       <div className="text-sm text-gray-500 text-right">
-        {comment.createdAt.toLocaleDateString()}
+        {createdAt.toLocaleDateString()}
       </div>
     </div>
   );

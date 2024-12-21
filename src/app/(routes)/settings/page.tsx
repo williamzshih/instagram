@@ -4,11 +4,10 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { updateUser, getUser, signOutAction } from "@/utils/actions";
+import { upsertUser, getUser, signOutAction } from "@/utils/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,21 +18,20 @@ const NAME_MIN = 3;
 const NAME_MAX = 20;
 const BIO_MAX = 100;
 
-export default function Settings() {
+export default function SettingsPage() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
     data: user,
     isPending,
-    isError,
     error,
   } = useQuery({
     queryKey: ["user"],
     queryFn: () => getUser(),
   });
 
-  const { mutate } = useMutation({
+  const { mutate: upsertUserMutation } = useMutation({
     mutationFn: ({
       avatar,
       username,
@@ -44,14 +42,22 @@ export default function Settings() {
       username: string;
       name: string;
       bio: string;
-    }) => updateUser(avatar, username, name, bio),
-    onError: (err) => {
-      console.log("Error updating user:", err);
+    }) => upsertUser(avatar, username, name, bio),
+    onError: (error) => {
+      console.error("Error updating user:", error);
       toast.error("Error updating user");
     },
     onSuccess: () => {
       toast.success("User updated");
       router.push("/profile");
+    },
+  });
+
+  const { mutate: signOutMutation } = useMutation({
+    mutationFn: () => signOutAction(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      router.push("/");
     },
   });
 
@@ -86,50 +92,21 @@ export default function Settings() {
       });
       const url = await uploadRequest.json();
       setValue("avatar", url);
-    } catch (e) {
-      console.log(e);
-      toast.error("Trouble uploading file");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Error uploading file");
     }
   };
 
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        <Skeleton className="mb-4 w-24 h-8" />
-        <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-gray-300 to-gray-400 mb-4">
-          <div className="p-1 bg-white rounded-full">
-            <Skeleton className="w-40 h-40 rounded-full" />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 w-1/2">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <Skeleton className="w-20 h-6" />
-              <Skeleton className="w-14 h-6" />
-            </div>
-            <Skeleton className="w-full h-9 rounded" />
-          </div>
-          <div className="flex flex-col gap-1 -mt-1">
-            <div className="flex items-center justify-between">
-              <Skeleton className="w-20 h-6" />
-              <Skeleton className="w-14 h-6" />
-            </div>
-            <Skeleton className="w-full h-9 rounded" />
-          </div>
-          <div className="flex flex-col gap-1 -mt-1">
-            <div className="flex items-center justify-between">
-              <Skeleton className="w-20 h-6" />
-              <Skeleton className="w-14 h-6" />
-            </div>
-            <Skeleton className="w-full h-20 rounded" />
-          </div>
-          <Skeleton className="mt-3 w-32 h-9 rounded" />
-        </div>
+        Loading...
       </div>
     );
   }
 
-  if (isError) {
+  if (error) {
     console.error("Error fetching user:", error);
     toast.error("Error fetching user");
     return (
@@ -140,26 +117,28 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <p className="text-2xl font-bold mb-4">Profile Settings</p>
-      <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red mb-4">
+    <div className="flex flex-col items-center justify-center p-4 gap-4">
+      <p className="text-2xl font-bold">Profile Settings</p>
+      <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red">
         <div className="p-1 bg-white rounded-full">
-          <Label
-            htmlFor="avatar"
-            className="w-40 h-40 rounded-full block cursor-pointer"
-          >
-            <Avatar className="w-40 h-40 rounded-full relative group">
+          <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
+            <Avatar className="w-40 h-40 group">
               <AvatarImage
                 src={
                   watch("avatar") ||
                   "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                 }
-                alt="Avatar"
-                className="w-40 h-40 rounded-full group-hover:brightness-75 object-cover"
+                alt="User avatar"
+                className="group-hover:brightness-75 object-cover"
               />
               <Upload
                 size={40}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
+                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 ${
+                  watch("avatar") ===
+                  "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
+                    ? "text-gray-500"
+                    : "text-white"
+                }`}
               />
             </Avatar>
             <Input
@@ -174,7 +153,7 @@ export default function Settings() {
       </div>
       <form
         className="flex flex-col items-center gap-2 w-1/2"
-        onSubmit={handleSubmit((data) => mutate(data))}
+        onSubmit={handleSubmit((data) => upsertUserMutation(data))}
       >
         <div className="flex flex-col w-full">
           <div
@@ -259,7 +238,7 @@ export default function Settings() {
               },
             })}
             placeholder="Bio"
-            className={`h-20 ${errors.bio ? "border-red-500" : ""}`}
+            className={`h-24 ${errors.bio ? "border-red-500" : ""}`}
           />
           {errors.bio && (
             <p className="text-red-500 text-sm mt-1">
@@ -267,20 +246,9 @@ export default function Settings() {
             </p>
           )}
         </div>
-        <Button className="mt-4 w-fit" type="submit">
-          Save settings
-        </Button>
+        <Button type="submit">Save settings</Button>
       </form>
-      <Button
-        className="mt-4 w-fit"
-        onClick={async () => {
-          await signOutAction();
-          queryClient.clear();
-          router.push("/");
-        }}
-      >
-        Sign out
-      </Button>
+      <Button onClick={() => signOutMutation()}>Sign out</Button>
     </div>
   );
 }

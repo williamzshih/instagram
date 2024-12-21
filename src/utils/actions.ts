@@ -22,19 +22,19 @@ export async function getSession() {
     return await auth();
   } catch (error) {
     console.error("Error fetching session:", error);
-    throw new Error("Error fetching session");
+    throw new Error("Error fetching session", { cause: error });
   }
 }
 
 async function getEmail() {
   const session = await auth();
   if (!session?.user?.email) {
-    throw new Error("Not authenticated");
+    throw new Error("Not authenticated", { cause: session });
   }
   return session.user.email;
 }
 
-export async function updateUser(
+export async function upsertUser(
   avatar: string,
   username: string,
   name: string,
@@ -42,9 +42,16 @@ export async function updateUser(
 ) {
   try {
     const email = await getEmail();
-    await prisma.user.update({
-      where: { email },
-      data: {
+    await prisma.user.upsert({
+      where: { username },
+      update: {
+        avatar,
+        username,
+        name,
+        bio,
+      },
+      create: {
+        email,
         avatar,
         username,
         name,
@@ -52,8 +59,8 @@ export async function updateUser(
       },
     });
   } catch (error) {
-    console.error("Error updating user:", error);
-    throw new Error("Error updating user");
+    console.error("Error upserting user:", error);
+    throw new Error("Error upserting user", { cause: error });
   }
 }
 
@@ -64,12 +71,20 @@ export async function getUser() {
       where: { email },
       include: {
         posts: true,
-        following: true,
+        following: {
+          include: {
+            whoTheyreFollowing: {
+              include: {
+                posts: true,
+              },
+            },
+          },
+        },
       },
     });
   } catch (error) {
-    console.error(`Error fetching user: ${(error as Error).message}`);
-    throw new Error(`Error fetching user: ${(error as Error).message}`);
+    console.error("Error fetching user:", error);
+    throw new Error("Error fetching user", { cause: error });
   }
 }
 
@@ -82,12 +97,8 @@ export async function getUserByUsername(username: string) {
       },
     });
   } catch (error) {
-    console.error(
-      `Error fetching user by username: ${(error as Error).message}`
-    );
-    throw new Error(
-      `Error fetching user by username: ${(error as Error).message}`
-    );
+    console.error("Error fetching user by username:", error);
+    throw new Error("Error fetching user by username", { cause: error });
   }
 }
 
@@ -98,15 +109,13 @@ export async function getUserByEmail(email: string) {
     });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("User not found", { cause: email });
     }
 
     return user;
   } catch (error) {
-    console.error(`Error fetching user by email: ${(error as Error).message}`);
-    throw new Error(
-      `Error fetching user by email: ${(error as Error).message}`
-    );
+    console.error("Error fetching user by email:", error);
+    throw new Error("Error fetching user by email", { cause: error });
   }
 }
 
@@ -121,8 +130,8 @@ export async function searchUsers(q: string) {
       },
     });
   } catch (error) {
-    console.error(`Error searching users: ${(error as Error).message}`);
-    throw new Error(`Error searching users: ${(error as Error).message}`);
+    console.error("Error searching users:", error);
+    throw new Error("Error searching users", { cause: error });
   }
 }
 
@@ -136,7 +145,7 @@ export async function createPost(image: string, caption: string) {
     ).id;
   } catch (error) {
     console.error("Error creating post:", error);
-    throw new Error("Error creating post");
+    throw new Error("Error creating post", { cause: error });
   }
 }
 
@@ -156,13 +165,13 @@ export async function getPost(id: string) {
     });
 
     if (!post) {
-      throw new Error("Post not found");
+      throw new Error("Post not found", { cause: id });
     }
 
     return post;
   } catch (error) {
     console.error("Error fetching post:", error);
-    throw new Error("Error fetching post");
+    throw new Error("Error fetching post", { cause: error });
   }
 }
 
@@ -178,8 +187,8 @@ export async function searchPosts(q: string) {
       }))
     );
   } catch (error) {
-    console.error(`Error searching posts: ${(error as Error).message}`);
-    throw new Error(`Error searching posts: ${(error as Error).message}`);
+    console.error("Error searching posts:", error);
+    throw new Error("Error searching posts", { cause: error });
   }
 }
 
@@ -191,7 +200,7 @@ export async function createComment(postId: string, comment: string) {
     });
   } catch (error) {
     console.error("Error creating comment:", error);
-    throw new Error("Error creating comment");
+    throw new Error("Error creating comment", { cause: error });
   }
 }
 
@@ -203,7 +212,7 @@ export async function getLike(postId: string) {
     });
   } catch (error) {
     console.error("Error fetching like:", error);
-    throw new Error("Error fetching like");
+    throw new Error("Error fetching like", { cause: error });
   }
 }
 
@@ -222,7 +231,7 @@ export async function updateLike(like: LikeType | null, postId: string) {
     }
   } catch (error) {
     console.error("Error updating like:", error);
-    throw new Error("Error updating like");
+    throw new Error("Error updating like", { cause: error });
   }
 }
 
@@ -233,8 +242,8 @@ export async function getFollow(username: string) {
       where: { userEmail: email, whoTheyreFollowingUsername: username },
     });
   } catch (error) {
-    console.error(`Error fetching follow: ${(error as Error).message}`);
-    throw new Error(`Error fetching follow: ${(error as Error).message}`);
+    console.error("Error fetching follow:", error);
+    throw new Error("Error fetching follow", { cause: error });
   }
 }
 
@@ -255,7 +264,7 @@ export async function toggleFollow(
       });
     }
   } catch (error) {
-    console.error(`Error toggling follow: ${(error as Error).message}`);
-    throw new Error(`Error toggling follow: ${(error as Error).message}`);
+    console.error("Error toggling follow:", error);
+    throw new Error("Error toggling follow", { cause: error });
   }
 }

@@ -1,59 +1,117 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { signInAction, signOutAction, getSession } from "@/utils/actions";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import SignIn from "./sign-in/page";
+import { Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
-  const queryClient = useQueryClient();
-
   const {
-    data: session,
+    data: user,
     isPending,
-    isError,
     error,
   } = useQuery({
-    queryKey: ["session"],
-    queryFn: () => getSession(),
+    queryKey: ["user"],
+    queryFn: () => getUser(),
   });
 
-  const { mutate: signIn } = useMutation({
-    mutationFn: () => signInAction(),
-  });
-
-  const { mutate: signOut } = useMutation({
-    mutationFn: () => signOutAction(),
-    onSuccess: () => {
-      toast.success("Signed out");
-      queryClient.clear();
-    },
-  });
-
-  if (isPending)
+  if (isPending) {
     return (
-      <div className="flex flex-col justify-center items-center p-4">
-        Loading...
+      <div className="flex flex-col items-center justify-center p-4">
+        <p>Loading...</p>
       </div>
     );
+  }
 
-  if (isError) {
-    console.error("Error fetching session:", error);
-    toast.error("Error fetching session");
+  if (error) {
+    console.error(`Error fetching user: ${error.message}`);
+    toast.error(`Error fetching user: ${error.message}`);
     return (
-      <div className="flex flex-col justify-center items-center p-4 text-red-500">
-        Error fetching session: {error.message}
+      <div className="flex flex-col items-center justify-center p-4 text-red-500">
+        <p>{error && `Error fetching user: ${error.message}`}</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 text-red-500">
+        <p>User not found</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col justify-center items-center p-4">
-      {session ? (
-        <Button onClick={() => signOut()}>Sign out</Button>
-      ) : (
-        <Button onClick={() => signIn()}>Sign in</Button>
-      )}
+    <div className="flex flex-col items-center justify-center p-4">
+      <div className="flex gap-4 self-start">
+        <div className="w-[96px] h-[96px] p-1 rounded-full border-2 flex items-center justify-center">
+          <Plus size={30} />
+        </div>
+        {user.following.map((user) => (
+          <div
+            key={user.whoTheyreFollowing.id}
+            className="flex flex-col items-center justify-center gap-1"
+          >
+            <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
+              <div className="p-1 rounded-full bg-white">
+                <Avatar className="w-20 h-20">
+                  <AvatarImage
+                    src={user.whoTheyreFollowing.avatar}
+                    alt="User avatar"
+                    className="object-cover"
+                  />
+                </Avatar>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              {user.whoTheyreFollowing.username}
+            </p>
+          </div>
+        ))}
+      </div>
+      <SignIn />
+      <div className="flex flex-col items-center justify-center gap-4">
+        {user.following
+          .flatMap((user) => user.whoTheyreFollowing.posts)
+          .map((post) => (
+            <Link
+              key={post.id}
+              href={`/post/${post.id}`}
+              className="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-2 w-3/4"
+            >
+              <div className="w-full bg-gray-100 rounded-lg flex items-center gap-2">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage
+                    src={user.avatar}
+                    alt="User avatar"
+                    className="object-cover"
+                  />
+                </Avatar>
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-sm">{user.name}</p>
+                  <p className="text-xs text-gray-500">@{user.username}</p>
+                </div>
+              </div>
+              <Image
+                src={post.image}
+                alt="Post image"
+                width={3840}
+                height={3840}
+                className="rounded-lg"
+              />
+              <Separator />
+              <p className="w-full text-left">{post.caption}</p>
+              <p className="text-xs text-gray-500 w-full text-right">
+                {post.createdAt.toLocaleDateString()}
+              </p>
+            </Link>
+          ))}
+      </div>
     </div>
   );
 }

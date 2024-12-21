@@ -1,13 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserByUsername, toggleFollow, getFollow } from "@/utils/actions";
+import { getUserByUsername, toggleFollow, getUser } from "@/utils/actions";
 import { toast } from "sonner";
-import { Follow as FollowType } from "@prisma/client";
+import { Follow as FollowType, User as UserType } from "@prisma/client";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default function User({ params }: { params: { username: string } }) {
   const [selectedTab, setSelectedTab] = useState("posts");
@@ -23,48 +23,58 @@ export default function User({ params }: { params: { username: string } }) {
   });
 
   const {
-    data: follow,
-    isPending: isFollowPending,
-    error: followError,
+    data: currentUser,
+    isPending: isCurrentUserPending,
+    error: currentUserError,
   } = useQuery({
-    queryKey: ["follow", params.username],
-    queryFn: () => getFollow(params.username),
+    queryKey: ["currentUser"],
+    queryFn: () => getUser(),
   });
 
   const { mutate } = useMutation({
-    mutationFn: (follow: FollowType | null) =>
+    mutationFn: (follow: FollowType | undefined) =>
       toggleFollow(follow, params.username),
     onMutate: async (follow) => {
       await queryClient.cancelQueries({
-        queryKey: ["follow", params.username],
+        queryKey: ["otherUser", params.username],
       });
 
-      const previousFollow = queryClient.getQueryData([
-        "follow",
+      const previousOtherUser = queryClient.getQueryData([
+        "otherUser",
         params.username,
       ]);
 
-      queryClient.setQueryData(["follow", params.username], () =>
-        follow ? null : {}
+      queryClient.setQueryData(
+        ["otherUser", params.username],
+        (
+          old: UserType & { followers: (FollowType & { user: UserType })[] }
+        ) => ({
+          ...old,
+          followers: follow
+            ? old.followers.filter((f) => f.id !== follow.id)
+            : [...old.followers, { user: currentUser }],
+        })
       );
 
-      return { previousFollow };
+      return { previousOtherUser };
     },
-    onError: (err, _, context) => {
-      console.error(`Error toggling follow: ${err.message}`);
-      toast.error(`Error toggling follow: ${err.message}`);
+    onError: (error, _, context) => {
+      console.error("Error toggling follow", error);
+      toast.error("Error toggling follow");
 
       queryClient.setQueryData(
-        ["follow", params.username],
-        context?.previousFollow
+        ["otherUser", params.username],
+        context?.previousOtherUser
       );
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["follow", params.username] });
+      queryClient.invalidateQueries({
+        queryKey: ["otherUser", params.username],
+      });
     },
   });
 
-  if (isOtherUserPending || isFollowPending) {
+  if (isOtherUserPending || isCurrentUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
         Loading...
@@ -72,14 +82,14 @@ export default function User({ params }: { params: { username: string } }) {
     );
   }
 
-  if (otherUserError || followError) {
+  if (otherUserError || currentUserError) {
     if (otherUserError) {
-      console.error(`Error fetching other user: ${otherUserError.message}`);
-      toast.error(`Error fetching other user: ${otherUserError.message}`);
+      console.error("Error fetching other user", otherUserError);
+      toast.error("Error fetching other user");
     }
-    if (followError) {
-      console.error(`Error fetching follow: ${followError.message}`);
-      toast.error(`Error fetching follow: ${followError.message}`);
+    if (currentUserError) {
+      console.error("Error fetching current user", currentUserError);
+      toast.error("Error fetching current user");
     }
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
@@ -87,18 +97,23 @@ export default function User({ params }: { params: { username: string } }) {
           {otherUserError &&
             `Error fetching other user: ${otherUserError.message}`}
         </p>
-        <p>{followError && `Error fetching follow: ${followError.message}`}</p>
+        <p>
+          {currentUserError &&
+            `Error fetching current user: ${currentUserError.message}`}
+        </p>
       </div>
     );
   }
 
-  if (!otherUser) {
+  if (!otherUser || !currentUser) {
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        <p>Other user not found</p>
+        Other user not found
       </div>
     );
   }
+
+  const follow = otherUser.followers.find((f) => f.user.id === currentUser.id);
 
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-4">
@@ -107,17 +122,7 @@ export default function User({ params }: { params: { username: string } }) {
         <p className="text-2xl font-bold">{params.username}</p>
         <Button size="icon" className="invisible" />
       </div>
-      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
-        <div className="p-1 rounded-full bg-white">
-          <Avatar className="w-40 h-40">
-            <AvatarImage
-              src={otherUser.avatar}
-              alt="User avatar"
-              className="object-cover"
-            />
-          </Avatar>
-        </div>
-      </div>
+      <ProfilePicture user={otherUser} />
       <p className="text-xl font-bold">{otherUser.name}</p>
       <p className="text-lg">{otherUser.bio}</p>
       <Button

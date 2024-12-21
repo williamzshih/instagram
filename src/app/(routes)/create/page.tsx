@@ -14,14 +14,14 @@ import { useMutation } from "@tanstack/react-query";
 
 const CAPTION_MAX = 1000;
 
-export default function Create() {
+export default function CreatePage() {
   const router = useRouter();
 
   const { mutate } = useMutation({
     mutationFn: ({ image, caption }: { image: string; caption: string }) =>
       createPost(image, caption),
-    onError: (err) => {
-      console.log("Error creating post:", err);
+    onError: (error) => {
+      console.error("Error creating post:", error);
       toast.error("Error creating post");
     },
     onSuccess: (id: string) => {
@@ -59,76 +59,73 @@ export default function Create() {
       });
       const url = await uploadRequest.json();
       setValue("image", url);
-    } catch (e) {
-      console.log(e);
-      toast.error("Trouble uploading file");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Error uploading file");
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <p className="text-2xl font-bold mb-4">Create Post</p>
-      <div className="w-96 h-96 rounded-lg bg-gray-200 flex items-center justify-center mb-4">
-        <Label
-          htmlFor="upload"
-          className="w-96 h-96 rounded-lg relative group block cursor-pointer"
-        >
-          <Image
-            src={watch("image")}
-            alt="Uploaded image"
-            className="w-96 h-96 rounded-lg object-cover group-hover:brightness-75"
-            width={384}
-            height={384}
-          />
-          <Upload
-            size={40}
-            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 ${
-              watch("image") ? "text-white" : "text-gray-500"
-            }`}
-          />
-          <Input
-            id="upload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => uploadFile(e.target.files?.[0])}
-          />
-        </Label>
-      </div>
+    <div className="flex flex-col items-center justify-center p-4 gap-4">
+      <p className="text-2xl font-bold">Create Post</p>
+      <Label
+        htmlFor="upload"
+        className="relative group cursor-pointer w-96 h-96 rounded-lg bg-gray-100 flex items-center justify-center"
+      >
+        <Image
+          src={
+            watch("image") ||
+            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Transparent.png"
+          }
+          alt="Uploaded image"
+          className="w-96 h-96 object-cover group-hover:brightness-75"
+          width={384}
+          height={384}
+        />
+        <Upload
+          size={40}
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 ${
+            watch("image") ? "text-white" : "text-gray-500"
+          }`}
+        />
+        <Input
+          id="upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => uploadFile(e.target.files?.[0])}
+        />
+      </Label>
       <form
-        className="flex flex-col gap-2 w-1/2"
+        className="flex flex-col items-center justify-center gap-2 w-1/2"
         onSubmit={handleSubmit((data) => mutate(data))}
       >
-        <div className="flex flex-col">
-          <div
-            className={`flex items-center justify-between ${
-              errors.caption ? "text-red-500" : ""
-            }`}
-          >
-            <Label>Caption</Label>
-            <p className="text-sm text-gray-500">
-              {watch("caption")?.length || 0}/{CAPTION_MAX}
-            </p>
-          </div>
-          <Textarea
-            {...register("caption", {
-              maxLength: {
-                value: CAPTION_MAX,
-                message: `Caption must be at most ${CAPTION_MAX} characters long`,
-              },
-            })}
-            placeholder="Caption"
-            className={`h-52 ${errors.caption ? "border-red-500" : ""}`}
-          />
-          {errors.caption && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.caption.message || "An error occurred"}
-            </p>
-          )}
+        <div
+          className={`w-full flex items-center justify-between ${
+            errors.caption ? "text-red-500" : ""
+          }`}
+        >
+          <Label>Caption</Label>
+          <p className="text-sm text-gray-500">
+            {watch("caption")?.length || 0}/{CAPTION_MAX}
+          </p>
         </div>
-        <Button className="mt-4 w-fit" type="submit">
-          Create post
-        </Button>
+        <Textarea
+          {...register("caption", {
+            maxLength: {
+              value: CAPTION_MAX,
+              message: `Caption must be at most ${CAPTION_MAX} characters long`,
+            },
+          })}
+          placeholder="Caption"
+          className={`h-44 ${errors.caption ? "border-red-500" : ""}`}
+        />
+        {errors.caption && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.caption.message || "An error occurred"}
+          </p>
+        )}
+        <Button type="submit">Create post</Button>
       </form>
     </div>
   );
