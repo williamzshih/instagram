@@ -94,6 +94,11 @@ export async function getUserByUsername(username: string) {
       where: { username },
       include: {
         posts: true,
+        followers: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
   } catch (error) {
@@ -160,7 +165,11 @@ export async function getPost(id: string) {
             user: true,
           },
         },
-        likes: true,
+        likes: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -177,15 +186,12 @@ export async function getPost(id: string) {
 
 export async function searchPosts(q: string) {
   try {
-    const posts = await prisma.post.findMany({
+    return await prisma.post.findMany({
       where: { caption: { contains: q, mode: "insensitive" } },
+      include: {
+        user: true,
+      },
     });
-    return await Promise.all(
-      posts.map(async (post) => ({
-        ...post,
-        user: await getUserByEmail(post.email),
-      }))
-    );
   } catch (error) {
     console.error("Error searching posts:", error);
     throw new Error("Error searching posts", { cause: error });
@@ -216,22 +222,21 @@ export async function getLike(postId: string) {
   }
 }
 
-export async function updateLike(like: LikeType | null, postId: string) {
+export async function toggleLike(like: LikeType | undefined, postId: string) {
   try {
     if (like) {
       await prisma.like.delete({
         where: { id: like.id },
       });
-      return null;
     } else {
       const email = await getEmail();
-      return await prisma.like.create({
+      await prisma.like.create({
         data: { email, postId },
       });
     }
   } catch (error) {
-    console.error("Error updating like:", error);
-    throw new Error("Error updating like", { cause: error });
+    console.error("Error toggling like:", error);
+    throw new Error("Error toggling like", { cause: error });
   }
 }
 
@@ -248,7 +253,7 @@ export async function getFollow(username: string) {
 }
 
 export async function toggleFollow(
-  follow: FollowType | null,
+  follow: FollowType | undefined,
   username: string
 ) {
   try {
@@ -256,7 +261,6 @@ export async function toggleFollow(
       await prisma.follow.delete({
         where: { id: follow.id },
       });
-      return null;
     } else {
       const email = await getEmail();
       return await prisma.follow.create({
