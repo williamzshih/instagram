@@ -8,31 +8,33 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  email     String    @unique
-  avatar    String    @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
-  username  String    @unique
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     @unique
+  avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
+  username  String     @unique
   name      String
   bio       String
   posts     Post[]
   comments  Comment[]
   likes     Like[]
-  followers Follow[]  @relation("followers")
-  following Follow[]  @relation("following")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  bookmarks Bookmark[]
+  followers Follow[]   @relation("followers")
+  following Follow[]   @relation("following")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Post {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String
-  user      User      @relation(fields: [email], references: [email])
+  user      User       @relation(fields: [email], references: [email])
   image     String
   caption   String
   comments  Comment[]
   likes     Like[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  bookmarks Bookmark[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Comment {
@@ -47,6 +49,18 @@ model Comment {
 }
 
 model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  user      User     @relation(fields: [email], references: [email])
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, postId])
+}
+
+model Bookmark {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String
   user      User     @relation(fields: [email], references: [email])

@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getPost, toggleLike, createComment, getUser } from "@/utils/actions";
+import { getPost, toggleLike, createComment, getUser, toggleBookmark } from "@/utils/actions";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   Post as PostType,
   User as UserType,
   Comment as CommentType,
+  Bookmark as BookmarkType,
 } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,6 +83,60 @@ export default function PostPage({
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+    },
+  });
+
+  const { mutate: toggleBookmarkMutate } = useMutation({
+    mutationFn: (bookmark: BookmarkType | undefined) =>
+      toggleBookmark(bookmark, params.id),
+    onMutate: async (bookmark) => {
+      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
+      await queryClient.cancelQueries({ queryKey: ["user"] });
+
+      const previousPost = queryClient.getQueryData(["post", params.id]);
+      const previousUser = queryClient.getQueryData(["user"]);
+
+      queryClient.setQueryData(
+        ["post", params.id],
+        (
+          old: PostType & {
+            bookmarks: (BookmarkType & { user: UserType })[];
+          }
+        ) => ({
+          ...old,
+          bookmarks: bookmark
+            ? old.bookmarks.filter((b) => b.id !== bookmark.id)
+            : [...old.bookmarks, { user: { id: user?.id } }],
+        })
+      );
+
+      queryClient.setQueryData(
+        ["user"],
+        (
+          old: UserType & { bookmarks: (BookmarkType & { post: PostType })[] }
+        ) => ({
+          ...old,
+          bookmarks: bookmark
+            ? old.bookmarks.filter((b) => b.id !== bookmark.id)
+            : [
+                ...old.bookmarks,
+                { post: { id: params.id, image: post?.image } },
+              ],
+        })
+      );
+
+      return { previousPost, previousUser };
+    },
+    onError: (error, _, context) => {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Error toggling bookmark");
+
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
+      queryClient.setQueryData(["user"], context?.previousUser);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
@@ -175,6 +230,7 @@ export default function PostPage({
   }
 
   const like = post.likes.find((l) => l.user.id === user.id);
+  const bookmark = post.bookmarks.find((b) => b.user.id === user.id);
 
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-4">
@@ -208,8 +264,16 @@ export default function PostPage({
               </Button>
               <p>{post.likes.length}</p>
             </div>
-            <Button variant="ghost" size="icon">
-              <Bookmark size={32} absoluteStrokeWidth />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => toggleBookmarkMutate(bookmark)}
+            >
+              <Bookmark
+                size={32}
+                absoluteStrokeWidth
+                fill={bookmark ? "black" : "white"}
+              />
             </Button>
           </div>
         </div>

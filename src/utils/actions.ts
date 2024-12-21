@@ -4,6 +4,7 @@ import {
   PrismaClient,
   Like as LikeType,
   Follow as FollowType,
+  Bookmark as BookmarkType,
   Prisma,
 } from "@prisma/client";
 import { auth, signIn, signOut } from "@/auth";
@@ -79,6 +80,11 @@ export async function getUser() {
                 posts: true,
               },
             },
+          },
+        },
+        bookmarks: {
+          include: {
+            post: true,
           },
         },
       },
@@ -171,6 +177,11 @@ export async function getPost(id: string) {
             user: true,
           },
         },
+        bookmarks: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -243,18 +254,6 @@ export async function createComment(postId: string, comment: string) {
   }
 }
 
-export async function getLike(postId: string) {
-  try {
-    const email = await getEmail();
-    return await prisma.like.findUnique({
-      where: { email, postId },
-    });
-  } catch (error) {
-    console.error("Error fetching like:", error);
-    throw new Error("Error fetching like", { cause: error });
-  }
-}
-
 export async function toggleLike(like: LikeType | undefined, postId: string) {
   try {
     if (like) {
@@ -270,6 +269,27 @@ export async function toggleLike(like: LikeType | undefined, postId: string) {
   } catch (error) {
     console.error("Error toggling like:", error);
     throw new Error("Error toggling like", { cause: error });
+  }
+}
+
+export async function toggleBookmark(
+  bookmark: BookmarkType | undefined,
+  postId: string
+) {
+  try {
+    if (bookmark) {
+      await prisma.bookmark.delete({
+        where: { id: bookmark.id },
+      });
+    } else {
+      const email = await getEmail();
+      await prisma.bookmark.create({
+        data: { email, postId },
+      });
+    }
+  } catch (error) {
+    console.error("Error toggling bookmark:", error);
+    throw new Error("Error toggling bookmark", { cause: error });
   }
 }
 

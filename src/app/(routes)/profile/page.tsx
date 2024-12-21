@@ -71,14 +71,17 @@ export default function ProfilePage() {
           Posts
         </Button>
         <Button
-          variant={selectedTab === "highlights" ? "default" : "ghost"}
-          onClick={() => setSelectedTab("highlights")}
+          variant={selectedTab === "bookmarks" ? "default" : "ghost"}
+          onClick={() => setSelectedTab("bookmarks")}
           className="text-lg"
         >
-          Highlights
+          Bookmarks
         </Button>
       </div>
       {selectedTab === "posts" && <PostsGrid posts={user.posts} />}
+      {selectedTab === "bookmarks" && (
+        <PostsGrid posts={user.bookmarks.map((b) => b.post)} />
+      )}
     </div>
   );
 }

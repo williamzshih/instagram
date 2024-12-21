@@ -147,13 +147,6 @@ export default function User({ params }: { params: { username: string } }) {
         >
           Posts
         </Button>
-        <Button
-          variant={selectedTab === "highlights" ? "default" : "ghost"}
-          onClick={() => setSelectedTab("highlights")}
-          className="text-lg"
-        >
-          Highlights
-        </Button>
       </div>
       {selectedTab === "posts" && <PostsGrid posts={otherUser.posts} />}
     </div>
