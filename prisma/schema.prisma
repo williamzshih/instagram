@@ -11,12 +11,14 @@ model User {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   email     String    @unique
   avatar    String    @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
-  username  String
+  username  String    @unique
   name      String
   bio       String
   posts     Post[]
   comments  Comment[]
   likes     Like[]
+  followers Follow[]  @relation("followers")
+  following Follow[]  @relation("following")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -54,4 +56,16 @@ model Like {
   updatedAt DateTime @updatedAt
 
   @@unique([email, postId])
+}
+
+model Follow {
+  id                         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userEmail                  String   @unique
+  whoTheyreFollowingUsername String   @unique
+  user                       User     @relation("following", fields: [userEmail], references: [email])
+  whoTheyreFollowing         User     @relation("followers", fields: [whoTheyreFollowingUsername], references: [username])
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@unique([userEmail, whoTheyreFollowingUsername])
 }

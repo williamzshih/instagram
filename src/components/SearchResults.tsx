@@ -1,15 +1,18 @@
 "use client";
 
-import { searchUsers, searchPosts } from "@/utils/actions";
+import { searchUsers, searchPosts, getUser } from "@/utils/actions";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
 export default function SearchResults({ q }: { q: string }) {
+  if (!q) {
+    return;
+  }
+
   const {
     data: users,
     isPending: isUsersPending,
@@ -30,7 +33,16 @@ export default function SearchResults({ q }: { q: string }) {
     placeholderData: keepPreviousData,
   });
 
-  if (isUsersPending || isPostsPending) {
+  const {
+    data: currentUser,
+    isPending: isCurrentUserPending,
+    error: currentUserError,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+  });
+
+  if (isUsersPending || isPostsPending || isCurrentUserPending) {
     return (
       <div className="flex flex-col p-4 w-3/4 gap-4">
         <p className="text-gray-500">Search results for: {q}</p>
@@ -107,7 +119,7 @@ export default function SearchResults({ q }: { q: string }) {
     );
   }
 
-  if (usersError || postsError) {
+  if (usersError || postsError || currentUserError) {
     if (usersError) {
       console.error(`Error searching users: ${usersError.message}`);
       toast.error(`Error searching users: ${usersError.message}`);
@@ -116,16 +128,28 @@ export default function SearchResults({ q }: { q: string }) {
       console.error(`Error searching posts: ${postsError.message}`);
       toast.error(`Error searching posts: ${postsError.message}`);
     }
+    if (currentUserError) {
+      console.error(`Error fetching user: ${currentUserError.message}`);
+      toast.error(`Error fetching user: ${currentUserError.message}`);
+    }
     return (
       <div className="flex flex-col items-center justify-center p-4 w-3/4 gap-4 text-red-500">
         <p>{usersError && `Error searching users: ${usersError.message}`}</p>
         <p>{postsError && `Error searching posts: ${postsError.message}`}</p>
+        <p>
+          {currentUserError &&
+            `Error fetching user: ${currentUserError.message}`}
+        </p>
       </div>
     );
   }
 
-  if (!q) {
-    return;
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 w-3/4 text-red-500">
+        <p>User not found</p>
+      </div>
+    );
   }
 
   return (
@@ -138,7 +162,11 @@ export default function SearchResults({ q }: { q: string }) {
           {users.map((user) => (
             <Link
               key={user.id}
-              href={`/user/${user.username}`}
+              href={
+                user.id === currentUser.id
+                  ? `/profile`
+                  : `/user/${user.username}`
+              }
               className="bg-gray-100 rounded-lg flex items-center justify-evenly p-2"
             >
               <Avatar className="w-20 h-20">
@@ -186,6 +214,7 @@ export default function SearchResults({ q }: { q: string }) {
                 alt="Post image"
                 width={384}
                 height={384}
+                className="rounded-lg"
               />
               <Separator />
               <p className="w-full text-left">{post.caption}</p>

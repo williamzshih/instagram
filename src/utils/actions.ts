@@ -1,6 +1,10 @@
 "use server";
 
-import { PrismaClient, Like as LikeType } from "@prisma/client";
+import {
+  PrismaClient,
+  Like as LikeType,
+  Follow as FollowType,
+} from "@prisma/client";
 import { auth, signIn, signOut } from "@/auth";
 
 const prisma = new PrismaClient();
@@ -56,17 +60,34 @@ export async function updateUser(
 export async function getUser() {
   try {
     const email = await getEmail();
-    const user = await prisma.user.findUnique({
+    return await prisma.user.findUnique({
       where: { email },
+      include: {
+        posts: true,
+        following: true,
+      },
+    });
+  } catch (error) {
+    console.error(`Error fetching user: ${(error as Error).message}`);
+    throw new Error(`Error fetching user: ${(error as Error).message}`);
+  }
+}
+
+export async function getUserByUsername(username: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { username },
       include: {
         posts: true,
       },
     });
-
-    return user;
   } catch (error) {
-    console.error("Error fetching user:", error);
-    throw new Error("Error fetching user");
+    console.error(
+      `Error fetching user by username: ${(error as Error).message}`
+    );
+    throw new Error(
+      `Error fetching user by username: ${(error as Error).message}`
+    );
   }
 }
 
@@ -202,5 +223,39 @@ export async function updateLike(like: LikeType | null, postId: string) {
   } catch (error) {
     console.error("Error updating like:", error);
     throw new Error("Error updating like");
+  }
+}
+
+export async function getFollow(username: string) {
+  try {
+    const email = await getEmail();
+    return await prisma.follow.findUnique({
+      where: { userEmail: email, whoTheyreFollowingUsername: username },
+    });
+  } catch (error) {
+    console.error(`Error fetching follow: ${(error as Error).message}`);
+    throw new Error(`Error fetching follow: ${(error as Error).message}`);
+  }
+}
+
+export async function toggleFollow(
+  follow: FollowType | null,
+  username: string
+) {
+  try {
+    if (follow) {
+      await prisma.follow.delete({
+        where: { id: follow.id },
+      });
+      return null;
+    } else {
+      const email = await getEmail();
+      return await prisma.follow.create({
+        data: { userEmail: email, whoTheyreFollowingUsername: username },
+      });
+    }
+  } catch (error) {
+    console.error(`Error toggling follow: ${(error as Error).message}`);
+    throw new Error(`Error toggling follow: ${(error as Error).message}`);
   }
 }
