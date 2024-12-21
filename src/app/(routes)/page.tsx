@@ -3,12 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import SignIn from "./sign-in/page";
 import { Plus } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
-import Link from "next/link";
 import ProfilePicture from "@/components/ProfilePicture";
 import Post from "./post/[id]/page";
 

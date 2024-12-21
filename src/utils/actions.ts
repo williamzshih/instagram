@@ -293,18 +293,6 @@ export async function toggleBookmark(
   }
 }
 
-export async function getFollow(username: string) {
-  try {
-    const email = await getEmail();
-    return await prisma.follow.findUnique({
-      where: { userEmail: email, whoTheyreFollowingUsername: username },
-    });
-  } catch (error) {
-    console.error("Error fetching follow:", error);
-    throw new Error("Error fetching follow", { cause: error });
-  }
-}
-
 export async function toggleFollow(
   follow: FollowType | undefined,
   username: string
