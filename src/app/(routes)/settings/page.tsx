@@ -50,7 +50,7 @@ export default function SettingsPage() {
     },
     onSuccess: (data) => {
       toast.success(
-        data.updateOrInsert === "update" ? "User updated" : "User created"
+        data === "update" ? "User updated" : "User created"
       );
       router.push("/profile");
     },

@@ -49,7 +49,7 @@ export async function upsertUser(
       where: { email },
     });
 
-    const user = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { email },
       update: {
         avatar,
@@ -66,10 +66,7 @@ export async function upsertUser(
       },
     });
 
-    return {
-      user,
-      updateOrInsert: existingUser ? "update" : "insert",
-    };
+    return existingUser ? "update" : "insert";
   } catch (error) {
     console.error("Error upserting user:", error);
     throw new Error("Error upserting user", { cause: error });
@@ -121,23 +118,6 @@ export async function getUserByUsername(username: string) {
   } catch (error) {
     console.error("Error fetching user by username:", error);
     throw new Error("Error fetching user by username", { cause: error });
-  }
-}
-
-export async function getUserByEmail(email: string) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      throw new Error("User not found", { cause: email });
-    }
-
-    return user;
-  } catch (error) {
-    console.error("Error fetching user by email:", error);
-    throw new Error("Error fetching user by email", { cause: error });
   }
 }
 
