@@ -25,7 +25,7 @@ export default function BrowsePage() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ["posts", "browse", sortBy],
+    queryKey: ["posts", "browsePage", sortBy],
     queryFn: () => getPosts(sortBy),
   });
 

@@ -1,7 +1,13 @@
 "use client";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getPost, toggleLike, createComment, getUser, toggleBookmark } from "@/utils/actions";
+import {
+  getPost,
+  toggleLike,
+  createComment,
+  getUser,
+  toggleBookmark,
+} from "@/utils/actions";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SyncLoader } from "react-spinners";
 
 const COMMENT_MAX = 1000;
 
@@ -39,7 +46,7 @@ export default function PostPage({
     isPending: isPostPending,
     error: postError,
   } = useQuery({
-    queryKey: ["post", params.id],
+    queryKey: ["post", "postPage", params.id],
     queryFn: () => getPost(params.id),
   });
 
@@ -48,19 +55,25 @@ export default function PostPage({
     isPending: isUserPending,
     error: userError,
   } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", "postPage"],
     queryFn: () => getUser(),
   });
 
   const { mutate: toggleLikeMutate } = useMutation({
     mutationFn: (like: LikeType | undefined) => toggleLike(like, params.id),
     onMutate: async (like) => {
-      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
+      await queryClient.cancelQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
 
-      const previousPost = queryClient.getQueryData(["post", params.id]);
+      const previousPost = queryClient.getQueryData([
+        "post",
+        "postPage",
+        params.id,
+      ]);
 
       queryClient.setQueryData(
-        ["post", params.id],
+        ["post", "postPage", params.id],
         (
           old: PostType & {
             likes: (LikeType & { user: UserType })[];
@@ -76,13 +89,18 @@ export default function PostPage({
       return { previousPost };
     },
     onError: (error, _, context) => {
-      console.error("Error toggling like:", error);
-      toast.error("Error toggling like");
+      console.error(error);
+      toast.error(error as unknown as string);
 
-      queryClient.setQueryData(["post", params.id], context?.previousPost);
+      queryClient.setQueryData(
+        ["post", "postPage", params.id],
+        context?.previousPost
+      );
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
     },
   });
 
@@ -90,14 +108,20 @@ export default function PostPage({
     mutationFn: (bookmark: BookmarkType | undefined) =>
       toggleBookmark(bookmark, params.id),
     onMutate: async (bookmark) => {
-      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
-      await queryClient.cancelQueries({ queryKey: ["user"] });
+      await queryClient.cancelQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
+      await queryClient.cancelQueries({ queryKey: ["user", "profilePage"] });
 
-      const previousPost = queryClient.getQueryData(["post", params.id]);
-      const previousUser = queryClient.getQueryData(["user"]);
+      const previousPost = queryClient.getQueryData([
+        "post",
+        "postPage",
+        params.id,
+      ]);
+      const previousUser = queryClient.getQueryData(["user", "profilePage"]);
 
       queryClient.setQueryData(
-        ["post", params.id],
+        ["post", "postPage", params.id],
         (
           old: PostType & {
             bookmarks: (BookmarkType & { user: UserType })[];
@@ -111,7 +135,7 @@ export default function PostPage({
       );
 
       queryClient.setQueryData(
-        ["user"],
+        ["user", "profilePage"],
         (
           old: UserType & { bookmarks: (BookmarkType & { post: PostType })[] }
         ) => ({
@@ -128,27 +152,40 @@ export default function PostPage({
       return { previousPost, previousUser };
     },
     onError: (error, _, context) => {
-      console.error("Error toggling bookmark:", error);
-      toast.error("Error toggling bookmark");
+      console.error(error);
+      toast.error(error as unknown as string);
 
-      queryClient.setQueryData(["post", params.id], context?.previousPost);
-      queryClient.setQueryData(["user"], context?.previousUser);
+      queryClient.setQueryData(
+        ["post", "postPage", params.id],
+        context?.previousPost
+      );
+      queryClient.setQueryData(["user", "profilePage"], context?.previousUser);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "profilePage"],
+      });
     },
   });
 
   const { mutate: createCommentMutate } = useMutation({
     mutationFn: (comment: string) => createComment(params.id, comment),
     onMutate: async (comment) => {
-      await queryClient.cancelQueries({ queryKey: ["post", params.id] });
+      await queryClient.cancelQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
 
-      const previousPost = queryClient.getQueryData(["post", params.id]);
+      const previousPost = queryClient.getQueryData([
+        "post",
+        "postPage",
+        params.id,
+      ]);
 
       queryClient.setQueryData(
-        ["post", params.id],
+        ["post", "postPage", params.id],
         (
           old: PostType & {
             user: UserType;
@@ -174,14 +211,19 @@ export default function PostPage({
       return { previousPost };
     },
     onError: (error, _, context) => {
-      console.error("Error creating comment:", error);
-      toast.error("Error creating comment");
+      console.error(error);
+      toast.error(error as unknown as string);
 
-      queryClient.setQueryData(["post", params.id], context?.previousPost);
+      queryClient.setQueryData(
+        ["post", "postPage", params.id],
+        context?.previousPost
+      );
     },
     onSuccess: () => toast.success("Comment created"),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["post", "postPage", params.id],
+      });
     },
   });
 
@@ -199,24 +241,24 @@ export default function PostPage({
   if (isPostPending || isUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
   if (postError || userError) {
     if (postError) {
-      console.error("Error fetching post:", postError);
-      toast.error("Error fetching post");
+      console.error(postError);
+      toast.error(postError as unknown as string);
     }
     if (userError) {
-      console.error("Error fetching user:", userError);
-      toast.error("Error fetching user");
+      console.error(userError);
+      toast.error(userError as unknown as string);
     }
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
-        {postError && <p>Error fetching post: {postError.message}</p>}
-        {userError && <p>Error fetching user: {userError.message}</p>}
+        {postError && <p>{postError as unknown as string}</p>}
+        {userError && <p>{userError as unknown as string}</p>}
       </div>
     );
   }
