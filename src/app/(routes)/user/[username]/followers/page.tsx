@@ -56,13 +56,12 @@ export default function FollowersPage({
       {user.followers.length > 0 ? (
         <div className="grid grid-cols-3 gap-4 w-full">
           {user.followers.map((follow) => (
-            <Link
+            <div
               key={follow.id}
-              href={`/user/${follow.user.username}`}
               className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
             >
               <UserHeader user={follow.user} size={16} justify="center" />
-            </Link>
+            </div>
           ))}
         </div>
       ) : (

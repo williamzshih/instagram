@@ -52,9 +52,8 @@ export default function FollowingPage() {
       {user.following.length > 0 ? (
         <div className="grid grid-cols-3 gap-4 w-full">
           {user.following.map((follow) => (
-            <Link
+            <div
               key={follow.id}
-              href={`/user/${follow.whoTheyreFollowing.username}`}
               className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
             >
               <UserHeader
@@ -62,7 +61,7 @@ export default function FollowingPage() {
                 size={16}
                 justify="center"
               />
-            </Link>
+            </div>
           ))}
         </div>
       ) : (
