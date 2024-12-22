@@ -99,7 +99,7 @@ export default function SearchResults({ q }: { q: string }) {
               }
               className="bg-gray-100 rounded-lg p-2"
             >
-              <UserHeader user={searchedUser} size={24} justify="evenly" />
+              <UserHeader user={searchedUser} size={24} justify="center" />
             </Link>
           ))}
         </div>
