@@ -8,8 +8,9 @@ import { getUserByUsername, toggleFollow, getUser } from "@/utils/actions";
 import { toast } from "sonner";
 import { Follow as FollowType, User as UserType } from "@prisma/client";
 import ProfilePicture from "@/components/ProfilePicture";
+import { SyncLoader } from "react-spinners";
 
-export default function User({ params }: { params: { username: string } }) {
+export default function UserPage({ params }: { params: { username: string } }) {
   const [selectedTab, setSelectedTab] = useState("posts");
   const queryClient = useQueryClient();
 
@@ -18,7 +19,7 @@ export default function User({ params }: { params: { username: string } }) {
     isPending: isOtherUserPending,
     error: otherUserError,
   } = useQuery({
-    queryKey: ["otherUser", params.username],
+    queryKey: ["otherUser", "userPage", params.username],
     queryFn: () => getUserByUsername(params.username),
   });
 
@@ -27,49 +28,50 @@ export default function User({ params }: { params: { username: string } }) {
     isPending: isCurrentUserPending,
     error: currentUserError,
   } = useQuery({
-    queryKey: ["currentUser"],
+    queryKey: ["currentUser", "userPage"],
     queryFn: () => getUser(),
   });
 
-  const { mutate } = useMutation({
+  const { mutate: toggleFollowMutation } = useMutation({
     mutationFn: (follow: FollowType | undefined) =>
       toggleFollow(follow, params.username),
     onMutate: async (follow) => {
       await queryClient.cancelQueries({
-        queryKey: ["otherUser", params.username],
+        queryKey: ["otherUser", "userPage", params.username],
       });
 
       const previousOtherUser = queryClient.getQueryData([
         "otherUser",
+        "userPage",
         params.username,
       ]);
 
       queryClient.setQueryData(
-        ["otherUser", params.username],
+        ["otherUser", "userPage", params.username],
         (
           old: UserType & { followers: (FollowType & { user: UserType })[] }
         ) => ({
           ...old,
           followers: follow
             ? old.followers.filter((f) => f.id !== follow.id)
-            : [...old.followers, { user: currentUser }],
+            : [...old.followers, { user: { id: currentUser?.id } }],
         })
       );
 
       return { previousOtherUser };
     },
     onError: (error, _, context) => {
-      console.error("Error toggling follow", error);
-      toast.error("Error toggling follow");
+      console.error(error);
+      toast.error(error as unknown as string);
 
       queryClient.setQueryData(
-        ["otherUser", params.username],
+        ["otherUser", "userPage", params.username],
         context?.previousOtherUser
       );
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["otherUser", params.username],
+        queryKey: ["otherUser", "userPage", params.username],
       });
     },
   });
@@ -77,30 +79,24 @@ export default function User({ params }: { params: { username: string } }) {
   if (isOtherUserPending || isCurrentUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
   if (otherUserError || currentUserError) {
     if (otherUserError) {
-      console.error("Error fetching other user", otherUserError);
-      toast.error("Error fetching other user");
+      console.error(otherUserError);
+      toast.error(otherUserError as unknown as string);
     }
     if (currentUserError) {
-      console.error("Error fetching current user", currentUserError);
-      toast.error("Error fetching current user");
+      console.error(currentUserError);
+      toast.error(currentUserError as unknown as string);
     }
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
-        <p>
-          {otherUserError &&
-            `Error fetching other user: ${otherUserError.message}`}
-        </p>
-        <p>
-          {currentUserError &&
-            `Error fetching current user: ${currentUserError.message}`}
-        </p>
+        <p>{otherUserError as unknown as string}</p>
+        <p>{currentUserError as unknown as string}</p>
       </div>
     );
   }
@@ -108,7 +104,7 @@ export default function User({ params }: { params: { username: string } }) {
   if (!otherUser || !currentUser) {
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        Other user not found
+        User not found
       </div>
     );
   }
