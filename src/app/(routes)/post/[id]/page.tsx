@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   getPost,
   toggleLike,
@@ -27,6 +26,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SyncLoader } from "react-spinners";
+import UserAvatar from "@/components/UserAvatar";
 
 const COMMENT_MAX = 1000;
 
@@ -38,7 +38,7 @@ export default function PostPage({
   fromHome?: boolean;
 }) {
   const queryClient = useQueryClient();
-  const [hideComments, setHideComments] = useState(fromHome);
+  const [showComments, setShowComments] = useState(!fromHome);
   const router = useRouter();
 
   const {
@@ -134,20 +134,22 @@ export default function PostPage({
         })
       );
 
-      queryClient.setQueryData(
-        ["user", "profilePage"],
-        (
-          old: UserType & { bookmarks: (BookmarkType & { post: PostType })[] }
-        ) => ({
-          ...old,
-          bookmarks: bookmark
-            ? old.bookmarks.filter((b) => b.id !== bookmark.id)
-            : [
-                ...old.bookmarks,
-                { post: { id: params.id, image: post?.image } },
-              ],
-        })
-      );
+      if (previousUser) {
+        queryClient.setQueryData(
+          ["user", "profilePage"],
+          (
+            old: UserType & { bookmarks: (BookmarkType & { post: PostType })[] }
+          ) => ({
+            ...old,
+            bookmarks: bookmark
+              ? old.bookmarks.filter((b) => b.id !== bookmark.id)
+              : [
+                  ...old.bookmarks,
+                  { post: { id: params.id, image: post?.image } },
+                ],
+          })
+        );
+      }
 
       return { previousPost, previousUser };
     },
@@ -276,8 +278,8 @@ export default function PostPage({
 
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-4">
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
           <Image
             src={post.image}
             alt="Post image"
@@ -319,45 +321,40 @@ export default function PostPage({
             </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <Comment
             user={post.user}
             comment={post.caption}
             createdAt={post.createdAt}
+            size={16}
           />
           <Separator />
           <p className="text-sm text-gray-500">
             {post.comments.length}{" "}
             {post.comments.length === 1 ? "comment" : "comments"}
           </p>
-          {hideComments
-            ? null
-            : post.comments.map((comment) => (
-                <Comment
-                  user={comment.user}
-                  comment={comment.comment}
-                  createdAt={comment.createdAt}
-                  key={comment.id}
-                />
-              ))}
+          {showComments &&
+            post.comments.map((comment) => (
+              <Comment
+                user={comment.user}
+                comment={comment.comment}
+                createdAt={comment.createdAt}
+                size={12}
+                key={comment.id}
+              />
+            ))}
           {post.comments.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
               className="w-fit self-center"
-              onClick={() => setHideComments(!hideComments)}
+              onClick={() => setShowComments(!showComments)}
             >
-              {hideComments ? "Show comments" : "Hide comments"}
+              {showComments ? "Hide comments" : "Show comments"}
             </Button>
           )}
           <div className="flex justify-center gap-2">
-            <Avatar className="w-12 h-12">
-              <AvatarImage
-                src={user.avatar}
-                alt="User Avatar"
-                className="object-cover"
-              />
-            </Avatar>
+            <UserAvatar user={user} size={16} />
             <form
               className="flex flex-col gap-2 w-full"
               onSubmit={handleSubmit(({ comment }) => {
@@ -365,25 +362,23 @@ export default function PostPage({
                 createCommentMutate(comment);
               })}
             >
-              <div className="flex flex-col">
-                <Textarea
-                  {...register("comment", {
-                    required: "Comment is required",
-                    maxLength: {
-                      value: COMMENT_MAX,
-                      message: `Comment must be at most ${COMMENT_MAX} characters long`,
-                    },
-                  })}
-                  placeholder="Comment"
-                  className={`h-24 ${errors.comment ? "border-red-500" : ""}`}
-                />
-                {errors.comment && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.comment.message || "An error occurred"}
-                  </p>
-                )}
-              </div>
-              <div className="flex justify-end">
+              <Textarea
+                {...register("comment", {
+                  required: "Comment is required",
+                  maxLength: {
+                    value: COMMENT_MAX,
+                    message: `Comment must be at most ${COMMENT_MAX} characters long`,
+                  },
+                })}
+                placeholder="Comment"
+                className={`h-24 ${errors.comment ? "border-red-500" : ""}`}
+              />
+              {errors.comment && (
+                <p className="text-red-500 text-sm -mt-1">
+                  {errors.comment.message || "An error occurred"}
+                </p>
+              )}
+              <div className="w-fit self-end">
                 <Button type="submit">Post comment</Button>
               </div>
             </form>

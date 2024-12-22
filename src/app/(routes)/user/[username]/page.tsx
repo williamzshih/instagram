@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserByUsername, toggleFollow, getUser } from "@/utils/actions";
 import { toast } from "sonner";
 import { Follow as FollowType, User as UserType } from "@prisma/client";
-import ProfilePicture from "@/components/ProfilePicture";
+import GradientAvatar from "@/components/GradientAvatar";
 import { SyncLoader } from "react-spinners";
 
 export default function UserPage({ params }: { params: { username: string } }) {
@@ -93,7 +93,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
       console.error(currentUserError);
       toast.error(currentUserError as unknown as string);
     }
-    
+
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
         <p>{otherUserError as unknown as string}</p>
@@ -119,7 +119,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
         <p className="text-2xl font-bold">{params.username}</p>
         <Button size="icon" className="invisible" />
       </div>
-      <ProfilePicture user={otherUser} />
+      <GradientAvatar user={otherUser} size={40} />
       <p className="text-xl font-bold">{otherUser.name}</p>
       <p className="text-lg">{otherUser.bio}</p>
       <Button

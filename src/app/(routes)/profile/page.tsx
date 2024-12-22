@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
-import ProfilePicture from "@/components/ProfilePicture";
+import GradientAvatar from "@/components/GradientAvatar";
 import { SyncLoader } from "react-spinners";
 
 export default function ProfilePage() {
@@ -61,7 +61,7 @@ export default function ProfilePage() {
           </Link>
         </Button>
       </div>
-      <ProfilePicture user={user} />
+      <GradientAvatar user={user} size={40} />
       <p className="text-xl font-bold">{user.name}</p>
       <p className="text-lg">{user.bio}</p>
       <div className="flex items-center justify-center gap-2">

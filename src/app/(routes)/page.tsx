@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import ProfilePicture from "@/components/ProfilePicture";
+import GradientAvatar from "@/components/GradientAvatar";
 import Post from "./post/[id]/page";
 import { SyncLoader } from "react-spinners";
 
@@ -57,7 +57,7 @@ export default function HomePage() {
             className="flex flex-col items-center justify-center gap-1"
           >
             <div className="w-24 h-24">
-              <ProfilePicture user={user.whoTheyreFollowing} size={20} />
+              <GradientAvatar user={user.whoTheyreFollowing} size={20} />
             </div>
             <p className="text-sm text-gray-500">
               {user.whoTheyreFollowing.username}
