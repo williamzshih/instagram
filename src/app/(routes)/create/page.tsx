@@ -36,6 +36,7 @@ export default function CreatePage() {
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm({
     mode: "onTouched",
     defaultValues: {
@@ -98,7 +99,10 @@ export default function CreatePage() {
       </Label>
       <form
         className="flex flex-col items-center justify-center gap-2 w-1/2"
-        onSubmit={handleSubmit((data) => createPostMutation(data))}
+        onSubmit={handleSubmit((data) => {
+          reset();
+          createPostMutation(data);
+        })}
       >
         <div
           className={`w-full flex items-center justify-between ${

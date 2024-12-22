@@ -13,7 +13,7 @@ export default function UserHeader({
   return (
     <div className={`flex items-center gap-2 justify-${justify}`}>
       <UserAvatar user={user} size={size} />
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col">
         <p>{user.name}</p>
         <p className="text-sm text-gray-500">@{user.username}</p>
       </div>
