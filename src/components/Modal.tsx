@@ -19,7 +19,15 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         }
       }}
     >
-      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh]">
+      <DialogContent
+        className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh]"
+        onClick={(e) => {
+          const link = (e.target as HTMLElement).closest("a");
+          if (link) {
+            setIsOpen(false);
+          }
+        }}
+      >
         <ScrollArea>{children}</ScrollArea>
       </DialogContent>
     </Dialog>

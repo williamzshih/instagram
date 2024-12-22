@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getSession } from "@/utils/actions";
 import { SyncLoader } from "react-spinners";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function UserAvatar({
   user,
@@ -57,21 +58,21 @@ export default function UserAvatar({
       : "w-40 h-40";
 
   return (
-    <Avatar
-      className={`${sizeClass} cursor-pointer`}
-      onClick={() => {
-        if (session?.user?.email === user.email) {
-          router.push(`/profile`);
-        } else {
-          router.push(`/user/${user.username}`);
-        }
-      }}
+    <Link
+      href={
+        session?.user?.email === user.email
+          ? "/profile"
+          : `/user/${user.username}`
+      }
+      replace
     >
-      <AvatarImage
-        src={user.avatar}
-        alt="User avatar"
-        className="object-cover"
-      />
-    </Avatar>
+      <Avatar className={sizeClass}>
+        <AvatarImage
+          src={user.avatar}
+          alt="User avatar"
+          className="object-cover"
+        />
+      </Avatar>
+    </Link>
   );
 }
