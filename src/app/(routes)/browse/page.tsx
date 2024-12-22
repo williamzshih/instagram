@@ -2,7 +2,7 @@
 
 import PostsGrid from "@/components/PostsGrid";
 import { getPosts } from "@/utils/actions";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ export default function BrowsePage() {
   } = useQuery({
     queryKey: ["posts", "browsePage", sortBy],
     queryFn: () => getPosts(sortBy),
+    placeholderData: keepPreviousData,
   });
 
   if (isPending) {
@@ -50,7 +51,8 @@ export default function BrowsePage() {
 
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-4">
-      <div className="flex items-center justify-center gap-2">
+      <div className="text-3xl font-bold text-left w-full">Browse</div>
+      <div className="w-full flex items-center gap-2">
         Sort by:
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
