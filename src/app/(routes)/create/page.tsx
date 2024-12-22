@@ -17,12 +17,12 @@ const CAPTION_MAX = 1000;
 export default function CreatePage() {
   const router = useRouter();
 
-  const { mutate } = useMutation({
+  const { mutate: createPostMutation } = useMutation({
     mutationFn: ({ image, caption }: { image: string; caption: string }) =>
       createPost(image, caption),
     onError: (error) => {
-      console.error("Error creating post:", error);
-      toast.error("Error creating post");
+      console.error(error);
+      toast.error(error as unknown as string);
     },
     onSuccess: (id: string) => {
       toast.success("Post created");
@@ -60,8 +60,8 @@ export default function CreatePage() {
       const url = await uploadRequest.json();
       setValue("image", url);
     } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("Error uploading file");
+      console.error(error);
+      toast.error(error as unknown as string);
     }
   };
 
@@ -98,7 +98,7 @@ export default function CreatePage() {
       </Label>
       <form
         className="flex flex-col items-center justify-center gap-2 w-1/2"
-        onSubmit={handleSubmit((data) => mutate(data))}
+        onSubmit={handleSubmit((data) => createPostMutation(data))}
       >
         <div
           className={`w-full flex items-center justify-between ${
