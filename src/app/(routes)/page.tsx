@@ -6,31 +6,33 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import Post from "./post/[id]/page";
+import { SyncLoader } from "react-spinners";
 
-export default function Home() {
+export default function HomePage() {
   const {
     data: user,
-    isPending,
-    error,
+    isPending: isUserPending,
+    error: userError,
   } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", "homePage"],
     queryFn: () => getUser(),
   });
 
-  if (isPending) {
+  if (isUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        <p>Loading...</p>
+        <SyncLoader />
       </div>
     );
   }
 
-  if (error) {
-    console.error("Error fetching user", error);
-    toast.error("Error fetching user");
+  if (userError) {
+    console.error(userError);
+    toast.error(userError as unknown as string);
+
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        <p>Error fetching user</p>
+        {userError as unknown as string}
       </div>
     );
   }
@@ -38,7 +40,7 @@ export default function Home() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        <p>User not found</p>
+        User not found
       </div>
     );
   }

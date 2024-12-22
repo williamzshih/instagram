@@ -93,6 +93,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
       console.error(currentUserError);
       toast.error(currentUserError as unknown as string);
     }
+    
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
         <p>{otherUserError as unknown as string}</p>
