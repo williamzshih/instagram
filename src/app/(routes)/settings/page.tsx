@@ -123,8 +123,8 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-4">
       <p className="text-2xl font-bold">Profile Settings</p>
-      <div className="p-1 rounded-full flex items-center justify-center bg-gradient-to-tr from-ig-orange to-ig-red">
-        <div className="p-1 bg-white rounded-full">
+      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
+        <div className="p-1 rounded-full bg-white">
           <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
             <Avatar className="w-40 h-40 group">
               <AvatarImage
@@ -133,33 +133,34 @@ export default function SettingsPage() {
                   "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                 }
                 alt="User avatar"
-                className="group-hover:brightness-75 object-cover"
+                className="rounded-full group-hover:brightness-75 object-cover"
               />
               <Upload
                 size={40}
                 className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 ${
+                  watch("avatar") === "" ||
                   watch("avatar") ===
-                  "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
+                    "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                     ? "text-gray-500"
                     : "text-white"
                 }`}
               />
             </Avatar>
-            <Input
-              id="avatar"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => uploadFile(e.target.files?.[0])}
-            />
           </Label>
+          <Input
+            id="avatar"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => uploadFile(e.target.files?.[0])}
+          />
         </div>
       </div>
       <form
-        className="flex flex-col items-center gap-2 w-1/2"
+        className="flex flex-col gap-2 w-1/2"
         onSubmit={handleSubmit((data) => upsertUserMutation(data))}
       >
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col">
           <div
             className={`flex items-center justify-between ${
               errors.username ? "text-red-500" : ""
@@ -191,7 +192,7 @@ export default function SettingsPage() {
             </p>
           )}
         </div>
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col">
           <div
             className={`flex items-center justify-between ${
               errors.name ? "text-red-500" : ""
@@ -223,7 +224,7 @@ export default function SettingsPage() {
             </p>
           )}
         </div>
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col">
           <div
             className={`flex items-center justify-between ${
               errors.bio ? "text-red-500" : ""
@@ -250,7 +251,9 @@ export default function SettingsPage() {
             </p>
           )}
         </div>
-        <Button type="submit">Save settings</Button>
+        <Button className="w-fit self-center" type="submit">
+          Save settings
+        </Button>
       </form>
       <Button onClick={() => signOutMutation()}>Sign out</Button>
     </div>
