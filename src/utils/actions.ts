@@ -167,7 +167,11 @@ export async function getUserByUsername(username: string) {
             user: true,
           },
         },
-        following: true,
+        following: {
+          include: {
+            whoTheyreFollowing: true,
+          },
+        },
       },
     });
   } catch (error) {
