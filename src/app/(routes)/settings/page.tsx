@@ -60,7 +60,7 @@ export default function SettingsPage() {
     mutationFn: () => signOutAction(),
     onSuccess: () => {
       queryClient.clear();
-      router.push("/");
+      router.push("/sign-in");
     },
   });
 

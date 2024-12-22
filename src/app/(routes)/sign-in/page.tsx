@@ -4,16 +4,17 @@ import { Button } from "@/components/ui/button";
 import { signInAction, signOutAction, getSession } from "@/utils/actions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { SyncLoader } from "react-spinners";
 
 export default function SignInPage() {
   const queryClient = useQueryClient();
 
   const {
     data: session,
-    isPending,
-    error,
+    isPending: isSessionPending,
+    error: sessionError,
   } = useQuery({
-    queryKey: ["session"],
+    queryKey: ["session", "signInPage"],
     queryFn: () => getSession(),
   });
 
@@ -24,23 +25,24 @@ export default function SignInPage() {
   const { mutate: signOut } = useMutation({
     mutationFn: () => signOutAction(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["session"] });
+      queryClient.clear();
     },
   });
 
-  if (isPending)
+  if (isSessionPending)
     return (
       <div className="flex flex-col justify-center items-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
 
-  if (error) {
-    console.error("Error fetching session:", error);
-    toast.error("Error fetching session");
+  if (sessionError) {
+    console.error(sessionError);
+    toast.error(sessionError as unknown as string);
+
     return (
       <div className="flex flex-col justify-center items-center p-4 text-red-500">
-        Error fetching session: {error.message}
+        {sessionError as unknown as string}
       </div>
     );
   }
