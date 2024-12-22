@@ -128,7 +128,9 @@ export default function UserPage({ params }: { params: { username: string } }) {
         <Button variant="ghost" className="w-fit h-fit">
           <Link href={`/user/${params.username}/followers`}>
             <div className="flex flex-col items-center justify-center">
-              <p className="text-lg font-bold">{otherUser.followers.length}</p>
+              <p className="text-lg font-bold">
+                {otherUser.followers.length === 1 ? "Follower" : "Followers"}
+              </p>
               <p>Followers</p>
             </div>
           </Link>

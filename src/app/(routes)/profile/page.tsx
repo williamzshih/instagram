@@ -70,7 +70,7 @@ export default function ProfilePage() {
           <Link href={`/profile/followers`}>
             <div className="flex flex-col items-center justify-center">
               <p className="text-lg font-bold">{user.followers.length}</p>
-              <p>Followers</p>
+              <p>{user.followers.length === 1 ? "Follower" : "Followers"}</p>
             </div>
           </Link>
         </Button>
