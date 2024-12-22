@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
       .group(process.env.PINATA_GROUP_ID || "");
     const url = `https://${process.env.NEXT_PUBLIC_GATEWAY_URL}/files/${uploadData.cid}`;
     return NextResponse.json(url, { status: 200 });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
