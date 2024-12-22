@@ -19,7 +19,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         }
       }}
     >
-      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] flex flex-col">
+      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh]">
         <ScrollArea>{children}</ScrollArea>
       </DialogContent>
     </Dialog>
