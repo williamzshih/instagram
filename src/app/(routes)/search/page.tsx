@@ -19,7 +19,7 @@ export default function SearchPage() {
   }, [search]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col p-4">
       <Input {...register("search")} placeholder="Search" />
       <SearchResults q={debouncedSearch} />
     </div>

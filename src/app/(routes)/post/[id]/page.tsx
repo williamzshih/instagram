@@ -354,7 +354,7 @@ export default function PostPage({
             </Button>
           )}
           <div className="flex justify-center gap-2">
-            <UserAvatar user={user} size={16} />
+            <UserAvatar user={user} size={12} />
             <form
               className="flex flex-col gap-2 w-full"
               onSubmit={handleSubmit(({ comment }) => {
