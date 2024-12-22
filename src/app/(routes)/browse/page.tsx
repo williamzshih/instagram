@@ -32,7 +32,7 @@ export default function BrowsePage() {
 
   if (isPending) {
     return (
-      <div className="flex flex-col items-center justify-center p-4">
+      <div className="h-screen flex flex-col items-center justify-center">
         <SyncLoader />
       </div>
     );

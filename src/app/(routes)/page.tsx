@@ -31,7 +31,7 @@ export default function SignInPage() {
 
   if (isSessionPending)
     return (
-      <div className="flex flex-col justify-center items-center p-4">
+      <div className="h-screen flex flex-col justify-center items-center">
         <SyncLoader />
       </div>
     );

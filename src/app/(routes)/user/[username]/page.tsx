@@ -78,7 +78,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
 
   if (isOtherUserPending || isCurrentUserPending) {
     return (
-      <div className="flex flex-col items-center justify-center p-4">
+      <div className="h-screen flex flex-col items-center justify-center">
         <SyncLoader />
       </div>
     );
