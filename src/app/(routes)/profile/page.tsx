@@ -6,7 +6,7 @@ import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { getUser } from "@/utils/actions";
+import { getOrCreateUser } from "@/utils/actions";
 import { toast } from "sonner";
 import GradientAvatar from "@/components/GradientAvatar";
 import { SyncLoader } from "react-spinners";
@@ -20,7 +20,7 @@ export default function ProfilePage() {
     error: userError,
   } = useQuery({
     queryKey: ["user", "profilePage"],
-    queryFn: () => getUser(),
+    queryFn: () => getOrCreateUser(),
   });
 
   if (isUserPending) {

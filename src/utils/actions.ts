@@ -12,7 +12,9 @@ import { auth, signIn, signOut } from "@/auth";
 const prisma = new PrismaClient();
 
 export async function signInAction() {
-  await signIn("google");
+  await signIn("google", {
+    redirectTo: "/profile",
+  });
 }
 
 export async function signOutAction() {
@@ -96,6 +98,45 @@ export async function getUser() {
         },
       },
     });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw new Error("Error fetching user", { cause: error });
+  }
+}
+
+export async function getOrCreateUser() {
+  try {
+    const user = await getUser();
+
+    if (!user) {
+      const session = await getSession();
+      return await prisma.user.create({
+        data: {
+          email: await getEmail(),
+          username:
+            (session?.user?.name?.replaceAll(/\s/g, "") ?? "user") +
+            (session?.user?.id ?? Math.random().toString().substring(2)),
+          name: session?.user?.name ?? "Name",
+          bio: "",
+          posts: {
+            create: [],
+          },
+          bookmarks: {
+            create: [],
+          },
+        },
+        include: {
+          posts: true,
+          bookmarks: {
+            include: {
+              post: true,
+            },
+          },
+        },
+      });
+    }
+
+    return user;
   } catch (error) {
     console.error("Error fetching user:", error);
     throw new Error("Error fetching user", { cause: error });

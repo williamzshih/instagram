@@ -7,7 +7,7 @@ export default function MobileNav() {
     <div className="fixed bottom-0 left-0 right-0 flex items-center justify-center md:hidden">
       <div className="w-full p-2 flex items-center justify-evenly rounded-t-lg bg-white">
         <Button variant="ghost" size="icon">
-          <Link href="/">
+          <Link href="/home">
             <House />
           </Link>
         </Button>
