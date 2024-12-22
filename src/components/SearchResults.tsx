@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import UserHeader from "@/components/UserHeader";
 import Comment from "@/components/Comment";
+import { SyncLoader } from "react-spinners";
 
 export default function SearchResults({ q }: { q: string }) {
   const {
@@ -15,7 +16,7 @@ export default function SearchResults({ q }: { q: string }) {
     isPending: isUsersPending,
     error: usersError,
   } = useQuery({
-    queryKey: ["users", q],
+    queryKey: ["users", "searchResults", q],
     queryFn: () => searchUsers(q),
     placeholderData: keepPreviousData,
   });
@@ -25,7 +26,7 @@ export default function SearchResults({ q }: { q: string }) {
     isPending: isPostsPending,
     error: postsError,
   } = useQuery({
-    queryKey: ["posts", q],
+    queryKey: ["posts", "searchResults", q],
     queryFn: () => searchPosts(q),
     placeholderData: keepPreviousData,
   });
@@ -35,7 +36,7 @@ export default function SearchResults({ q }: { q: string }) {
     isPending: isUserPending,
     error: userError,
   } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", "searchResults"],
     queryFn: () => getUser(),
   });
 
@@ -46,29 +47,29 @@ export default function SearchResults({ q }: { q: string }) {
   if (isUsersPending || isPostsPending || isUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
   if (usersError || postsError || userError) {
     if (usersError) {
-      console.error("Error searching users:", usersError);
-      toast.error("Error searching users");
+      console.error(usersError);
+      toast.error(usersError as unknown as string);
     }
     if (postsError) {
-      console.error("Error searching posts:", postsError);
-      toast.error("Error searching posts");
+      console.error(postsError);
+      toast.error(postsError as unknown as string);
     }
     if (userError) {
-      console.error("Error fetching user:", userError);
-      toast.error("Error fetching user");
+      console.error(userError);
+      toast.error(userError as unknown as string);
     }
     return (
       <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
-        <p>{usersError && `Error searching users: ${usersError.message}`}</p>
-        <p>{postsError && `Error searching posts: ${postsError.message}`}</p>
-        <p>{userError && `Error fetching user: ${userError.message}`}</p>
+        <p>{usersError as unknown as string}</p>
+        <p>{postsError as unknown as string}</p>
+        <p>{userError as unknown as string}</p>
       </div>
     );
   }
@@ -96,9 +97,9 @@ export default function SearchResults({ q }: { q: string }) {
                   ? `/profile`
                   : `/user/${searchedUser.username}`
               }
-              className="bg-gray-100 rounded-lg flex p-2"
+              className="bg-gray-100 rounded-lg p-2"
             >
-              <UserHeader user={searchedUser} />
+              <UserHeader user={searchedUser} size={24} justify="evenly" />
             </Link>
           ))}
         </div>
@@ -113,7 +114,7 @@ export default function SearchResults({ q }: { q: string }) {
             <Link
               key={post.id}
               href={`/post/${post.id}`}
-              className="bg-gray-100 rounded-lg flex flex-col p-2 gap-2"
+              className="bg-gray-100 rounded-lg p-2 flex flex-col gap-2"
             >
               <Image
                 src={post.image}
@@ -127,6 +128,7 @@ export default function SearchResults({ q }: { q: string }) {
                 user={post.user}
                 comment={post.caption}
                 createdAt={post.createdAt}
+                size={12}
               />
             </Link>
           ))}

@@ -49,16 +49,14 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center p-4 gap-4">
       <div className="flex gap-4 self-start">
         <div className="w-24 h-24 rounded-full border-2 flex items-center justify-center">
-          <Plus size={30} />
+          <Plus size={24} />
         </div>
         {user.following.map((user) => (
           <div
             key={user.whoTheyreFollowing.id}
             className="flex flex-col items-center justify-center gap-1"
           >
-            <div className="w-24 h-24">
-              <GradientAvatar user={user.whoTheyreFollowing} size={20} />
-            </div>
+            <GradientAvatar user={user.whoTheyreFollowing} size={20} />
             <p className="text-sm text-gray-500">
               {user.whoTheyreFollowing.username}
             </p>

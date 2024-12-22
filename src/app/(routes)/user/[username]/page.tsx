@@ -126,7 +126,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
         className={
           follow ? "bg-gradient-to-tr from-ig-orange to-ig-red text-white" : ""
         }
-        onClick={() => mutate(follow)}
+        onClick={() => toggleFollowMutation(follow)}
         {...(follow
           ? {
               onMouseEnter: (e) => (e.currentTarget.textContent = "Unfollow"),
