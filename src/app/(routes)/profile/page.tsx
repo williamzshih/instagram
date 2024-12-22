@@ -10,6 +10,7 @@ import { getOrCreateUser } from "@/utils/actions";
 import { toast } from "sonner";
 import GradientAvatar from "@/components/GradientAvatar";
 import { SyncLoader } from "react-spinners";
+import { Separator } from "@/components/ui/separator";
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState("posts");
@@ -64,6 +65,25 @@ export default function ProfilePage() {
       <GradientAvatar user={user} size={40} />
       <p className="text-xl font-bold">{user.name}</p>
       <p className="text-lg">{user.bio}</p>
+      <div className="flex items-center justify-center gap-2">
+        <Button variant="ghost" className="w-fit h-fit">
+          <Link href={`/profile/followers`}>
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-lg font-bold">{user.followers.length}</p>
+              <p>Followers</p>
+            </div>
+          </Link>
+        </Button>
+        <Button variant="ghost" className="w-fit h-fit">
+          <Link href={`/profile/following`}>
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-lg font-bold">{user.following.length}</p>
+              <p>Following</p>
+            </div>
+          </Link>
+        </Button>
+      </div>
+      <Separator />
       <div className="flex items-center justify-center gap-2">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}

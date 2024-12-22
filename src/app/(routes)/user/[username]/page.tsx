@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { Follow as FollowType, User as UserType } from "@prisma/client";
 import GradientAvatar from "@/components/GradientAvatar";
 import { SyncLoader } from "react-spinners";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export default function UserPage({ params }: { params: { username: string } }) {
   const [selectedTab, setSelectedTab] = useState("posts");
@@ -122,6 +124,24 @@ export default function UserPage({ params }: { params: { username: string } }) {
       <GradientAvatar user={otherUser} size={40} />
       <p className="text-xl font-bold">{otherUser.name}</p>
       <p className="text-lg">{otherUser.bio}</p>
+      <div className="flex items-center justify-center gap-2">
+        <Button variant="ghost" className="w-fit h-fit">
+          <Link href={`/user/${params.username}/followers`}>
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-lg font-bold">{otherUser.followers.length}</p>
+              <p>Followers</p>
+            </div>
+          </Link>
+        </Button>
+        <Button variant="ghost" className="w-fit h-fit">
+          <Link href={`/user/${params.username}/following`}>
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-lg font-bold">{otherUser.following.length}</p>
+              <p>Following</p>
+            </div>
+          </Link>
+        </Button>
+      </div>
       <Button
         className={
           follow ? "bg-gradient-to-tr from-ig-orange to-ig-red text-white" : ""
@@ -136,6 +156,7 @@ export default function UserPage({ params }: { params: { username: string } }) {
       >
         {follow ? "Following" : "Follow"}
       </Button>
+      <Separator />
       <div className="flex items-center justify-center gap-2">
         <Button
           variant={selectedTab === "posts" ? "default" : "ghost"}

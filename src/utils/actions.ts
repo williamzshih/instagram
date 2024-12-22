@@ -91,6 +91,11 @@ export async function getUser() {
             },
           },
         },
+        followers: {
+          include: {
+            user: true,
+          },
+        },
         bookmarks: {
           include: {
             post: true,
@@ -124,6 +129,12 @@ export async function getOrCreateUser() {
           bookmarks: {
             create: [],
           },
+          followers: {
+            create: [],
+          },
+          following: {
+            create: [],
+          },
         },
         include: {
           posts: true,
@@ -132,6 +143,8 @@ export async function getOrCreateUser() {
               post: true,
             },
           },
+          followers: true,
+          following: true,
         },
       });
     }
@@ -154,6 +167,7 @@ export async function getUserByUsername(username: string) {
             user: true,
           },
         },
+        following: true,
       },
     });
   } catch (error) {
