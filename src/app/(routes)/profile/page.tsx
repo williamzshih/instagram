@@ -9,33 +9,35 @@ import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/utils/actions";
 import { toast } from "sonner";
 import ProfilePicture from "@/components/ProfilePicture";
+import { SyncLoader } from "react-spinners";
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState("posts");
 
   const {
     data: user,
-    isPending,
-    error,
+    isPending: isUserPending,
+    error: userError,
   } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", "profilePage"],
     queryFn: () => getUser(),
   });
 
-  if (isPending) {
+  if (isUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
-  if (error) {
-    console.error("Error fetching user:", error);
-    toast.error("Error fetching user");
+  if (userError) {
+    console.error(userError);
+    toast.error(userError as unknown as string);
+
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        <p>Error fetching user: {error.message}</p>
+        <p>{userError as unknown as string}</p>
       </div>
     );
   }
@@ -43,7 +45,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        <p>User not found</p>
+        User not found
       </div>
     );
   }
