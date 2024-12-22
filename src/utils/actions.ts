@@ -44,8 +44,13 @@ export async function upsertUser(
 ) {
   try {
     const email = await getEmail();
-    await prisma.user.upsert({
-      where: { username },
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    const user = await prisma.user.upsert({
+      where: { email },
       update: {
         avatar,
         username,
@@ -60,6 +65,11 @@ export async function upsertUser(
         bio,
       },
     });
+
+    return {
+      user,
+      updateOrInsert: existingUser ? "update" : "insert",
+    };
   } catch (error) {
     console.error("Error upserting user:", error);
     throw new Error("Error upserting user", { cause: error });

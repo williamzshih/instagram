@@ -11,6 +11,7 @@ import { upsertUser, getUser, signOutAction } from "@/utils/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { SyncLoader } from "react-spinners";
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
@@ -24,10 +25,10 @@ export default function SettingsPage() {
 
   const {
     data: user,
-    isPending,
-    error,
+    isPending: isUserPending,
+    error: userError,
   } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", "settingsPage"],
     queryFn: () => getUser(),
   });
 
@@ -44,11 +45,13 @@ export default function SettingsPage() {
       bio: string;
     }) => upsertUser(avatar, username, name, bio),
     onError: (error) => {
-      console.error("Error updating user:", error);
-      toast.error("Error updating user");
+      console.error(error);
+      toast.error(error as unknown as string);
     },
-    onSuccess: () => {
-      toast.success("User updated");
+    onSuccess: (data) => {
+      toast.success(
+        data.updateOrInsert === "update" ? "User updated" : "User created"
+      );
       router.push("/profile");
     },
   });
@@ -56,7 +59,7 @@ export default function SettingsPage() {
   const { mutate: signOutMutation } = useMutation({
     mutationFn: () => signOutAction(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.clear();
       router.push("/");
     },
   });
@@ -93,25 +96,26 @@ export default function SettingsPage() {
       const url = await uploadRequest.json();
       setValue("avatar", url);
     } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("Error uploading file");
+      console.error(error);
+      toast.error(error as unknown as string);
     }
   };
 
-  if (isPending) {
+  if (isUserPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
-  if (error) {
-    console.error("Error fetching user:", error);
-    toast.error("Error fetching user");
+  if (userError) {
+    console.error(userError);
+    toast.error(userError as unknown as string);
+
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        Error fetching user: {error.message}
+        {userError as unknown as string}
       </div>
     );
   }
