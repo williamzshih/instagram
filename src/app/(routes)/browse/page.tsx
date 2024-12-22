@@ -15,6 +15,7 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { SyncLoader } from "react-spinners";
 
 export default function BrowsePage() {
   const [sortBy, setSortBy] = useState("Newest");
@@ -24,24 +25,25 @@ export default function BrowsePage() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ["posts", sortBy],
+    queryKey: ["posts", "browse", sortBy],
     queryFn: () => getPosts(sortBy),
   });
 
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center p-4">
-        Loading...
+        <SyncLoader />
       </div>
     );
   }
 
   if (error) {
-    console.error("Error fetching posts:", error);
-    toast.error("Error fetching posts");
+    console.error(error);
+    toast.error(error as unknown as string);
+
     return (
       <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        Error fetching posts: {error.message}
+        {error as unknown as string}
       </div>
     );
   }

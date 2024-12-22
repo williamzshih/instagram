@@ -201,13 +201,13 @@ export async function getPosts(sortBy: string) {
     let orderBy: Prisma.PostOrderByWithRelationInput;
 
     switch (sortBy) {
-      case "newest":
+      case "Newest":
         orderBy = { createdAt: "desc" };
         break;
-      case "oldest":
+      case "Oldest":
         orderBy = { createdAt: "asc" };
         break;
-      case "most-popular":
+      case "Most Popular":
         orderBy = {
           likes: {
             _count: "desc",
