@@ -2,7 +2,6 @@
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { User as UserType } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getSession } from "@/utils/actions";
 import { SyncLoader } from "react-spinners";
@@ -16,8 +15,6 @@ export default function UserAvatar({
   user: UserType;
   size: number;
 }) {
-  const router = useRouter();
-
   const {
     data: session,
     isPending,

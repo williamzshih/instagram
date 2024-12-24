@@ -5,7 +5,6 @@ import { getUserByUsername } from "@/utils/actions";
 import { toast } from "sonner";
 import { SyncLoader } from "react-spinners";
 import UserHeader from "@/components/UserHeader";
-import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 
 export default function FollowingPage({
