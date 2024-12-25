@@ -30,13 +30,11 @@ import UserAvatar from "@/components/UserAvatar";
 
 const COMMENT_MAX = 1000;
 
-export default function PostPage({
-  params,
-  fromHome = false,
-}: {
+export default function PostPage({ params, searchParams }: {
   params: { id: string };
-  fromHome?: boolean;
+  searchParams?: { from: string };
 }) {
+  const fromHome = searchParams?.from === "home";
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(!fromHome);
   const router = useRouter();

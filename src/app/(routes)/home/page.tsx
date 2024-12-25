@@ -66,7 +66,11 @@ export default function HomePage() {
       {user.following
         .flatMap((user) => user.whoTheyreFollowing.posts)
         .map((post) => (
-          <PostPage key={post.id} params={{ id: post.id }} fromHome />
+          <PostPage
+            key={post.id}
+            params={{ id: post.id }}
+            searchParams={{ from: "home" }}
+          />
         ))}
     </div>
   );
