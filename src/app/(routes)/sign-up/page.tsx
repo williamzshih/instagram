@@ -1,13 +1,13 @@
 import { auth } from "@/auth";
+import SignUpForm from "@/components/SignUpForm";
 import { redirect } from "next/navigation";
-import HomeFeed from "@/components/HomeFeed";
 
-export default async function Home() {
+export default async function SignUp() {
   const session = await auth();
 
   if (!session) {
     redirect("/sign-in");
   }
 
-  return <HomeFeed />;
+  return <SignUpForm session={session} />;
 }

@@ -20,8 +20,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Instagram Clone",
-  description: "Instagram Clone",
+  title: "Instagram",
+  description: "Instagram",
 };
 
 export default function RootLayout({
