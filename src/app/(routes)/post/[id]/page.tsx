@@ -4,7 +4,6 @@ import {
   getPost,
   toggleLike,
   createComment,
-  getUser,
   toggleBookmark,
 } from "@/utils/actions";
 import Comment from "@/components/Comment";
@@ -23,55 +22,67 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SyncLoader } from "react-spinners";
 import UserAvatar from "@/components/UserAvatar";
+import { COMMENT_MAX } from "@/limits";
+import { useTheme } from "next-themes";
+import {
+  Form,
+  FormMessage,
+  FormControl,
+  FormItem,
+  FormField,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import PostSkeleton from "@/components/PostSkeleton";
 
-const COMMENT_MAX = 1000;
+const formSchema = z.object({
+  comment: z
+    .string()
+    .min(1, { message: "Comment is required" })
+    .max(COMMENT_MAX, {
+      message: `Comment must be at most ${COMMENT_MAX} characters long`,
+    }),
+});
 
-export default function PostPage({ params, searchParams }: {
+export default function Post({
+  params,
+  searchParams,
+  user,
+}: {
   params: { id: string };
   searchParams?: { from: string };
+  user: UserType;
 }) {
-  const fromHome = searchParams?.from === "home";
+  const fromHomeFeed = searchParams?.from === "homeFeed";
+  const [showComments, setShowComments] = useState(!fromHomeFeed);
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
   const queryClient = useQueryClient();
-  const [showComments, setShowComments] = useState(!fromHome);
   const router = useRouter();
 
   const {
     data: post,
-    isPending: isPostPending,
-    error: postError,
+    isPending,
+    error,
   } = useQuery({
-    queryKey: ["post", "postPage", params.id],
+    queryKey: ["post", params.id],
     queryFn: () => getPost(params.id),
   });
 
-  const {
-    data: user,
-    isPending: isUserPending,
-    error: userError,
-  } = useQuery({
-    queryKey: ["user", "postPage"],
-    queryFn: () => getUser(),
-  });
-
   const { mutate: toggleLikeMutate } = useMutation({
-    mutationFn: (like: LikeType | undefined) => toggleLike(like, params.id),
-    onMutate: async (like) => {
+    mutationFn: () => toggleLike(like, params.id),
+    onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: ["post", "postPage", params.id],
+        queryKey: ["post", params.id],
       });
 
-      const previousPost = queryClient.getQueryData([
-        "post",
-        "postPage",
-        params.id,
-      ]);
+      const previousPost = queryClient.getQueryData(["post", params.id]);
 
       queryClient.setQueryData(
-        ["post", "postPage", params.id],
+        ["post", params.id],
         (
           old: PostType & {
             likes: (LikeType & { user: UserType })[];
@@ -80,46 +91,32 @@ export default function PostPage({ params, searchParams }: {
           ...old,
           likes: like
             ? old.likes.filter((l) => l.id !== like.id)
-            : [...old.likes, { user: { id: user?.id } }],
+            : [...old.likes, { user: { id: user.id } }],
         })
       );
 
       return { previousPost };
     },
     onError: (error, _, context) => {
-      console.error(error);
-      toast.error(error as unknown as string);
-
-      queryClient.setQueryData(
-        ["post", "postPage", params.id],
-        context?.previousPost
-      );
+      toast.error(error.message);
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["post", "postPage", params.id],
-      });
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
     },
   });
 
   const { mutate: toggleBookmarkMutate } = useMutation({
-    mutationFn: (bookmark: BookmarkType | undefined) =>
-      toggleBookmark(bookmark, params.id),
-    onMutate: async (bookmark) => {
+    mutationFn: () => toggleBookmark(bookmark, params.id),
+    onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: ["post", "postPage", params.id],
+        queryKey: ["post", params.id],
       });
-      await queryClient.cancelQueries({ queryKey: ["user", "profilePage"] });
 
-      const previousPost = queryClient.getQueryData([
-        "post",
-        "postPage",
-        params.id,
-      ]);
-      const previousUser = queryClient.getQueryData(["user", "profilePage"]);
+      const previousPost = queryClient.getQueryData(["post", params.id]);
 
       queryClient.setQueryData(
-        ["post", "postPage", params.id],
+        ["post", params.id],
         (
           old: PostType & {
             bookmarks: (BookmarkType & { user: UserType })[];
@@ -128,46 +125,18 @@ export default function PostPage({ params, searchParams }: {
           ...old,
           bookmarks: bookmark
             ? old.bookmarks.filter((b) => b.id !== bookmark.id)
-            : [...old.bookmarks, { user: { id: user?.id } }],
+            : [...old.bookmarks, { user: { id: user.id } }],
         })
       );
 
-      if (previousUser) {
-        queryClient.setQueryData(
-          ["user", "profilePage"],
-          (
-            old: UserType & { bookmarks: (BookmarkType & { post: PostType })[] }
-          ) => ({
-            ...old,
-            bookmarks: bookmark
-              ? old.bookmarks.filter((b) => b.id !== bookmark.id)
-              : [
-                  ...old.bookmarks,
-                  { post: { id: params.id, image: post?.image } },
-                ],
-          })
-        );
-      }
-
-      return { previousPost, previousUser };
+      return { previousPost };
     },
     onError: (error, _, context) => {
-      console.error(error);
-      toast.error(error as unknown as string);
-
-      queryClient.setQueryData(
-        ["post", "postPage", params.id],
-        context?.previousPost
-      );
-      queryClient.setQueryData(["user", "profilePage"], context?.previousUser);
+      toast.error(error.message);
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["post", "postPage", params.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user", "profilePage"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
     },
   });
 
@@ -175,20 +144,15 @@ export default function PostPage({ params, searchParams }: {
     mutationFn: (comment: string) => createComment(params.id, comment),
     onMutate: async (comment) => {
       await queryClient.cancelQueries({
-        queryKey: ["post", "postPage", params.id],
+        queryKey: ["post", params.id],
       });
 
-      const previousPost = queryClient.getQueryData([
-        "post",
-        "postPage",
-        params.id,
-      ]);
+      const previousPost = queryClient.getQueryData(["post", params.id]);
 
       queryClient.setQueryData(
-        ["post", "postPage", params.id],
+        ["post", params.id],
         (
           old: PostType & {
-            user: UserType;
             comments: (CommentType & { user: UserType })[];
           }
         ) => ({
@@ -199,9 +163,9 @@ export default function PostPage({ params, searchParams }: {
               comment: comment,
               createdAt: new Date(),
               user: {
-                avatar: user?.avatar || "",
-                username: user?.username || "",
-                name: user?.name || "",
+                avatar: user.avatar,
+                username: user.username,
+                name: user.name,
               },
             },
           ],
@@ -211,176 +175,157 @@ export default function PostPage({ params, searchParams }: {
       return { previousPost };
     },
     onError: (error, _, context) => {
-      console.error(error);
-      toast.error(error as unknown as string);
-
-      queryClient.setQueryData(
-        ["post", "postPage", params.id],
-        context?.previousPost
-      );
+      toast.error(error.message);
+      queryClient.setQueryData(["post", params.id], context?.previousPost);
     },
-    onSuccess: () => toast.success("Comment created"),
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["post", "postPage", params.id],
-      });
+      queryClient.invalidateQueries({ queryKey: ["post", params.id] });
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       comment: "",
     },
   });
 
-  if (isPostPending || isUserPending) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center">
-        <SyncLoader />
-      </div>
-    );
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    form.reset();
+    createCommentMutate(data.comment);
+  };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
   }
 
-  if (postError || userError) {
-    if (postError) {
-      console.error(postError);
-      toast.error(postError as unknown as string);
-    }
-    if (userError) {
-      console.error(userError);
-      toast.error(userError as unknown as string);
-    }
-    return (
-      <div className="flex flex-col items-center justify-center p-4 gap-4 text-red-500">
-        {postError && <p>{postError as unknown as string}</p>}
-        {userError && <p>{userError as unknown as string}</p>}
-      </div>
-    );
+  if (isPending) {
+    return <PostSkeleton />;
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        User not found
-      </div>
-    );
+  if (error) {
+    toast.error(error.message);
+    return <div>{error.message}</div>;
   }
 
   const like = post.likes.find((l) => l.user.id === user.id);
   const bookmark = post.bookmarks.find((b) => b.user.id === user.id);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 gap-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
-          <Image
-            src={post.image}
-            alt="Post image"
-            width={3840}
-            height={3840}
-            {...(fromHome
-              ? {
-                  className: "rounded-lg cursor-pointer",
-                  onClick: () => router.push(`/post/${post.id}`),
-                }
-              : { className: "rounded-lg" })}
-          />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toggleLikeMutate(like)}
-              >
-                <Heart
-                  size={32}
-                  absoluteStrokeWidth
-                  stroke={like ? "red" : "black"}
-                  fill={like ? "red" : "white"}
-                />
-              </Button>
-              <p>{post.likes.length}</p>
-            </div>
+    <div className="grid md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-2">
+        <Image
+          src={post.image}
+          alt="Post image"
+          width={1920}
+          height={1080}
+          className={`${fromHomeFeed ? "cursor-pointer" : ""}`}
+          onClick={
+            fromHomeFeed ? () => router.push(`/post/${post.id}`) : undefined
+          }
+        />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center gap-1">
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => toggleBookmarkMutate(bookmark)}
+              onClick={() => toggleLikeMutate()}
             >
-              <Bookmark
+              <Heart
                 size={32}
                 absoluteStrokeWidth
-                fill={bookmark ? "black" : "white"}
+                stroke={like ? "red" : theme === "light" ? "black" : "white"}
+                fill={like ? "red" : theme === "light" ? "white" : "black"}
               />
             </Button>
+            <p>{post.likes.length}</p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => toggleBookmarkMutate()}
+          >
+            <Bookmark
+              size={32}
+              absoluteStrokeWidth
+              fill={
+                bookmark
+                  ? theme === "light"
+                    ? "black"
+                    : "white"
+                  : theme === "light"
+                  ? "white"
+                  : "black"
+              }
+            />
+          </Button>
         </div>
-        <div className="flex flex-col gap-2">
-          <Comment
-            user={post.user}
-            comment={post.caption}
-            createdAt={post.createdAt}
-            size={16}
-          />
-          <Separator />
-          <p className="text-sm text-gray-500">
-            {post.comments.length}{" "}
-            {post.comments.length === 1 ? "comment" : "comments"}
-          </p>
-          {showComments &&
-            post.comments.map((comment) => (
-              <Comment
-                user={comment.user}
-                comment={comment.comment}
-                createdAt={comment.createdAt}
-                size={12}
-                key={comment.id}
+      </div>
+      <div className="flex flex-col gap-2">
+        <Comment
+          user={post.user}
+          comment={post.caption}
+          createdAt={post.createdAt}
+          size={12}
+        />
+        <Separator />
+        {showComments &&
+          post.comments.map((comment) => (
+            <Comment
+              user={comment.user}
+              comment={comment.comment}
+              createdAt={comment.createdAt}
+              size={10}
+              key={comment.id}
+            />
+          ))}
+        {post.comments.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-fit self-center"
+            onClick={() => setShowComments(!showComments)}
+          >
+            {showComments
+              ? `Hide ${post.comments.length} comment${
+                  post.comments.length > 1 ? "s" : ""
+                }`
+              : `Show ${post.comments.length} comment${
+                  post.comments.length > 1 ? "s" : ""
+                }`}
+          </Button>
+        )}
+        <div className="flex gap-2">
+          <UserAvatar user={user} size={10} />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+              <FormField
+                control={form.control}
+                name="comment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Comment"
+                        {...field}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            form.handleSubmit(onSubmit)();
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            ))}
-          {post.comments.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-fit self-center"
-              onClick={() => setShowComments(!showComments)}
-            >
-              {showComments ? "Hide comments" : "Show comments"}
-            </Button>
-          )}
-          <div className="flex justify-center gap-2">
-            <UserAvatar user={user} size={12} />
-            <form
-              className="flex flex-col gap-2 w-full"
-              onSubmit={handleSubmit(({ comment }) => {
-                reset();
-                createCommentMutate(comment);
-              })}
-            >
-              <Textarea
-                {...register("comment", {
-                  required: "Comment is required",
-                  maxLength: {
-                    value: COMMENT_MAX,
-                    message: `Comment must be at most ${COMMENT_MAX} characters long`,
-                  },
-                })}
-                placeholder="Comment"
-                className={`h-24 ${errors.comment ? "border-red-500" : ""}`}
-              />
-              {errors.comment && (
-                <p className="text-red-500 text-sm -mt-1">
-                  {errors.comment.message || "An error occurred"}
-                </p>
-              )}
-              <div className="w-fit self-end">
-                <Button type="submit">Post comment</Button>
-              </div>
             </form>
-          </div>
+          </Form>
         </div>
       </div>
     </div>

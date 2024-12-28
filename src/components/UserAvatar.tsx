@@ -1,11 +1,5 @@
-"use client";
-
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { User as UserType } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
-import { getSession } from "@/utils/actions";
-import { SyncLoader } from "react-spinners";
-import { toast } from "sonner";
 import Link from "next/link";
 
 export default function UserAvatar({
@@ -15,36 +9,10 @@ export default function UserAvatar({
   user: UserType;
   size: number;
 }) {
-  const {
-    data: session,
-    isPending,
-    error,
-  } = useQuery({
-    queryKey: ["session", "userAvatar"],
-    queryFn: () => getSession(),
-  });
-
-  if (isPending) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center">
-        <SyncLoader />
-      </div>
-    );
-  }
-
-  if (error) {
-    console.error(error);
-    toast.error(error as unknown as string);
-
-    return (
-      <div className="flex flex-col items-center justify-center p-4 text-red-500">
-        {error as unknown as string}
-      </div>
-    );
-  }
-
   const sizeClass =
-    size === 12
+    size === 10
+      ? "w-10 h-10"
+      : size === 12
       ? "w-12 h-12"
       : size === 16
       ? "w-16 h-16"
@@ -55,18 +23,11 @@ export default function UserAvatar({
       : "w-40 h-40";
 
   return (
-    <Link
-      href={
-        session?.user?.email === user.email
-          ? "/profile"
-          : `/user/${user.username}`
-      }
-      replace
-    >
+    <Link href={`/user/${user.username}`}>
       <Avatar className={sizeClass}>
         <AvatarImage
           src={user.avatar}
-          alt="User avatar"
+          alt={`${user.username} avatar`}
           className="object-cover"
         />
       </Avatar>

@@ -1,10 +1,21 @@
 import Modal from "@/components/Modal";
-import PostPage from "@/app/(routes)/post/[id]/page";
+import Post from "@/app/(routes)/post/[id]/page";
+import { getUser } from "@/utils/actions";
 
-export default function PostModalPage({ params }: { params: { id: string } }) {
+export default async function PostModal({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const user = await getUser();
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
   return (
     <Modal>
-      <PostPage params={params} />
+      <Post params={params} user={user} />
     </Modal>
   );
 }

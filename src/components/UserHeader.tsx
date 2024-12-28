@@ -4,18 +4,16 @@ import UserAvatar from "@/components/UserAvatar";
 export default function UserHeader({
   user,
   size,
-  justify,
 }: {
   user: UserType;
   size: number;
-  justify?: string;
 }) {
   return (
-    <div className={`flex items-center gap-2 justify-${justify}`}>
+    <div className="flex items-center gap-2">
       <UserAvatar user={user} size={size} />
       <div className="flex flex-col">
         <p>{user.name}</p>
-        <p className="text-sm text-gray-500">@{user.username}</p>
+        <p className="text-sm text-muted-foreground">@{user.username}</p>
       </div>
     </div>
   );

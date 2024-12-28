@@ -6,6 +6,9 @@ import MobileNav from "@/components/MobileNav";
 import DesktopNav from "@/components/DesktopNav";
 import QueryProvider from "@/components/QueryProvider";
 import { ThemeProvider } from "next-themes";
+import { auth } from "@/auth";
+import ThemeSwitch from "@/components/ThemeSwitch";
+import { prisma } from "@/utils/db";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -24,13 +27,26 @@ export const metadata: Metadata = {
   description: "Instagram",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   modal,
   children,
 }: Readonly<{
   modal: React.ReactNode;
   children: React.ReactNode;
 }>) {
+  let showNav = false;
+  const session = await auth();
+
+  if (session) {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user?.email || "" },
+    });
+
+    if (user) {
+      showNav = true;
+    }
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -38,12 +54,13 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class">
           <QueryProvider>
+            <ThemeSwitch />
             {modal}
             <div className="flex">
-              <DesktopNav />
-              <div className="flex-1">{children}</div>
+              {showNav && <DesktopNav />}
+              <div className="flex-1 p-4">{children}</div>
             </div>
-            <MobileNav />
+            {showNav && <MobileNav />}
             <Toaster position="bottom-left" />
           </QueryProvider>
         </ThemeProvider>

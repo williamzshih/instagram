@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Modal({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  const router = useRouter();
 
   return (
     <Dialog
@@ -20,15 +20,16 @@ export default function Modal({ children }: { children: React.ReactNode }) {
       }}
     >
       <DialogContent
-        className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh]"
+        className="max-w-[95vw] h-[95vh]"
         onClick={(e) => {
           const link = (e.target as HTMLElement).closest("a");
-          if (link) {
-            setIsOpen(false);
+          if (!link) {
+            return;
           }
+          setIsOpen(false);
         }}
       >
-        <ScrollArea>{children}</ScrollArea>
+        <ScrollArea className="pr-4">{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );

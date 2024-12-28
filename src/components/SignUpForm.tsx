@@ -16,6 +16,7 @@ import { z } from "zod";
 import { USERNAME_MIN, USERNAME_MAX } from "@/limits";
 import { isUsernameAvailable, createUser } from "@/utils/actions";
 import { Session } from "next-auth";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   username: z
@@ -49,33 +50,33 @@ export default function SignUpForm({ session }: { session: Session }) {
       session.user?.name || "",
       session.user?.image || undefined
     );
+
+    redirect("/");
   };
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-md mx-auto space-y-4"
-        >
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Username" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full">
-            Sign Up
-          </Button>
-        </form>
-      </Form>
-    </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="Username" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          Sign Up
+        </Button>
+      </form>
+    </Form>
   );
 }
