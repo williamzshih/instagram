@@ -7,7 +7,10 @@ export default function UserProfileInfo({
   user,
   isCurrentUser,
 }: {
-  user: UserType & { followers: FollowType[]; following: FollowType[] };
+  user: UserType & {
+    followers: (FollowType & { user: UserType })[];
+    following: (FollowType & { whoTheyreFollowing: UserType })[];
+  };
   isCurrentUser?: boolean;
 }) {
   return (

@@ -16,8 +16,8 @@ export default function ProfilePage({
   user,
 }: {
   user: UserType & {
-    followers: FollowType[];
-    following: FollowType[];
+    followers: (FollowType & { user: UserType })[];
+    following: (FollowType & { whoTheyreFollowing: UserType })[];
     posts: PostType[];
     bookmarks: (BookmarkType & { post: PostType })[];
   };
