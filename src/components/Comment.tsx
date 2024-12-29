@@ -1,5 +1,6 @@
 import { User as UserType } from "@prisma/client";
 import UserHeader from "@/components/UserHeader";
+import { formatDistanceToNow } from "date-fns";
 
 export default function Comment({
   user,
@@ -17,7 +18,9 @@ export default function Comment({
       <UserHeader user={user} size={size} />
       <p className="bg-muted p-2 rounded-lg">{comment}</p>
       <div className="text-sm text-muted-foreground text-right">
-        {createdAt.toLocaleDateString()}
+        {formatDistanceToNow(createdAt, {
+          addSuffix: true,
+        })}
       </div>
     </div>
   );

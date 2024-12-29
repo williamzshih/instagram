@@ -1,36 +1,24 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getUser } from "@/utils/actions";
-import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import GradientAvatar from "@/components/GradientAvatar";
 import Post from "@/app/(routes)/post/[id]/page";
-import HomeFeedSkeleton from "@/components/HomeFeedSkeleton";
 
-export default function HomeFeed() {
-  const {
-    data: user,
-    isPending,
-    error,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: () => getUser(),
-  });
+import {
+  User as UserType,
+  Follow as FollowType,
+  Post as PostType,
+} from "@prisma/client";
 
-  if (isPending) {
-    return <HomeFeedSkeleton />;
-  }
-
-  if (error) {
-    toast.error(error.message);
-    return <div>{error.message}</div>;
-  }
-
-  if (!user) {
-    return <div>User not found</div>;
-  }
-
+export default function HomeFeed({
+  user,
+}: {
+  user: UserType & {
+    following: (FollowType & {
+      whoTheyreFollowing: UserType & { posts: PostType[] };
+    })[];
+  };
+}) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">

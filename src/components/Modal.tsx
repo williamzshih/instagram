@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ThemeSwitch from "./ThemeSwitch";
 
 export default function Modal({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -30,6 +31,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         }}
       >
         <ScrollArea className="pr-4">{children}</ScrollArea>
+        <ThemeSwitch />
       </DialogContent>
     </Dialog>
   );

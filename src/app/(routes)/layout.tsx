@@ -58,7 +58,7 @@ export default async function RootLayout({
             {modal}
             <div className="flex">
               {showNav && <DesktopNav />}
-              <div className="flex-1 p-4">{children}</div>
+              <div className="flex-1 p-4 mb-16 md:mb-0">{children}</div>
             </div>
             {showNav && <MobileNav />}
             <Toaster position="bottom-left" />

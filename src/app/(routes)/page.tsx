@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/utils/db";
 import HomeFeed from "@/components/HomeFeed";
+import { getUser } from "@/utils/actions";
 
 export default async function Home() {
   const session = await auth();
@@ -10,13 +10,11 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user?.email || "" },
-  });
+  const user = await getUser();
 
   if (!user) {
     redirect("/sign-up");
   }
 
-  return <HomeFeed />;
+  return <HomeFeed user={user} />;
 }

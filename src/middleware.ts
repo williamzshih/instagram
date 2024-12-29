@@ -13,9 +13,11 @@ export default auth(async (req) => {
       },
     });
     const username = await response.json();
-    const pathUsername = req.nextUrl.pathname.split("/user/")[1];
+    const pathSplit = req.nextUrl.pathname.split("/user/")[1].split("/");
+    const pathUsername = pathSplit[0];
+    const rest = pathSplit.slice(1).join("/");
     if (username === pathUsername) {
-      return NextResponse.redirect(new URL("/profile", req.nextUrl));
+      return NextResponse.redirect(new URL(`/profile/${rest}`, req.nextUrl));
     }
     return NextResponse.next();
   }

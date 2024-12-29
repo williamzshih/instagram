@@ -23,7 +23,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import UserAvatar from "@/components/UserAvatar";
 import { COMMENT_MAX } from "@/limits";
 import { useTheme } from "next-themes";
@@ -37,6 +36,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PostSkeleton from "@/components/PostSkeleton";
+import Link from "next/link";
 
 const formSchema = z.object({
   comment: z
@@ -61,7 +61,6 @@ export default function Post({
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const {
     data: post,
@@ -218,16 +217,18 @@ export default function Post({
   return (
     <div className="grid md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-2">
-        <Image
-          src={post.image}
-          alt="Post image"
-          width={1920}
-          height={1080}
-          className={`${fromHomeFeed ? "cursor-pointer" : ""}`}
-          onClick={
-            fromHomeFeed ? () => router.push(`/post/${post.id}`) : undefined
-          }
-        />
+        {fromHomeFeed ? (
+          <Link href={`/post/${post.id}`}>
+            <Image
+              src={post.image}
+              alt="Post image"
+              width={1920}
+              height={1080}
+            />
+          </Link>
+        ) : (
+          <Image src={post.image} alt="Post image" width={1920} height={1080} />
+        )}
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-center gap-1">
             <Button
