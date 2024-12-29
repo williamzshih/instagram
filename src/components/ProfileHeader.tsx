@@ -1,24 +1,40 @@
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
-import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { SettingsIcon } from "lucide-react";
+import Settings from "@/components/Settings";
+import { User as UserType } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 export default function ProfileHeader({
-  username,
+  user,
   isCurrentUser,
 }: {
-  username: string;
+  user: UserType;
   isCurrentUser?: boolean;
 }) {
+  const router = useRouter();
+
   return (
     <div className="flex items-center justify-between w-full">
       <Button size="icon" className="invisible" />
-      <p className="text-2xl font-bold">{username}</p>
+      <p className="text-2xl font-bold">{user.username}</p>
       {isCurrentUser ? (
-        <Button size="icon" variant="ghost">
-          <Link href="/settings">
-            <Settings />
-          </Link>
-        </Button>
+        <Dialog
+          onOpenChange={(open) => {
+            if (!open) {
+              router.refresh();
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <SettingsIcon />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <Settings user={user} />
+          </DialogContent>
+        </Dialog>
       ) : (
         <Button size="icon" className="invisible" />
       )}

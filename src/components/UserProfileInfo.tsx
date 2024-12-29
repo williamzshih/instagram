@@ -15,7 +15,7 @@ export default function UserProfileInfo({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 w-full">
-      <ProfileHeader username={user.username} isCurrentUser={isCurrentUser} />
+      <ProfileHeader user={user} isCurrentUser={isCurrentUser} />
       <GradientAvatar user={user} size={40} />
       <p className="text-xl font-bold">{user.name}</p>
       <p className="text-lg">{user.bio}</p>
