@@ -75,7 +75,7 @@ export default function Search() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-2xl font-bold">Search</p>
+      <p className="text-3xl font-bold">Search</p>
       <Input {...form.register("search")} placeholder="Search" />
       {debouncedValue && (
         <SearchResults users={users} posts={posts} q={debouncedValue} />

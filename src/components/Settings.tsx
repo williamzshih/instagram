@@ -27,6 +27,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { User as UserType } from "@prisma/client";
+import { signOut } from "next-auth/react";
 
 export default function Settings({ user }: { user: UserType }) {
   const formSchema = z.object({
@@ -186,6 +187,12 @@ export default function Settings({ user }: { user: UserType }) {
           </Button>
         </form>
       </Form>
+      <Button
+        variant="destructive"
+        onClick={() => signOut({ redirectTo: "/" })}
+      >
+        Sign Out
+      </Button>
     </div>
   );
 }
