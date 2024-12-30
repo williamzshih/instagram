@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import HomeFeed from "@/components/HomeFeed";
-import { getUser } from "@/actions/user";
+import { getUserHome } from "@/actions/user";
 
 export default async function Home() {
   const session = await auth();
@@ -10,7 +10,7 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
-  const user = await getUser();
+  const user = await getUserHome();
 
   if (!user) {
     redirect("/sign-up");

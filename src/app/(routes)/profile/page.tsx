@@ -1,9 +1,9 @@
-import { getUser } from "@/actions/user";
+import { getUserProfile } from "@/actions/user";
 import CurrentProfilePage from "@/components/CurrentProfilePage";
 
 export default async function Profile() {
   try {
-    const user = await getUser();
+    const user = await getUserProfile();
 
     if (!user) {
       return <div> User not found</div>;
