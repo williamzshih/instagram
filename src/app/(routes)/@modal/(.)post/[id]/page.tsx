@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import Post from "@/app/(routes)/post/[id]/page";
+import Post from "@/components/Post";
 import { getUser } from "@/actions/user";
 
 export default async function PostModal({
@@ -16,7 +16,7 @@ export default async function PostModal({
 
     return (
       <Modal>
-        <Post params={params} user={user} />
+        <Post id={params.id} user={user} />
       </Modal>
     );
   } catch (error) {

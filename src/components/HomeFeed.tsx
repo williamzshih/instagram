@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import GradientAvatar from "@/components/GradientAvatar";
-import Post from "@/app/(routes)/post/[id]/page";
+import Post from "@/components/Post";
 import {
   User as UserType,
   Follow as FollowType,
@@ -40,7 +40,7 @@ export default function HomeFeed({
           .map((post) => (
             <Post
               key={post.id}
-              params={{ id: post.id }}
+              id={post.id}
               searchParams={{ from: "homeFeed" }}
               user={user}
             />
