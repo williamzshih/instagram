@@ -21,7 +21,8 @@ import {
   NAME_MAX,
   BIO_MAX,
 } from "@/limits";
-import { isUsernameAvailable, uploadFile, updateUser } from "@/utils/actions";
+import { uploadFile } from "@/actions/actions";
+import { isUsernameAvailable, updateUser } from "@/actions/user";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
@@ -31,7 +32,6 @@ import { signOut } from "next-auth/react";
 
 export default function Settings({ user }: { user: UserType }) {
   const formSchema = z.object({
-    avatar: z.string(),
     username: z
       .string()
       .min(1, "Username is required")
@@ -62,21 +62,22 @@ export default function Settings({ user }: { user: UserType }) {
     bio: z
       .string()
       .max(BIO_MAX, `Bio must be at most ${BIO_MAX} characters long`),
+    avatar: z.string(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      avatar: user.avatar,
       username: user.username,
       name: user.name,
       bio: user.bio,
+      avatar: user.avatar,
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      await updateUser(data.avatar, data.username, data.name, data.bio);
+      await updateUser(data.username, data.name, data.bio, data.avatar);
       toast.success("Settings updated");
     } catch (error) {
       toast.error((error as Error).message);
@@ -86,14 +87,14 @@ export default function Settings({ user }: { user: UserType }) {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-2xl font-bold">Settings</p>
-      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
+      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red">
         <div className="p-1 rounded-full bg-background">
           <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
-            <Avatar className="w-40 h-40 relative group">
+            <Avatar className="w-40 h-40 group">
               <AvatarImage
                 src={form.watch("avatar")}
                 alt={`${user.username} avatar`}
-                className="object-cover rounded-full relative"
+                className="object-cover rounded-full"
               />
               <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-25" />
               <Upload
@@ -126,7 +127,7 @@ export default function Settings({ user }: { user: UserType }) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 max-w-md mx-auto w-full"
+          className="flex flex-col gap-4 w-full"
         >
           <FormField
             control={form.control}
@@ -182,9 +183,7 @@ export default function Settings({ user }: { user: UserType }) {
               </FormItem>
             )}
           />
-          <Button className="w-fit self-center" type="submit">
-            Save settings
-          </Button>
+          <Button type="submit">Save settings</Button>
         </form>
       </Form>
       <Button

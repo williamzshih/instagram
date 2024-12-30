@@ -10,14 +10,14 @@ import {
   Post as PostType,
   Bookmark as BookmarkType,
 } from "@prisma/client";
-import UserProfileInfo from "./UserProfileInfo";
+import ProfileInfo from "@/components/ProfileInfo";
 
-export default function ProfilePage({
+export default function CurrentProfilePage({
   user,
 }: {
   user: UserType & {
     followers: (FollowType & { user: UserType })[];
-    following: (FollowType & { whoTheyreFollowing: UserType })[];
+    following: (FollowType & { following: UserType })[];
     posts: PostType[];
     bookmarks: (BookmarkType & { post: PostType })[];
   };
@@ -26,7 +26,7 @@ export default function ProfilePage({
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <UserProfileInfo user={user} isCurrentUser />
+      <ProfileInfo user={user} isCurrentUser />
       <Separator />
       <div className="flex items-center justify-center gap-2">
         <Button

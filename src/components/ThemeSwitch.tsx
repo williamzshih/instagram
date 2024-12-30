@@ -18,12 +18,12 @@ export default function ThemeSwitch() {
   }
 
   return (
-    <div className="fixed bottom-16 md:bottom-4 right-4 bg-background rounded-full z-50">
+    <div className="fixed bottom-16 md:bottom-4 right-4 bg-background rounded-full shadow-xl border z-50">
       <Button
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         variant="ghost"
         size="icon"
-        className="rounded-full p-4 shadow-xl"
+        className="rounded-full"
       >
         {theme === "light" ? <Moon /> : <Sun />}
       </Button>

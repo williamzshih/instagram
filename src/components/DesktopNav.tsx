@@ -20,7 +20,7 @@ export default function DesktopNav() {
   }
 
   return (
-    <div className="hidden md:flex flex-col gap-4 p-4 h-screen sticky top-0 bottom-0 shadow-md shadow-muted-foreground bg-background">
+    <div className="hidden md:flex flex-col gap-4 p-4 h-screen sticky inset-0 shadow-md shadow-muted-foreground">
       <Button variant="ghost" className="w-fit h-fit">
         <Link href="/">
           <div className="flex items-center gap-2">

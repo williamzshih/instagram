@@ -16,7 +16,9 @@ export default function UserAvatar({
       ? "w-12 h-12"
       : size === 16
       ? "w-16 h-16"
-      : "w-40 h-40";
+      : size === 40
+      ? "w-40 h-40"
+      : "w-10 h-10";
 
   return (
     <Link href={`/user/${user.username}`}>

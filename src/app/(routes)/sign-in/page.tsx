@@ -10,8 +10,8 @@ import {
 
 export default function SignIn() {
   return (
-    <div className="flex justify-center items-center w-screen h-screen">
-      <Card className="max-w-md mx-auto w-full">
+    <div className="flex justify-center items-center h-[95vh]">
+      <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Sign in</CardTitle>
           <CardDescription className="text-center">
@@ -24,7 +24,7 @@ export default function SignIn() {
               "use server";
               await signIn("google", { redirectTo: "/" });
             }}
-            className="flex justify-center items-center"
+            className="text-center"
           >
             <SignInButton />
           </form>

@@ -8,7 +8,8 @@ import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { createPost, uploadFile } from "@/utils/actions";
+import { createPost } from "@/actions/post";
+import { uploadFile } from "@/actions/actions";
 import Image from "next/image";
 import { CAPTION_MAX } from "@/limits";
 import { z } from "zod";
@@ -46,7 +47,7 @@ export default function Create() {
       toast.success("Post created");
       router.push(`/post/${id}`);
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   }
 
@@ -55,7 +56,7 @@ export default function Create() {
       <p className="text-2xl font-bold">Create Post</p>
       <Label
         htmlFor="upload"
-        className={`flex items-center justify-center cursor-pointer relative group ${
+        className={`cursor-pointer relative group ${
           form.watch("image") ? "" : "w-96 h-96 bg-muted"
         }`}
       >
@@ -67,13 +68,11 @@ export default function Create() {
           alt="Uploaded image"
           width={1920}
           height={1080}
-          className={`relative ${
-            form.watch("image") ? "max-w-[32rem] max-h-[32rem]" : ""
-          }`}
+          className={form.watch("image") ? "max-w-[32rem] max-h-[32rem]" : ""}
         />
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-25" />
         <Upload
-          size={40}
+          size={48}
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
         />
       </Label>
@@ -91,7 +90,9 @@ export default function Create() {
                 form.setValue("image", url);
               });
             } catch (error) {
-              toast.error((error as Error).message);
+              toast.error(
+                error instanceof Error ? error.message : "An error occurred"
+              );
             }
           }
         }}
@@ -99,7 +100,7 @@ export default function Create() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 max-w-md mx-auto w-full"
+          className="flex flex-col gap-4 max-w-md w-full"
         >
           <FormField
             control={form.control}
@@ -119,9 +120,7 @@ export default function Create() {
               </FormItem>
             )}
           />
-          <Button className="w-fit self-center" type="submit">
-            Create post
-          </Button>
+          <Button type="submit">Create post</Button>
         </form>
       </Form>
     </div>

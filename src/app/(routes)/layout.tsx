@@ -8,7 +8,7 @@ import QueryProvider from "@/components/QueryProvider";
 import { ThemeProvider } from "next-themes";
 import { auth } from "@/auth";
 import ThemeSwitch from "@/components/ThemeSwitch";
-import { prisma } from "@/utils/db";
+import { getUser } from "@/actions/user";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -28,19 +28,17 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
-  modal,
   children,
+  modal,
 }: Readonly<{
-  modal: React.ReactNode;
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   let showNav = false;
   const session = await auth();
 
   if (session) {
-    const user = await prisma.user.findUnique({
-      where: { email: session.user?.email || "" },
-    });
+    const user = await getUser();
 
     if (user) {
       showNav = true;

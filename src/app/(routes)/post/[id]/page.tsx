@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  getPost,
-  toggleLike,
-  createComment,
-  toggleBookmark,
-} from "@/utils/actions";
+import { getPost } from "@/actions/post";
+import { toggleLike, toggleBookmark } from "@/actions/toggle";
+import { createComment } from "@/actions/comment";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -77,9 +74,7 @@ export default function Post({
       await queryClient.cancelQueries({
         queryKey: ["post", params.id],
       });
-
       const previousPost = queryClient.getQueryData(["post", params.id]);
-
       queryClient.setQueryData(
         ["post", params.id],
         (
@@ -93,7 +88,6 @@ export default function Post({
             : [...old.likes, { user: { id: user.id } }],
         })
       );
-
       return { previousPost };
     },
     onError: (error, _, context) => {
@@ -111,9 +105,7 @@ export default function Post({
       await queryClient.cancelQueries({
         queryKey: ["post", params.id],
       });
-
       const previousPost = queryClient.getQueryData(["post", params.id]);
-
       queryClient.setQueryData(
         ["post", params.id],
         (
@@ -127,7 +119,6 @@ export default function Post({
             : [...old.bookmarks, { user: { id: user.id } }],
         })
       );
-
       return { previousPost };
     },
     onError: (error, _, context) => {
@@ -145,9 +136,7 @@ export default function Post({
       await queryClient.cancelQueries({
         queryKey: ["post", params.id],
       });
-
       const previousPost = queryClient.getQueryData(["post", params.id]);
-
       queryClient.setQueryData(
         ["post", params.id],
         (
@@ -170,7 +159,6 @@ export default function Post({
           ],
         })
       );
-
       return { previousPost };
     },
     onError: (error, _, context) => {
@@ -189,10 +177,10 @@ export default function Post({
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  function onSubmit(data: z.infer<typeof formSchema>) {
     form.reset();
     createCommentMutate(data.comment);
-  };
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -230,7 +218,7 @@ export default function Post({
           <Image src={post.image} alt="Post image" width={1920} height={1080} />
         )}
         <div className="flex items-center justify-between">
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -277,18 +265,18 @@ export default function Post({
         {showComments &&
           post.comments.map((comment) => (
             <Comment
+              key={comment.id}
               user={comment.user}
               comment={comment.comment}
               createdAt={comment.createdAt}
               size={10}
-              key={comment.id}
             />
           ))}
         {post.comments.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
-            className="w-fit self-center"
+            className="self-center"
             onClick={() => setShowComments(!showComments)}
           >
             {showComments

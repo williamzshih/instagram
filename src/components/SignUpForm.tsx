@@ -14,9 +14,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { USERNAME_MIN, USERNAME_MAX } from "@/limits";
-import { isUsernameAvailable, createUser } from "@/utils/actions";
+import { isUsernameAvailable, createUser } from "@/actions/user";
 import { Session } from "next-auth";
 import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   username: z
@@ -43,16 +44,21 @@ export default function SignUpForm({ session }: { session: Session }) {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await createUser(
-      session.user?.email || "",
-      data.username,
-      session.user?.name || "",
-      session.user?.image || undefined
-    );
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      await createUser(
+        session.user?.email || "",
+        data.username,
+        session.user?.name || "",
+        session.user?.image || undefined
+      );
+      toast.success("User created");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
 
     redirect("/");
-  };
+  }
 
   return (
     <Form {...form}>
@@ -65,7 +71,12 @@ export default function SignUpForm({ session }: { session: Session }) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel className="flex items-center justify-between">
+                <p>Username</p>
+                <p className="text-sm text-muted-foreground">
+                  {form.watch("username").length}/{USERNAME_MAX}
+                </p>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Username" {...field} />
               </FormControl>
@@ -73,9 +84,7 @@ export default function SignUpForm({ session }: { session: Session }) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Sign Up
-        </Button>
+        <Button type="submit">Sign Up</Button>
       </form>
     </Form>
   );

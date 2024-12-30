@@ -17,7 +17,7 @@ export default function ProfileHeader({
   return (
     <div className="flex items-center justify-between w-full">
       <Button size="icon" className="invisible" />
-      <p className="text-2xl font-bold">{user.username}</p>
+      <p className="text-2xl font-bold">@{user.username}</p>
       {isCurrentUser ? (
         <Dialog
           onOpenChange={(open) => {

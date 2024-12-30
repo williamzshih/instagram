@@ -17,8 +17,8 @@ export default function MobileNav() {
           </Link>
         </Button>
       </div>
-      <div className="flex items-center justify-center relative w-[183px]">
-        <div className="flex items-center justify-center p-2 border-[56px] rounded-full border-background border-t-transparent border-l-transparent rotate-45 absolute -top-[116px]">
+      <div className="flex items-center justify-center relative w-[186px]">
+        <div className="p-2 border-[56px] rounded-full border-background border-t-transparent border-l-transparent rotate-45 absolute -top-[116px]">
           <div className="border-4 border-transparent -rotate-45">
             <Link
               href="/create"

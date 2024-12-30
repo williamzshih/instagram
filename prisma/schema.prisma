@@ -10,10 +10,10 @@ datasource db {
 model User {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String     @unique
-  avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   username  String     @unique
   name      String
-  bio       String
+  bio       String     @default("")
+  avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   posts     Post[]
   comments  Comment[]
   likes     Like[]
@@ -21,7 +21,6 @@ model User {
   followers Follow[]   @relation("followers")
   following Follow[]   @relation("following")
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
 }
 
 model Post {
@@ -29,12 +28,11 @@ model Post {
   email     String
   user      User       @relation(fields: [email], references: [email])
   image     String
-  caption   String
+  caption   String     @default("")
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
 }
 
 model Comment {
@@ -45,41 +43,34 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   comment   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Like {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String
-  user      User     @relation(fields: [email], references: [email])
-  postId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  email  String
+  user   User   @relation(fields: [email], references: [email])
+  postId String @db.ObjectId
+  post   Post   @relation(fields: [postId], references: [id])
 
   @@unique([email, postId])
 }
 
 model Bookmark {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String
-  user      User     @relation(fields: [email], references: [email])
-  postId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  email  String
+  user   User   @relation(fields: [email], references: [email])
+  postId String @db.ObjectId
+  post   Post   @relation(fields: [postId], references: [id])
 
   @@unique([email, postId])
 }
 
 model Follow {
-  id                         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userEmail                  String
-  user                       User     @relation("following", fields: [userEmail], references: [email])
-  whoTheyreFollowingUsername String
-  whoTheyreFollowing         User     @relation("followers", fields: [whoTheyreFollowingUsername], references: [username])
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  email             String
+  user              User   @relation("following", fields: [email], references: [email])
+  followingUsername String
+  following         User   @relation("followers", fields: [followingUsername], references: [username])
 
-  @@unique([userEmail, whoTheyreFollowingUsername])
+  @@unique([email, followingUsername])
 }

@@ -9,7 +9,7 @@ export default function GradientAvatar({
   size: number;
 }) {
   return (
-    <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red flex items-center justify-center">
+    <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red">
       <div className="p-1 rounded-full bg-background">
         <UserAvatar user={user} size={size} />
       </div>

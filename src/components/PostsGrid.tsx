@@ -6,9 +6,14 @@ import Masonry from "react-masonry-css";
 export default function PostsGrid({ posts }: { posts: PostType[] }) {
   return (
     <Masonry
-      breakpointCols={3}
-      className="flex -ml-4 w-auto"
-      columnClassName="pl-4 bg-clip-padding"
+      breakpointCols={{
+        default: 4,
+        1100: 3,
+        700: 2,
+        500: 1,
+      }}
+      className="flex -ml-4"
+      columnClassName="pl-4"
     >
       {posts.map((post) => (
         <div key={post.id} className="mb-4">

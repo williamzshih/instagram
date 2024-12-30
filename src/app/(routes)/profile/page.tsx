@@ -1,12 +1,18 @@
-import { getUser } from "@/utils/actions";
-import ProfilePage from "@/components/ProfilePage";
+import { getUser } from "@/actions/user";
+import CurrentProfilePage from "@/components/CurrentProfilePage";
 
 export default async function Profile() {
-  const user = await getUser();
+  try {
+    const user = await getUser();
 
-  if (!user) {
-    return <div> User not found</div>;
+    if (!user) {
+      return <div> User not found</div>;
+    }
+
+    return <CurrentProfilePage user={user} />;
+  } catch (error) {
+    return (
+      <div>{error instanceof Error ? error.message : "An error occurred"}</div>
+    );
   }
-
-  return <ProfilePage user={user} />;
 }

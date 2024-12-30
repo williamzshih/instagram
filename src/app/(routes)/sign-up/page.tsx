@@ -15,12 +15,12 @@ export default async function SignUp() {
   const session = await auth();
 
   if (!session) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   return (
-    <div className="flex flex-col justify-center items-center w-screen h-screen gap-4">
-      <Card className="max-w-md mx-auto w-full">
+    <div className="flex flex-col justify-center items-center h-[95vh] gap-4">
+      <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Sign Up</CardTitle>
           <CardDescription className="text-center">
@@ -34,7 +34,7 @@ export default async function SignUp() {
       <form
         action={async () => {
           "use server";
-          await signOut();
+          await signOut({ redirectTo: "/" });
         }}
       >
         <Button type="submit" variant="outline">

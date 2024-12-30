@@ -1,9 +1,6 @@
-"use client";
-
 import { Plus } from "lucide-react";
 import GradientAvatar from "@/components/GradientAvatar";
 import Post from "@/app/(routes)/post/[id]/page";
-
 import {
   User as UserType,
   Follow as FollowType,
@@ -15,14 +12,14 @@ export default function HomeFeed({
 }: {
   user: UserType & {
     following: (FollowType & {
-      whoTheyreFollowing: UserType & { posts: PostType[] };
+      following: UserType & { posts: PostType[] };
     })[];
   };
 }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">
-        <div className="w-20 h-20 rounded-full border-2 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full border flex items-center justify-center">
           <Plus size={20} />
         </div>
         {user.following.map((follow) => (
@@ -30,16 +27,16 @@ export default function HomeFeed({
             key={follow.id}
             className="flex flex-col items-center justify-center gap-1"
           >
-            <GradientAvatar user={follow.whoTheyreFollowing} size={16} />
+            <GradientAvatar user={follow.following} size={16} />
             <p className="text-sm text-muted-foreground">
-              {follow.whoTheyreFollowing.username}
+              @{follow.following.username}
             </p>
           </div>
         ))}
       </div>
       <div className="flex flex-col gap-4">
         {user.following
-          .flatMap((follow) => follow.whoTheyreFollowing.posts)
+          .flatMap((follow) => follow.following.posts)
           .map((post) => (
             <Post
               key={post.id}

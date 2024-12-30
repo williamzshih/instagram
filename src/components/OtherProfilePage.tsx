@@ -3,19 +3,20 @@
 import { Button } from "@/components/ui/button";
 import PostsGrid from "@/components/PostsGrid";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserByUsername, toggleFollow } from "@/utils/actions";
+import { getUserByUsername } from "@/actions/user";
+import { toggleFollow } from "@/actions/toggle";
 import { toast } from "sonner";
 import { Follow as FollowType, User as UserType } from "@prisma/client";
 import { Separator } from "@/components/ui/separator";
-import UserPageSkeleton from "@/components/UserPageSkeleton";
-import UserProfileInfo from "@/components/UserProfileInfo";
+import OtherProfilePageSkeleton from "@/components/OtherProfilePageSkeleton";
+import ProfileInfo from "@/components/ProfileInfo";
 
-export default function UserPage({
+export default function OtherProfilePage({
   otherUsername,
-  currentUser,
+  currentUserId,
 }: {
   otherUsername: string;
-  currentUser: UserType;
+  currentUserId: string;
 }) {
   const queryClient = useQueryClient();
 
@@ -34,12 +35,10 @@ export default function UserPage({
       await queryClient.cancelQueries({
         queryKey: ["otherUser", otherUsername],
       });
-
       const previousOtherUser = queryClient.getQueryData([
         "otherUser",
         otherUsername,
       ]);
-
       queryClient.setQueryData(
         ["otherUser", otherUsername],
         (
@@ -48,10 +47,9 @@ export default function UserPage({
           ...old,
           followers: follow
             ? old.followers.filter((f) => f.id !== follow.id)
-            : [...old.followers, { user: { id: currentUser.id } }],
+            : [...old.followers, { user: { id: currentUserId } }],
         })
       );
-
       return { previousOtherUser };
     },
     onError: (error, _, context) => {
@@ -69,7 +67,7 @@ export default function UserPage({
   });
 
   if (isPending) {
-    return <UserPageSkeleton />;
+    return <OtherProfilePageSkeleton />;
   }
 
   if (error) {
@@ -81,11 +79,11 @@ export default function UserPage({
     return <div>Other user not found</div>;
   }
 
-  const follow = otherUser.followers.find((f) => f.user.id === currentUser.id);
+  const follow = otherUser.followers.find((f) => f.user.id === currentUserId);
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <UserProfileInfo user={otherUser} />
+      <ProfileInfo user={otherUser} />
       {follow ? (
         <Button
           className="bg-gradient-to-tr from-ig-orange to-ig-red text-white"
