@@ -34,6 +34,7 @@ import { z } from "zod";
 import PostSkeleton from "@/components/PostSkeleton";
 import Link from "next/link";
 import DeletableComment from "@/components/DeletableComment";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   comment: z
@@ -48,16 +49,19 @@ export default function Post({
   id,
   searchParams,
   user,
+  isModal,
 }: {
   id: string;
   searchParams?: { from: string };
   user: UserType;
+  isModal?: boolean;
 }) {
   const fromHomeFeed = searchParams?.from === "homeFeed";
   const [showComments, setShowComments] = useState(!fromHomeFeed);
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const {
     data: post,
@@ -215,6 +219,9 @@ export default function Post({
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["post", id] });
+      if (isModal) {
+        router.back();
+      }
     },
   });
 

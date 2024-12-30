@@ -16,7 +16,7 @@ export default async function PostModal({
 
     return (
       <Modal>
-        <Post id={params.id} user={user} />
+        <Post id={params.id} user={user} isModal />
       </Modal>
     );
   } catch (error) {
