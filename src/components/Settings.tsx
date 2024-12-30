@@ -188,7 +188,7 @@ export default function Settings({ user }: { user: UserType }) {
       </Form>
       <Button
         variant="destructive"
-        onClick={() => signOut({ redirectTo: "/" })}
+        onClick={() => signOut({ redirectTo: "/sign-in" })}
       >
         Sign Out
       </Button>

@@ -15,7 +15,7 @@ export default async function SignUp() {
   const session = await auth();
 
   if (!session) {
-    redirect("/");
+    redirect("/sign-in");
   }
 
   return (
@@ -34,7 +34,7 @@ export default async function SignUp() {
       <form
         action={async () => {
           "use server";
-          await signOut({ redirectTo: "/" });
+          await signOut({ redirectTo: "/sign-in" });
         }}
       >
         <Button type="submit" variant="outline">
