@@ -16,8 +16,8 @@ import { z } from "zod";
 import { USERNAME_MIN, USERNAME_MAX } from "@/limits";
 import { isUsernameAvailable, createUser } from "@/actions/user";
 import { Session } from "next-auth";
-import { redirect } from "next/navigation";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   username: z
@@ -37,6 +37,7 @@ const formSchema = z.object({
 });
 
 export default function SignUpForm({ session }: { session: Session }) {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,7 +58,7 @@ export default function SignUpForm({ session }: { session: Session }) {
       toast.error((error as Error).message);
     }
 
-    redirect("/");
+    router.push("/");
   }
 
   return (

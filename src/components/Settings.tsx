@@ -22,7 +22,7 @@ import {
   BIO_MAX,
 } from "@/limits";
 import { uploadFile } from "@/actions/actions";
-import { isUsernameAvailable, updateUser } from "@/actions/user";
+import { deleteUser, isUsernameAvailable, updateUser } from "@/actions/user";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
@@ -186,12 +186,23 @@ export default function Settings({ user }: { user: UserType }) {
           <Button type="submit">Save settings</Button>
         </form>
       </Form>
-      <Button
-        variant="destructive"
-        onClick={() => signOut({ redirectTo: "/sign-in" })}
-      >
-        Sign Out
-      </Button>
+      <div className="flex items-center justify-center gap-2">
+        <Button
+          variant="destructive"
+          onClick={() => signOut({ redirectTo: "/sign-in" })}
+        >
+          Sign Out
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={async () => {
+            signOut({ redirectTo: "/sign-in" });
+            await deleteUser();
+          }}
+        >
+          Delete Account
+        </Button>
+      </div>
     </div>
   );
 }

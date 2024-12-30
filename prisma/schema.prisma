@@ -26,7 +26,7 @@ model User {
 model Post {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String
-  user      User       @relation(fields: [email], references: [email])
+  user      User       @relation(fields: [email], references: [email], onDelete: Cascade)
   image     String
   caption   String     @default("")
   comments  Comment[]
@@ -68,9 +68,9 @@ model Bookmark {
 model Follow {
   id                String @id @default(auto()) @map("_id") @db.ObjectId
   email             String
-  user              User   @relation("following", fields: [email], references: [email])
+  user              User   @relation("following", fields: [email], references: [email], onDelete: Cascade)
   followingUsername String
-  following         User   @relation("followers", fields: [followingUsername], references: [username])
+  following         User   @relation("followers", fields: [followingUsername], references: [username], onDelete: Cascade)
 
   @@unique([email, followingUsername])
 }

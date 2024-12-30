@@ -163,3 +163,15 @@ export async function searchUsers(q: string) {
     throw new Error("Error searching users", { cause: error });
   }
 }
+
+export async function deleteUser() {
+  try {
+    const email = await getEmail();
+    await prisma.user.delete({
+      where: { email },
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw new Error("Error deleting user", { cause: error });
+  }
+}
