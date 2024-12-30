@@ -35,6 +35,7 @@ import PostSkeleton from "@/components/PostSkeleton";
 import Link from "next/link";
 import DeletableComment from "@/components/DeletableComment";
 import { useRouter } from "next/navigation";
+import Comment from "@/components/Comment";
 
 const formSchema = z.object({
   comment: z
@@ -314,25 +315,44 @@ export default function Post({
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <DeletableComment
-          user={post.user}
-          comment={post.caption}
-          createdAt={post.createdAt}
-          size={12}
-          onDelete={() => deletePostMutate()}
-        />
+        {post.user.id === user.id ? (
+          <DeletableComment
+            user={post.user}
+            comment={post.caption}
+            createdAt={post.createdAt}
+            size={12}
+            onDelete={() => deletePostMutate()}
+          />
+        ) : (
+          <Comment
+            user={post.user}
+            comment={post.caption}
+            createdAt={post.createdAt}
+            size={12}
+          />
+        )}
         <Separator />
         {showComments &&
-          post.comments.map((comment) => (
-            <DeletableComment
-              key={comment.id}
-              user={comment.user}
-              comment={comment.comment}
-              createdAt={comment.createdAt}
-              size={10}
-              onDelete={() => deleteCommentMutate(comment.id)}
-            />
-          ))}
+          post.comments.map((comment) =>
+            comment.user.id === user.id ? (
+              <DeletableComment
+                key={comment.id}
+                user={comment.user}
+                comment={comment.comment}
+                createdAt={comment.createdAt}
+                size={10}
+                onDelete={() => deleteCommentMutate(comment.id)}
+              />
+            ) : (
+              <Comment
+                key={comment.id}
+                user={comment.user}
+                comment={comment.comment}
+                createdAt={comment.createdAt}
+                size={10}
+              />
+            )
+          )}
         {post.comments.length > 0 && (
           <Button
             variant="ghost"
