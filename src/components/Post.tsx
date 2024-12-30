@@ -1,9 +1,8 @@
 "use client";
 
-import { getPost } from "@/actions/post";
+import { deletePost, getPost } from "@/actions/post";
 import { toggleLike, toggleBookmark } from "@/actions/toggle";
 import { createComment, deleteComment } from "@/actions/comment";
-import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -200,6 +199,25 @@ export default function Post({
     },
   });
 
+  const { mutate: deletePostMutate } = useMutation({
+    mutationFn: () => deletePost(id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: ["post", id],
+      });
+      const previousPost = queryClient.getQueryData(["post", id]);
+      queryClient.setQueryData(["post", id], () => {});
+      return { previousPost };
+    },
+    onError: (error, _, context) => {
+      toast.error(error.message);
+      queryClient.setQueryData(["post", id], context?.previousPost);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", id] });
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -227,6 +245,10 @@ export default function Post({
   if (error) {
     toast.error(error.message);
     return <div>{error.message}</div>;
+  }
+
+  if (!post) {
+    return null;
   }
 
   const like = post.likes.find((l) => l.user.id === user.id);
@@ -285,11 +307,12 @@ export default function Post({
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <Comment
+        <DeletableComment
           user={post.user}
           comment={post.caption}
           createdAt={post.createdAt}
           size={12}
+          onDelete={() => deletePostMutate()}
         />
         <Separator />
         {showComments &&

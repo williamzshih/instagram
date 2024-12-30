@@ -40,7 +40,7 @@ model Comment {
   email     String
   user      User     @relation(fields: [email], references: [email])
   postId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment   String
   createdAt DateTime @default(now())
 }
@@ -50,7 +50,7 @@ model Like {
   email  String
   user   User   @relation(fields: [email], references: [email])
   postId String @db.ObjectId
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([email, postId])
 }
@@ -60,7 +60,7 @@ model Bookmark {
   email  String
   user   User   @relation(fields: [email], references: [email])
   postId String @db.ObjectId
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([email, postId])
 }

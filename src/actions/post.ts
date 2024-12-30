@@ -28,11 +28,6 @@ export async function getPost(id: string) {
       },
     });
 
-    if (!post) {
-      console.error("Post not found:", id);
-      throw new Error("Post not found", { cause: id });
-    }
-
     return post;
   } catch (error) {
     console.error("Error fetching post:", error);
@@ -104,5 +99,14 @@ export async function searchPosts(q: string) {
   } catch (error) {
     console.error("Error searching posts:", error);
     throw new Error("Error searching posts", { cause: error });
+  }
+}
+
+export async function deletePost(id: string) {
+  try {
+    await prisma.post.delete({ where: { id } });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw new Error("Error deleting post", { cause: error });
   }
 }
