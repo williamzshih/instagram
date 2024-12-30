@@ -14,3 +14,12 @@ export async function createComment(postId: string, comment: string) {
     throw new Error("Error creating comment", { cause: error });
   }
 }
+
+export async function deleteComment(id: string) {
+  try {
+    await prisma.comment.delete({ where: { id } });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw new Error("Error deleting comment", { cause: error });
+  }
+}

@@ -2,7 +2,7 @@
 
 import { getPost } from "@/actions/post";
 import { toggleLike, toggleBookmark } from "@/actions/toggle";
-import { createComment } from "@/actions/comment";
+import { createComment, deleteComment } from "@/actions/comment";
 import Comment from "@/components/Comment";
 import { Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PostSkeleton from "@/components/PostSkeleton";
 import Link from "next/link";
+import DeletableComment from "@/components/DeletableComment";
 
 const formSchema = z.object({
   comment: z
@@ -170,6 +171,35 @@ export default function Post({
     },
   });
 
+  const { mutate: deleteCommentMutate } = useMutation({
+    mutationFn: (commentId: string) => deleteComment(commentId),
+    onMutate: async (commentId) => {
+      await queryClient.cancelQueries({
+        queryKey: ["post", id],
+      });
+      const previousPost = queryClient.getQueryData(["post", id]);
+      queryClient.setQueryData(
+        ["post", id],
+        (
+          old: PostType & {
+            comments: CommentType[];
+          }
+        ) => ({
+          ...old,
+          comments: old.comments.filter((c) => c.id !== commentId),
+        })
+      );
+      return { previousPost };
+    },
+    onError: (error, _, context) => {
+      toast.error(error.message);
+      queryClient.setQueryData(["post", id], context?.previousPost);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", id] });
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -264,12 +294,13 @@ export default function Post({
         <Separator />
         {showComments &&
           post.comments.map((comment) => (
-            <Comment
+            <DeletableComment
               key={comment.id}
               user={comment.user}
               comment={comment.comment}
               createdAt={comment.createdAt}
               size={10}
+              onDelete={() => deleteCommentMutate(comment.id)}
             />
           ))}
         {post.comments.length > 0 && (
