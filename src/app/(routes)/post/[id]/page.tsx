@@ -9,7 +9,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
       return <div>User not found</div>;
     }
 
-    return <Post id={params.id} user={user} />;
+    return <Post id={params.id} user={user} isModalOrPage />;
   } catch (error) {
     return (
       <div>{error instanceof Error ? error.message : "An error occurred"}</div>
