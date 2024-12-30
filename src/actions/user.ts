@@ -152,6 +152,11 @@ export async function searchUsers(q: string) {
           { name: { contains: q, mode: "insensitive" } },
         ],
       },
+      orderBy: {
+        followers: {
+          _count: "desc",
+        },
+      },
     });
   } catch (error) {
     console.error("Error searching users:", error);
