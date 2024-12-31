@@ -9,6 +9,8 @@ import { ThemeProvider } from "next-themes";
 import { auth } from "@/auth";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { getUser } from "@/actions/user";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -62,6 +64,8 @@ export default async function RootLayout({
             <Toaster position="bottom-left" />
           </QueryProvider>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
