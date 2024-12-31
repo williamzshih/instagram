@@ -1,18 +1,13 @@
 import { getUser } from "@/actions/user";
 import Post from "@/components/Post";
+import { redirect } from "next/navigation";
 
 export default async function PostPage({ params }: { params: { id: string } }) {
-  try {
-    const user = await getUser();
+  const user = await getUser();
 
-    if (!user) {
-      return <div>User not found</div>;
-    }
-
-    return <Post id={params.id} user={user} />;
-  } catch (error) {
-    return (
-      <div>{error instanceof Error ? error.message : "An error occurred"}</div>
-    );
+  if (!user) {
+    redirect("/sign-up");
   }
+
+  return <Post id={params.id} user={user} />;
 }

@@ -1,18 +1,13 @@
 import { getUserProfile } from "@/actions/user";
 import CurrentProfilePage from "@/components/CurrentProfilePage";
+import { redirect } from "next/navigation";
 
 export default async function Profile() {
-  try {
-    const user = await getUserProfile();
+  const user = await getUserProfile();
 
-    if (!user) {
-      return <div> User not found</div>;
-    }
-
-    return <CurrentProfilePage user={user} />;
-  } catch (error) {
-    return (
-      <div>{error instanceof Error ? error.message : "An error occurred"}</div>
-    );
+  if (!user) {
+    redirect("/sign-up");
   }
+
+  return <CurrentProfilePage user={user} />;
 }
