@@ -54,11 +54,10 @@ export default function SignUpForm({ session }: { session: Session }) {
         session.user?.image || undefined
       );
       toast.success("User created");
+      router.push("/");
     } catch (error) {
       toast.error((error as Error).message);
     }
-
-    router.push("/");
   }
 
   return (

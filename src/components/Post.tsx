@@ -50,12 +50,10 @@ export default function Post({
   id,
   searchParams,
   user,
-  isModalOrPage,
 }: {
   id: string;
   searchParams?: { from: string };
   user: UserType;
-  isModalOrPage?: boolean;
 }) {
   const fromHomeFeed = searchParams?.from === "homeFeed";
   const [showComments, setShowComments] = useState(!fromHomeFeed);
@@ -220,9 +218,7 @@ export default function Post({
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["post", id] });
-      if (isModalOrPage) {
-        router.back();
-      }
+      router.back();
     },
   });
 
