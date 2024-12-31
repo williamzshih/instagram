@@ -28,7 +28,7 @@ export default function HomeFeed({
             className="flex flex-col items-center justify-center gap-1"
           >
             <GradientAvatar user={follow.following} size={16} />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               @{follow.following.username}
             </p>
           </div>
