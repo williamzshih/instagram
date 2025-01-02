@@ -25,7 +25,12 @@ export async function getUserHome() {
           include: {
             following: {
               include: {
-                posts: true,
+                posts: {
+                  take: 5,
+                  orderBy: {
+                    createdAt: "desc",
+                  },
+                },
               },
             },
           },

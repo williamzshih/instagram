@@ -154,6 +154,7 @@ export default function Post({
               comment: comment,
               createdAt: new Date(),
               user: {
+                id: user.id,
                 avatar: user.avatar,
                 username: user.username,
                 name: user.name,

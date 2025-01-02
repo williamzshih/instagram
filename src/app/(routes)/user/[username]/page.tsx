@@ -2,11 +2,9 @@ import { getUser } from "@/actions/user";
 import OtherProfilePage from "@/components/OtherProfilePage";
 import { redirect } from "next/navigation";
 
-export default async function User(
-  props: {
-    params: Promise<{ username: string }>;
-  }
-) {
+export default async function User(props: {
+  params: Promise<{ username: string }>;
+}) {
   const params = await props.params;
   const currentUser = await getUser();
 
