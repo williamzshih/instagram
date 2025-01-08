@@ -36,7 +36,7 @@ export default function HomeFeed({
       queryKey: ["homeFeed"],
       queryFn: ({ pageParam }) => getUserHome(pageParam),
       initialPageParam: 1,
-      getNextPageParam: (lastPage, _, lastPageParam, __) =>
+      getNextPageParam: (lastPage, _allPages, lastPageParam, _allPageParams) =>
         lastPage?.hasMore ? lastPageParam + 1 : undefined,
       initialData: {
         pages: [initialData],
@@ -48,7 +48,7 @@ export default function HomeFeed({
     if (inView && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage]);
+  }, [inView, hasNextPage, fetchNextPage]);
 
   const allPosts = data.pages.flatMap(
     (page) => page?.following?.flatMap((follow) => follow.following.posts) || []
