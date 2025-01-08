@@ -10,11 +10,11 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
-  const user = await getUserHome();
+  const user = await getUserHome(1);
 
   if (!user) {
     redirect("/sign-up");
   }
 
-  return <HomeFeed user={user} />;
+  return <HomeFeed initialData={user} />;
 }

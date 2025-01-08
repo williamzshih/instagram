@@ -1,11 +1,17 @@
-import { Plus } from "lucide-react";
+"use client";
+
+import { Plus, LoaderCircle } from "lucide-react";
 import GradientAvatar from "@/components/GradientAvatar";
 import Post from "@/components/Post";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
+import { getUserHome } from "@/actions/user";
 
 export default function HomeFeed({
-  user,
+  initialData,
 }: {
-  user: {
+  initialData: {
     following: {
       id: string;
       following: {
@@ -20,15 +26,41 @@ export default function HomeFeed({
     avatar: string;
     username: string;
     name: string;
+    hasMore: boolean;
   };
 }) {
+  const { ref, inView } = useInView();
+
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ["homeFeed"],
+      queryFn: ({ pageParam }) => getUserHome(pageParam),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, _, lastPageParam, __) =>
+        lastPage?.hasMore ? lastPageParam + 1 : undefined,
+      initialData: {
+        pages: [initialData],
+        pageParams: [1],
+      },
+    });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage]);
+
+  const allPosts = data.pages.flatMap(
+    (page) => page?.following?.flatMap((follow) => follow.following.posts) || []
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">
         <div className="w-20 h-20 rounded-full border flex items-center justify-center">
           <Plus size={20} />
         </div>
-        {user.following.map((follow) => (
+        {data.pages[0]?.following.map((follow) => (
           <div
             key={follow.id}
             className="flex flex-col items-center justify-center gap-1"
@@ -38,19 +70,22 @@ export default function HomeFeed({
               @{follow.following.username}
             </p>
           </div>
-        ))}
+        )) || []}
       </div>
       <div className="flex flex-col gap-4">
-        {user.following
-          .flatMap((follow) => follow.following.posts)
-          .map((post) => (
-            <Post
-              key={post.id}
-              id={post.id}
-              searchParams={{ from: "homeFeed" }}
-              user={user}
-            />
-          ))}
+        {allPosts.map((post) => (
+          <Post
+            key={post.id}
+            id={post.id}
+            searchParams={{ from: "homeFeed" }}
+            user={data.pages[0]!}
+          />
+        ))}
+        {hasNextPage && (
+          <div ref={ref} className="flex justify-center p-4">
+            {isFetchingNextPage && <LoaderCircle className="animate-spin" />}
+          </div>
+        )}
       </div>
     </div>
   );

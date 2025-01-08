@@ -21,11 +21,11 @@ export async function getUser() {
   }
 }
 
-export async function getUserHome() {
+export async function getUserHome(page: number) {
   try {
     const email = await getEmail();
 
-    const [basicInfo, following] = await Promise.all([
+    const [basicInfo, following, total] = await Promise.all([
       prisma.user.findUnique({
         where: { email },
         select: {
@@ -44,10 +44,24 @@ export async function getUserHome() {
               username: true,
               avatar: true,
               posts: {
+                take: 1,
+                skip: page - 1,
+                orderBy: {
+                  createdAt: "desc",
+                },
                 select: {
                   id: true,
                 },
               },
+            },
+          },
+        },
+      }),
+      prisma.post.count({
+        where: {
+          user: {
+            followers: {
+              some: { email },
             },
           },
         },
@@ -61,6 +75,7 @@ export async function getUserHome() {
     return {
       ...basicInfo,
       following,
+      hasMore: page * following.length < total,
     };
   } catch (error) {
     console.error("Error fetching user:", error);
