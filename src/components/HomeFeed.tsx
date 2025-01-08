@@ -36,7 +36,7 @@ export default function HomeFeed({
       queryKey: ["homeFeed"],
       queryFn: ({ pageParam }) => getUserHome(pageParam),
       initialPageParam: 1,
-      getNextPageParam: (lastPage, _allPages, lastPageParam, _allPageParams) =>
+      getNextPageParam: (lastPage, _, lastPageParam) =>
         lastPage?.hasMore ? lastPageParam + 1 : undefined,
       initialData: {
         pages: [initialData],
