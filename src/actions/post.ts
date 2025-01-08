@@ -6,29 +6,58 @@ import { getEmail } from "@/actions/actions";
 
 export async function getPost(id: string) {
   try {
-    const post = await prisma.post.findUnique({
+    return await prisma.post.findUnique({
       where: { id },
-      include: {
-        user: true,
-        comments: {
-          include: {
-            user: true,
-          },
-        },
+      select: {
         likes: {
-          include: {
-            user: true,
+          select: {
+            user: {
+              select: {
+                id: true,
+              },
+            },
+            id: true,
           },
         },
         bookmarks: {
-          include: {
-            user: true,
+          select: {
+            user: {
+              select: {
+                id: true,
+              },
+            },
+            id: true,
+          },
+        },
+        id: true,
+        image: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            name: true,
+          },
+        },
+        caption: true,
+        createdAt: true,
+        comments: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true,
+                name: true,
+              },
+            },
+            id: true,
+            comment: true,
+            createdAt: true,
           },
         },
       },
     });
-
-    return post;
   } catch (error) {
     console.error("Error fetching post:", error);
     throw new Error("Error fetching post", { cause: error });
@@ -60,6 +89,10 @@ export async function getPosts(sortBy: string) {
 
     return await prisma.post.findMany({
       orderBy,
+      select: {
+        id: true,
+        image: true,
+      },
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -92,8 +125,18 @@ export async function searchPosts(q: string) {
       orderBy: {
         createdAt: "desc",
       },
-      include: {
-        user: true,
+      select: {
+        id: true,
+        image: true,
+        caption: true,
+        createdAt: true,
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+            name: true,
+          },
+        },
       },
     });
   } catch (error) {

@@ -1,4 +1,3 @@
-import { User as UserType, Follow as FollowType } from "@prisma/client";
 import ProfileHeader from "@/components/ProfileHeader";
 import GradientAvatar from "@/components/GradientAvatar";
 import FollowStats from "@/components/FollowStats";
@@ -7,9 +6,27 @@ export default function ProfileInfo({
   user,
   isCurrentUser,
 }: {
-  user: UserType & {
-    followers: (FollowType & { user: UserType })[];
-    following: (FollowType & { following: UserType })[];
+  user: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    followers: {
+      id: string;
+      user: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
+    following: {
+      id: string;
+      following: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
   };
   isCurrentUser?: boolean;
 }) {

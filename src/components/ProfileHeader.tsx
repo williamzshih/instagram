@@ -2,14 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SettingsIcon } from "lucide-react";
 import Settings from "@/components/Settings";
-import { User as UserType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
 export default function ProfileHeader({
   user,
   isCurrentUser,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+  };
   isCurrentUser?: boolean;
 }) {
   const router = useRouter();

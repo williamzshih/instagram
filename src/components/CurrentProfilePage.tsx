@@ -4,22 +4,42 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import PostsGrid from "@/components/PostsGrid";
 import { Separator } from "@/components/ui/separator";
-import {
-  User as UserType,
-  Follow as FollowType,
-  Post as PostType,
-  Bookmark as BookmarkType,
-} from "@prisma/client";
 import ProfileInfo from "@/components/ProfileInfo";
 
 export default function CurrentProfilePage({
   user,
 }: {
-  user: UserType & {
-    followers: (FollowType & { user: UserType })[];
-    following: (FollowType & { following: UserType })[];
-    posts: PostType[];
-    bookmarks: (BookmarkType & { post: PostType })[];
+  user: {
+    bookmarks: {
+      post: {
+        id: string;
+        image: string;
+      };
+    }[];
+    posts: {
+      id: string;
+      image: string;
+    }[];
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    followers: {
+      id: string;
+      user: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
+    following: {
+      id: string;
+      following: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
   };
 }) {
   const [selectedTab, setSelectedTab] = useState("posts");

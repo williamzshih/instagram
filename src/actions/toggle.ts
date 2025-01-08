@@ -1,18 +1,13 @@
 "use server";
 
 import { prisma } from "@/db";
-import {
-  Like as LikeType,
-  Bookmark as BookmarkType,
-  Follow as FollowType,
-} from "@prisma/client";
 import { getEmail } from "@/actions/actions";
 
-export async function toggleLike(like: LikeType | undefined, postId: string) {
+export async function toggleLike(id: string | undefined, postId: string) {
   try {
-    if (like) {
+    if (id) {
       await prisma.like.delete({
-        where: { id: like.id },
+        where: { id },
       });
     } else {
       const email = await getEmail();
@@ -26,14 +21,11 @@ export async function toggleLike(like: LikeType | undefined, postId: string) {
   }
 }
 
-export async function toggleBookmark(
-  bookmark: BookmarkType | undefined,
-  postId: string
-) {
+export async function toggleBookmark(id: string | undefined, postId: string) {
   try {
-    if (bookmark) {
+    if (id) {
       await prisma.bookmark.delete({
-        where: { id: bookmark.id },
+        where: { id },
       });
     } else {
       const email = await getEmail();
@@ -47,14 +39,11 @@ export async function toggleBookmark(
   }
 }
 
-export async function toggleFollow(
-  follow: FollowType | undefined,
-  username: string
-) {
+export async function toggleFollow(id: string | undefined, username: string) {
   try {
-    if (follow) {
+    if (id) {
       await prisma.follow.delete({
-        where: { id: follow.id },
+        where: { id },
       });
     } else {
       const email = await getEmail();

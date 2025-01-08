@@ -1,12 +1,14 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { User as UserType } from "@prisma/client";
 import Link from "next/link";
 
 export default function UserAvatar({
   user,
   size,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    avatar: string;
+  };
   size: number;
 }) {
   const sizeClass =

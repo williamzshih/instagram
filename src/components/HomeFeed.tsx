@@ -1,19 +1,25 @@
 import { Plus } from "lucide-react";
 import GradientAvatar from "@/components/GradientAvatar";
 import Post from "@/components/Post";
-import {
-  User as UserType,
-  Follow as FollowType,
-  Post as PostType,
-} from "@prisma/client";
 
 export default function HomeFeed({
   user,
 }: {
-  user: UserType & {
-    following: (FollowType & {
-      following: UserType & { posts: PostType[] };
-    })[];
+  user: {
+    following: {
+      id: string;
+      following: {
+        username: string;
+        avatar: string;
+        posts: {
+          id: string;
+        }[];
+      };
+    }[];
+    id: string;
+    avatar: string;
+    username: string;
+    name: string;
   };
 }) {
   return (

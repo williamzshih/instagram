@@ -1,4 +1,3 @@
-import { User as UserType } from "@prisma/client";
 import UserHeader from "@/components/UserHeader";
 import { formatDistanceToNow } from "date-fns";
 
@@ -8,7 +7,11 @@ export default function Comment({
   createdAt,
   size,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    avatar: string;
+    name: string;
+  };
   comment: string;
   createdAt: Date;
   size: number;

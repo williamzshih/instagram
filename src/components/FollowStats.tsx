@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { User as UserType, Follow as FollowType } from "@prisma/client";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import UserHeader from "@/components/UserHeader";
 import { Separator } from "@/components/ui/separator";
@@ -9,9 +8,23 @@ import Link from "next/link";
 export default function FollowStats({
   user,
 }: {
-  user: UserType & {
-    followers: (FollowType & { user: UserType })[];
-    following: (FollowType & { following: UserType })[];
+  user: {
+    followers: {
+      id: string;
+      user: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
+    following: {
+      id: string;
+      following: {
+        username: string;
+        avatar: string;
+        name: string;
+      };
+    }[];
   };
 }) {
   return (

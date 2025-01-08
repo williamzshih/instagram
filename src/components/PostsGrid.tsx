@@ -1,9 +1,15 @@
-import { Post as PostType } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import Masonry from "react-masonry-css";
 
-export default function PostsGrid({ posts }: { posts: PostType[] }) {
+export default function PostsGrid({
+  posts,
+}: {
+  posts: {
+    id: string;
+    image: string;
+  }[];
+}) {
   return (
     <Masonry
       breakpointCols={{

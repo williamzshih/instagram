@@ -30,7 +30,7 @@ export default function OtherProfilePage({
   });
 
   const { mutate: toggleFollowMutation } = useMutation({
-    mutationFn: () => toggleFollow(follow, otherUsername),
+    mutationFn: () => toggleFollow(follow?.id, otherUsername),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: ["otherUser", otherUsername],

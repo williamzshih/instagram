@@ -53,7 +53,12 @@ export default function Post({
 }: {
   id: string;
   searchParams?: { from: string };
-  user: UserType;
+  user: {
+    id: string;
+    avatar: string;
+    username: string;
+    name: string;
+  };
 }) {
   const fromHomeFeed = searchParams?.from === "homeFeed";
   const [showComments, setShowComments] = useState(!fromHomeFeed);
@@ -72,7 +77,7 @@ export default function Post({
   });
 
   const { mutate: toggleLikeMutate } = useMutation({
-    mutationFn: () => toggleLike(like, id),
+    mutationFn: () => toggleLike(like?.id, id),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: ["post", id],
@@ -103,7 +108,7 @@ export default function Post({
   });
 
   const { mutate: toggleBookmarkMutate } = useMutation({
-    mutationFn: () => toggleBookmark(bookmark, id),
+    mutationFn: () => toggleBookmark(bookmark?.id, id),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: ["post", id],

@@ -8,6 +8,12 @@ export async function getUser() {
     const email = await getEmail();
     return await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        username: true,
+        avatar: true,
+        name: true,
+      },
     });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -20,15 +26,21 @@ export async function getUserHome() {
     const email = await getEmail();
     return await prisma.user.findUnique({
       where: { email },
-      include: {
+      select: {
+        id: true,
+        avatar: true,
+        username: true,
+        name: true,
         following: {
-          include: {
+          select: {
+            id: true,
             following: {
-              include: {
+              select: {
+                username: true,
+                avatar: true,
                 posts: {
-                  take: 5,
-                  orderBy: {
-                    createdAt: "desc",
+                  select: {
+                    id: true,
                   },
                 },
               },
@@ -48,21 +60,49 @@ export async function getUserProfile() {
     const email = await getEmail();
     return await prisma.user.findUnique({
       where: { email },
-      include: {
-        posts: true,
-        bookmarks: {
-          include: {
-            post: true,
-          },
-        },
+      select: {
+        username: true,
+        name: true,
+        bio: true,
+        avatar: true,
         followers: {
-          include: {
-            user: true,
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                avatar: true,
+                name: true,
+              },
+            },
           },
         },
         following: {
-          include: {
-            following: true,
+          select: {
+            id: true,
+            following: {
+              select: {
+                username: true,
+                avatar: true,
+                name: true,
+              },
+            },
+          },
+        },
+        bookmarks: {
+          select: {
+            post: {
+              select: {
+                id: true,
+                image: true,
+              },
+            },
+          },
+        },
+        posts: {
+          select: {
+            id: true,
+            image: true,
           },
         },
       },
@@ -77,16 +117,40 @@ export async function getUserByUsername(username: string) {
   try {
     return await prisma.user.findUnique({
       where: { username },
-      include: {
-        posts: true,
+      select: {
+        username: true,
+        name: true,
+        bio: true,
+        avatar: true,
         followers: {
-          include: {
-            user: true,
+          select: {
+            id: true,
+            user: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true,
+                name: true,
+              },
+            },
           },
         },
         following: {
-          include: {
-            following: true,
+          select: {
+            id: true,
+            following: {
+              select: {
+                username: true,
+                avatar: true,
+                name: true,
+              },
+            },
+          },
+        },
+        posts: {
+          select: {
+            id: true,
+            image: true,
           },
         },
       },
@@ -101,6 +165,7 @@ export async function isUsernameAvailable(username: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { username },
+      select: {}
     });
     return !user;
   } catch (error) {
@@ -161,6 +226,12 @@ export async function searchUsers(q: string) {
         followers: {
           _count: "desc",
         },
+      },
+      select: {
+        username: true,
+        name: true,
+        avatar: true,
+        id: true,
       },
     });
   } catch (error) {

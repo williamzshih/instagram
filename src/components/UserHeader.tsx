@@ -1,11 +1,14 @@
-import { User as UserType } from "@prisma/client";
 import UserAvatar from "@/components/UserAvatar";
 
 export default function UserHeader({
   user,
   size,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    avatar: string;
+    name: string;
+  };
   size: number;
 }) {
   return (

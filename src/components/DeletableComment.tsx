@@ -7,7 +7,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
-import { User as UserType } from "@prisma/client";
 import UserHeader from "@/components/UserHeader";
 
 export default function DeletableComment({
@@ -17,7 +16,11 @@ export default function DeletableComment({
   size,
   onDelete,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    avatar: string;
+    name: string;
+  };
   comment: string;
   createdAt: Date;
   size: number;

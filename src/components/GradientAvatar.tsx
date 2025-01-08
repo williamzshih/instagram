@@ -1,11 +1,13 @@
-import { User as UserType } from "@prisma/client";
 import UserAvatar from "@/components/UserAvatar";
 
 export default function GradientAvatar({
   user,
   size,
 }: {
-  user: UserType;
+  user: {
+    username: string;
+    avatar: string;
+  };
   size: number;
 }) {
   return (

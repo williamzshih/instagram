@@ -27,10 +27,18 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
-import { User as UserType } from "@prisma/client";
 import { signOut } from "next-auth/react";
 
-export default function Settings({ user }: { user: UserType }) {
+export default function Settings({
+  user,
+}: {
+  user: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+  };
+}) {
   const formSchema = z.object({
     username: z
       .string()
