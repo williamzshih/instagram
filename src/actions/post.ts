@@ -6,58 +6,74 @@ import { getEmail } from "@/actions/actions";
 
 export async function getPost(id: string) {
   try {
-    return await prisma.post.findUnique({
-      where: { id },
-      select: {
-        likes: {
-          select: {
-            user: {
-              select: {
-                id: true,
-              },
+    const [basicInfo, likes, bookmarks, comments] = await Promise.all([
+      prisma.post.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          image: true,
+          caption: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              name: true,
             },
-            id: true,
           },
         },
-        bookmarks: {
-          select: {
-            user: {
-              select: {
-                id: true,
-              },
+      }),
+      prisma.like.findMany({
+        where: { postId: id },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
             },
-            id: true,
           },
         },
-        id: true,
-        image: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-            avatar: true,
-            name: true,
-          },
-        },
-        caption: true,
-        createdAt: true,
-        comments: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                avatar: true,
-                name: true,
-              },
+      }),
+      prisma.bookmark.findMany({
+        where: { postId: id },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
             },
-            id: true,
-            comment: true,
-            createdAt: true,
           },
         },
-      },
-    });
+      }),
+      prisma.comment.findMany({
+        where: { postId: id },
+        select: {
+          id: true,
+          comment: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              name: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    if (!basicInfo) {
+      return null;
+    }
+
+    return {
+      ...basicInfo,
+      likes,
+      bookmarks,
+      comments,
+    };
   } catch (error) {
     console.error("Error fetching post:", error);
     throw new Error("Error fetching post", { cause: error });

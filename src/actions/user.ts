@@ -24,31 +24,44 @@ export async function getUser() {
 export async function getUserHome() {
   try {
     const email = await getEmail();
-    return await prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        avatar: true,
-        username: true,
-        name: true,
-        following: {
-          select: {
-            id: true,
-            following: {
-              select: {
-                username: true,
-                avatar: true,
-                posts: {
-                  select: {
-                    id: true,
-                  },
+
+    const [basicInfo, following] = await Promise.all([
+      prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          avatar: true,
+          username: true,
+          name: true,
+        },
+      }),
+      prisma.follow.findMany({
+        where: { email },
+        select: {
+          id: true,
+          following: {
+            select: {
+              username: true,
+              avatar: true,
+              posts: {
+                select: {
+                  id: true,
                 },
               },
             },
           },
         },
-      },
-    });
+      }),
+    ]);
+
+    if (!basicInfo) {
+      return null;
+    }
+
+    return {
+      ...basicInfo,
+      following,
+    };
   } catch (error) {
     console.error("Error fetching user:", error);
     throw new Error("Error fetching user", { cause: error });
@@ -58,14 +71,30 @@ export async function getUserHome() {
 export async function getUserProfile() {
   try {
     const email = await getEmail();
-    return await prisma.user.findUnique({
-      where: { email },
-      select: {
-        username: true,
-        name: true,
-        bio: true,
-        avatar: true,
-        followers: {
+    const username = (
+      await prisma.user.findUnique({
+        where: { email },
+        select: { username: true },
+      })
+    )?.username;
+
+    if (!username) {
+      return null;
+    }
+
+    const [basicInfo, followers, following, bookmarks, posts] =
+      await Promise.all([
+        prisma.user.findUnique({
+          where: { email },
+          select: {
+            username: true,
+            name: true,
+            bio: true,
+            avatar: true,
+          },
+        }),
+        prisma.follow.findMany({
+          where: { followingUsername: username },
           select: {
             id: true,
             user: {
@@ -76,8 +105,9 @@ export async function getUserProfile() {
               },
             },
           },
-        },
-        following: {
+        }),
+        prisma.follow.findMany({
+          where: { email },
           select: {
             id: true,
             following: {
@@ -88,8 +118,9 @@ export async function getUserProfile() {
               },
             },
           },
-        },
-        bookmarks: {
+        }),
+        prisma.bookmark.findMany({
+          where: { email },
           select: {
             post: {
               select: {
@@ -98,15 +129,27 @@ export async function getUserProfile() {
               },
             },
           },
-        },
-        posts: {
+        }),
+        prisma.post.findMany({
+          where: { email },
           select: {
             id: true,
             image: true,
           },
-        },
-      },
-    });
+        }),
+      ]);
+
+    if (!basicInfo) {
+      return null;
+    }
+
+    return {
+      ...basicInfo,
+      followers,
+      following,
+      bookmarks,
+      posts,
+    };
   } catch (error) {
     console.error("Error fetching user:", error);
     throw new Error("Error fetching user", { cause: error });
@@ -115,46 +158,64 @@ export async function getUserProfile() {
 
 export async function getUserByUsername(username: string) {
   try {
-    return await prisma.user.findUnique({
-      where: { username },
-      select: {
-        username: true,
-        name: true,
-        bio: true,
-        avatar: true,
-        followers: {
-          select: {
-            id: true,
-            user: {
-              select: {
-                id: true,
-                username: true,
-                avatar: true,
-                name: true,
-              },
+    const email = await getEmail();
+
+    const [basicInfo, followers, following, posts] = await Promise.all([
+      prisma.user.findUnique({
+        where: { username },
+        select: {
+          username: true,
+          name: true,
+          bio: true,
+          avatar: true,
+        },
+      }),
+      prisma.follow.findMany({
+        where: { followingUsername: username },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              name: true,
             },
           },
         },
-        following: {
-          select: {
-            id: true,
-            following: {
-              select: {
-                username: true,
-                avatar: true,
-                name: true,
-              },
+      }),
+      prisma.follow.findMany({
+        where: { email },
+        select: {
+          id: true,
+          following: {
+            select: {
+              username: true,
+              avatar: true,
+              name: true,
             },
           },
         },
-        posts: {
-          select: {
-            id: true,
-            image: true,
-          },
+      }),
+      prisma.post.findMany({
+        where: { email },
+        select: {
+          id: true,
+          image: true,
         },
-      },
-    });
+      }),
+    ]);
+
+    if (!basicInfo) {
+      return null;
+    }
+
+    return {
+      ...basicInfo,
+      followers,
+      following,
+      posts,
+    };
   } catch (error) {
     console.error("Error fetching user by username:", error);
     throw new Error("Error fetching user by username", { cause: error });
@@ -165,7 +226,7 @@ export async function isUsernameAvailable(username: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { username },
-      select: {}
+      select: {},
     });
     return !user;
   } catch (error) {
