@@ -25,7 +25,7 @@ export async function getUserHome(page: number) {
   try {
     const email = await getEmail();
 
-    const [basicInfo, following, total] = await Promise.all([
+    const [basicInfo, following] = await Promise.all([
       prisma.user.findUnique({
         where: { email },
         select: {
@@ -41,6 +41,11 @@ export async function getUserHome(page: number) {
           id: true,
           following: {
             select: {
+              _count: {
+                select: {
+                  posts: true,
+                },
+              },
               username: true,
               avatar: true,
               posts: {
@@ -57,20 +62,16 @@ export async function getUserHome(page: number) {
           },
         },
       }),
-      prisma.post.count({
-        where: {
-          user: {
-            followers: {
-              some: { email },
-            },
-          },
-        },
-      }),
     ]);
 
     if (!basicInfo) {
       return null;
     }
+
+    const total = following.reduce(
+      (acc, curr) => acc + curr.following._count.posts,
+      0
+    );
 
     return {
       ...basicInfo,
