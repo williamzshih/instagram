@@ -1,5 +1,5 @@
-import CurrentProfilePageSkeleton from "@/components/CurrentProfilePageSkeleton";
+import ProfilePageSkeleton from "@/components/ProfilePageSkeleton";
 
 export default function Loading() {
-  return <CurrentProfilePageSkeleton />;
+  return <ProfilePageSkeleton />;
 }

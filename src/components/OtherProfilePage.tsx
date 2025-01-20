@@ -8,7 +8,7 @@ import { toggleFollow } from "@/actions/toggle";
 import { toast } from "sonner";
 import { Follow as FollowType, User as UserType } from "@prisma/client";
 import { Separator } from "@/components/ui/separator";
-import OtherProfilePageSkeleton from "@/components/OtherProfilePageSkeleton";
+import ProfilePageSkeleton from "@/components/ProfilePageSkeleton";
 import ProfileInfo from "@/components/ProfileInfo";
 
 export default function OtherProfilePage({
@@ -67,7 +67,7 @@ export default function OtherProfilePage({
   });
 
   if (isPending) {
-    return <OtherProfilePageSkeleton />;
+    return <ProfilePageSkeleton />;
   }
 
   if (error) {
