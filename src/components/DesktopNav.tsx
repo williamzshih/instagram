@@ -42,7 +42,7 @@ export default function DesktopNav() {
               }
               alt="Instagram text"
               width={100}
-              height={100}
+              height={36}
               className="mt-1"
             />
           </div>
