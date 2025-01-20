@@ -174,7 +174,10 @@ export async function getUserProfile() {
 
 export async function getUserByUsername(username: string) {
   try {
-    const email = await getEmail();
+    const { email } = await prisma.user.findUniqueOrThrow({
+      where: { username },
+      select: { email: true },
+    });
 
     const [basicInfo, followers, following, posts] = await Promise.all([
       prisma.user.findUnique({
@@ -225,6 +228,9 @@ export async function getUserByUsername(username: string) {
     if (!basicInfo) {
       return null;
     }
+
+    console.log("followers", followers);
+    console.log("following", following);
 
     return {
       ...basicInfo,
