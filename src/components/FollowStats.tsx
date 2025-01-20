@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import UserHeader from "@/components/UserHeader";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,15 +36,16 @@ export default function FollowStats({
     <div className="flex items-center justify-center gap-2">
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="ghost" className="w-fit h-fit">
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-lg font-bold">{user.followers.length}</p>
-              <p>{user.followers.length === 1 ? "Follower" : "Followers"}</p>
-            </div>
+          <Button
+            variant="ghost"
+            className="w-fit h-fit flex flex-col items-center justify-center"
+          >
+            <p className="text-lg font-bold">{user.followers.length}</p>
+            <p>{user.followers.length === 1 ? "Follower" : "Followers"}</p>
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <p className="text-2xl font-bold">Followers</p>
+          <DialogTitle>Followers</DialogTitle>
           <Separator />
           <ScrollArea className="h-[75vh] pr-4">
             <div className="flex flex-col gap-4">
@@ -64,15 +70,16 @@ export default function FollowStats({
       </Dialog>
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="ghost" className="w-fit h-fit">
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-lg font-bold">{user.following.length}</p>
-              <p>Following</p>
-            </div>
+          <Button
+            variant="ghost"
+            className="w-fit h-fit flex flex-col items-center justify-center"
+          >
+            <p className="text-lg font-bold">{user.following.length}</p>
+            <p>Following</p>
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <p className="text-2xl font-bold">Following</p>
+          <DialogTitle>Following</DialogTitle>
           <Separator />
           <ScrollArea className="h-[75vh] pr-4">
             <div className="flex flex-col gap-4">

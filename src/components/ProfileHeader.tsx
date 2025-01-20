@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SettingsIcon } from "lucide-react";
 import Settings from "@/components/Settings";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,9 @@ export default function ProfileHeader({
             </Button>
           </DialogTrigger>
           <DialogContent>
+            <DialogTitle className="text-center text-2xl font-bold">
+              Settings
+            </DialogTitle>
             <Settings user={user} />
           </DialogContent>
         </Dialog>

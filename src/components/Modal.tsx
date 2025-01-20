@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -29,6 +29,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
           }
         }}
       >
+        <DialogTitle />
         <ScrollArea className="pr-4">{children}</ScrollArea>
         <ThemeSwitch />
       </DialogContent>

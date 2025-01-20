@@ -242,7 +242,9 @@ export async function isUsernameAvailable(username: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { username },
-      select: {},
+      select: {
+        id: true,
+      },
     });
     return !user;
   } catch (error) {
