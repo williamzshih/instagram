@@ -67,7 +67,10 @@ export default function HomeFeed({
           >
             <GradientAvatar user={follow.following} size={16} />
             <p className="text-[12px] text-muted-foreground">
-              @{follow.following.username}
+              @
+              {follow.following.username.length > 9
+                ? follow.following.username.slice(0, 9) + "..."
+                : follow.following.username}
             </p>
           </div>
         )) || []}
