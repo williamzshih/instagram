@@ -22,7 +22,7 @@ export default function MobileNav() {
           <div className="border-4 border-transparent -rotate-45">
             <Link
               href="/create"
-              className="bg-gradient-to-tr from-ig-orange to-ig-red rounded-full text-white size-14 flex items-center justify-center"
+              className="bg-linear-to-tr from-ig-orange to-ig-red rounded-full text-white size-14 flex items-center justify-center"
             >
               <Plus />
             </Link>

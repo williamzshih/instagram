@@ -86,7 +86,7 @@ export default function OtherProfilePage({
       <ProfileInfo user={otherUser} />
       {follow ? (
         <Button
-          className="bg-gradient-to-tr from-ig-orange to-ig-red text-white"
+          className="bg-linear-to-tr from-ig-orange to-ig-red text-white"
           onClick={() => toggleFollowMutation()}
           onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
           onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}

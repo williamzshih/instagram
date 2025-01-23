@@ -94,7 +94,7 @@ export default function Settings({
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <div className="p-1 rounded-full bg-gradient-to-tr from-ig-orange to-ig-red">
+      <div className="p-1 rounded-full bg-linear-to-tr from-ig-orange to-ig-red">
         <div className="p-1 rounded-full bg-background">
           <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
             <Avatar className="w-40 h-40 group">
