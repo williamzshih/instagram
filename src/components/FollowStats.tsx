@@ -24,15 +24,20 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import Loading from "@/components/Loading";
+import { type ProfilePageProps } from "@/components/ProfilePage";
 
-export default function FollowStats({ profile }: { profile: Profile }) {
-  const [followersOpen, setFollowersOpen] = useState(false);
+export default function FollowStats({
+  profile,
+  isCurrentUser,
+}: ProfilePageProps) {
   const [followingOpen, setFollowingOpen] = useState(false);
 
-  const { data: followers = [], isLoading: isLoadingFollowers } = useQuery({
+  const {
+    data: followers = { followers: [], length: 0 },
+    isLoading: isLoadingFollowers,
+  } = useQuery({
     queryKey: ["followers", profile.username],
     queryFn: () => getFollowers(profile.username),
-    enabled: followersOpen,
   });
 
   const { data: following = [], isLoading: isLoadingFollowing } = useQuery({
@@ -103,7 +108,7 @@ export default function FollowStats({ profile }: { profile: Profile }) {
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <Dialog open={followersOpen} onOpenChange={setFollowersOpen}>
+      <Dialog>
         <DialogTrigger asChild>
           <Button
             variant="ghost"
@@ -125,8 +130,8 @@ export default function FollowStats({ profile }: { profile: Profile }) {
             <div className="flex flex-col gap-2">
               {isLoadingFollowers ? (
                 <Loading />
-              ) : followers.length > 0 ? (
-                followers.map((follower) => (
+              ) : followers.followers.length > 0 ? (
+                followers.followers.map((follower) => (
                   <div
                     key={follower.username}
                     className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
@@ -141,20 +146,24 @@ export default function FollowStats({ profile }: { profile: Profile }) {
                             <UserBlock user={follower} size={16} />
                             {/* TODO: <a> hydration error */}
                           </Link>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="cursor-pointer"
-                            onClick={() => remove(follower.email)}
-                          >
-                            Remove
-                          </Button>
+                          {isCurrentUser && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="cursor-pointer"
+                              onClick={() => remove(follower.email)}
+                            >
+                              Remove
+                            </Button>
+                          )}
                         </div>
                       </HoverCardTrigger>
-                      <HoverCardContent className="text-center w-auto">
-                        Followed you on{" "}
-                        {follower.createdAt.toLocaleDateString()}
-                      </HoverCardContent>
+                      {isCurrentUser && (
+                        <HoverCardContent className="text-center w-auto">
+                          Followed you on{" "}
+                          {follower.createdAt.toLocaleDateString()}
+                        </HoverCardContent>
+                      )}
                     </HoverCard>
                   </div>
                 ))
@@ -199,20 +208,24 @@ export default function FollowStats({ profile }: { profile: Profile }) {
                             <UserBlock user={following} size={16} />
                             {/* TODO: <a> hydration error */}
                           </Link>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="cursor-pointer"
-                            onClick={() => unfollow(following.username)}
-                          >
-                            Unfollow
-                          </Button>
+                          {isCurrentUser && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="cursor-pointer"
+                              onClick={() => unfollow(following.username)}
+                            >
+                              Unfollow
+                            </Button>
+                          )}
                         </div>
                       </HoverCardTrigger>
-                      <HoverCardContent className="text-center w-auto">
-                        You followed on{" "}
-                        {following.createdAt.toLocaleDateString()}
-                      </HoverCardContent>
+                      {isCurrentUser && (
+                        <HoverCardContent className="text-center w-auto">
+                          Followed you on{" "}
+                          {following.createdAt.toLocaleDateString()}
+                        </HoverCardContent>
+                      )}
                     </HoverCard>
                   </div>
                 ))

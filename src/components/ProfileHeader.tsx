@@ -8,26 +8,33 @@ import {
 import { SettingsIcon } from "lucide-react";
 import Settings from "@/components/Settings";
 import { useRouter } from "next/navigation";
-import { type Profile } from "@/actions/profile";
+import { type ProfilePageProps } from "@/components/ProfilePage";
 
-export default function ProfileHeader({ profile }: { profile: Profile }) {
+export default function ProfileHeader({
+  profile,
+  isCurrentUser,
+}: ProfilePageProps) {
   const router = useRouter();
 
   return (
     <div className="flex items-center justify-between w-full">
       <Button size="icon" className="invisible" />
       <p className="text-2xl font-bold">@{profile.username}</p>
-      <Dialog onOpenChange={(open) => !open && router.refresh()}>
-        <DialogTrigger asChild>
-          <Button size="icon" variant="ghost">
-            <SettingsIcon />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-4">
-          <DialogTitle className="text-xl">Settings</DialogTitle>
-          <Settings profile={profile} />
-        </DialogContent>
-      </Dialog>
+      {isCurrentUser ? (
+        <Dialog onOpenChange={(open) => !open && router.refresh()}>
+          <DialogTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <SettingsIcon />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="p-4">
+            <DialogTitle className="text-xl">Settings</DialogTitle>
+            <Settings profile={profile} />
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Button size="icon" className="invisible" />
+      )}
     </div>
   );
 }

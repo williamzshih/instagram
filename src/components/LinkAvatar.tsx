@@ -1,5 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export type LinkAvatarProps = {
   user: {
@@ -7,9 +8,14 @@ export type LinkAvatarProps = {
     avatar: string;
   };
   size: number;
+  isProfilePage?: boolean;
 };
 
-export default function LinkAvatar({ user, size }: LinkAvatarProps) {
+export default function LinkAvatar({
+  user,
+  size,
+  isProfilePage,
+}: LinkAvatarProps) {
   // TODO: fix sizes
   const sizeClass =
     size === 10
@@ -23,7 +29,13 @@ export default function LinkAvatar({ user, size }: LinkAvatarProps) {
       : "w-10 h-10";
 
   return (
-    <Link href={`/user/${user.username}`} className="rounded-full block">
+    <Link
+      href={`/user/${user.username}`}
+      className={cn(
+        "rounded-full block",
+        isProfilePage && "pointer-events-none"
+      )}
+    >
       <Avatar className={sizeClass}>
         <AvatarImage
           src={user.avatar}

@@ -3,12 +3,11 @@
 import { getEmail } from "@/actions/actions";
 import { prisma } from "@/db";
 
-export const getProfile = async () => {
+// check unnecessary exports
+export const getProfile = async (username?: string) => {
   try {
-    const email = await getEmail();
-
-    return await prisma.user.findUnique({
-      where: { email },
+    const profile = await prisma.user.findUnique({
+      where: username ? { username } : { email: await getEmail() },
       select: {
         email: true,
         username: true,
@@ -24,9 +23,34 @@ export const getProfile = async () => {
         },
       },
     });
+
+    // couldn't find other user
+    if (username && !profile) throw new Error("User not found");
+
+    return {
+      profile,
+      isFollowing: username ? await checkFollow(username) : false,
+    };
   } catch (error) {
+    // TODO: add error handling
     console.error("Error fetching profile:", error);
     throw new Error("Error fetching profile:", { cause: error });
+  }
+};
+
+export const checkFollow = async (followingUsername: string) => {
+  try {
+    return !!(await prisma.follow.findUnique({
+      where: {
+        email_followingUsername: {
+          email: await getEmail(),
+          followingUsername,
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Error checking if following:", error);
+    throw new Error("Error checking if following:", { cause: error });
   }
 };
 
@@ -154,10 +178,13 @@ export const getFollowers = async (username: string) => {
 
     if (!user) throw new Error("User not found");
 
-    return user.followers.map((follower) => ({
-      ...follower.user,
-      createdAt: follower.createdAt,
-    }));
+    return {
+      followers: user.followers.map((follower) => ({
+        ...follower.user,
+        createdAt: follower.createdAt,
+      })),
+      length: user.followers.length,
+    };
   } catch (error) {
     console.error("Error fetching followers:", error);
     throw new Error("Error fetching followers:", { cause: error });
@@ -230,6 +257,30 @@ export const removeFollow = async (
   }
 };
 
+const addFollow = async (email: string, followingUsername: string) => {
+  try {
+    await prisma.follow.create({ data: { email, followingUsername } });
+  } catch (error) {
+    console.error("Error following user:", error);
+    throw new Error("Error following user:", { cause: error });
+  }
+};
+
+export const toggleFollow = async (
+  followingUsername: string,
+  isFollowing: boolean
+) => {
+  try {
+    const email = await getEmail();
+
+    if (isFollowing) await removeFollow(email, followingUsername, "unfollow");
+    else await addFollow(email, followingUsername);
+  } catch (error) {
+    console.error("Error toggling follow:", error);
+    throw new Error("Error toggling follow:", { cause: error });
+  }
+};
+
 export const isUsernameAvailable = async (username: string) => {
   try {
     const user = await prisma.user.findUnique({
@@ -274,7 +325,11 @@ export const deleteUser = async (username: string) => {
   }
 };
 
-export type Profile = NonNullable<Awaited<ReturnType<typeof getProfile>>>;
+export type Profile = NonNullable<
+  Awaited<ReturnType<typeof getProfile>>["profile"]
+>;
 export type Post = Awaited<ReturnType<typeof getPosts>>[number];
-export type Follower = Awaited<ReturnType<typeof getFollowers>>[number];
+export type Follower = Awaited<
+  ReturnType<typeof getFollowers>
+>["followers"][number];
 export type Following = Awaited<ReturnType<typeof getFollowing>>[number];

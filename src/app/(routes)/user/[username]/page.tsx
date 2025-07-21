@@ -1,20 +1,19 @@
-import { getUser } from "@/actions/user";
-import OtherProfilePage from "@/components/OtherProfilePage";
-import { redirect } from "next/navigation";
+// TODO: import 'type'
+import { getProfile, type Profile } from "@/actions/profile";
+import ProfilePage from "@/components/ProfilePage";
 
-export default async function User({
+export default async function OtherProfile({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const currentUser = await getUser();
-
-  if (!currentUser) {
-    redirect("/sign-up");
-  }
+  const { profile, isFollowing } = await getProfile(username);
 
   return (
-    <OtherProfilePage otherUsername={username} currentUserId={currentUser.id} />
+    <ProfilePage
+      profile={profile as Profile} // if profile was null, getProfile would have thrown an error
+      isFollowingInitial={isFollowing}
+    />
   );
 }

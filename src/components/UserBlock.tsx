@@ -1,6 +1,6 @@
 import LinkAvatar, { type LinkAvatarProps } from "@/components/LinkAvatar";
 
-type UserBlockProps = LinkAvatarProps & {
+type UserBlockProps = Omit<LinkAvatarProps, "isProfilePage"> & {
   user: {
     username: string;
     name: string;
