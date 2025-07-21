@@ -15,7 +15,7 @@ export default function ProfileInfo({
         <LinkAvatar user={profile} size={40} isProfilePage />
       </Gradient>
       <p className="text-xl font-bold">{profile.name}</p>
-      {profile.bio && <p className="text-lg">{profile.bio}</p>}
+      {profile.bio && <p className="text-lg max-w-md">{profile.bio}</p>}
       <FollowStats profile={profile} isCurrentUser={isCurrentUser} />
     </div>
   );
