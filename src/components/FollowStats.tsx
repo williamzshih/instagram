@@ -11,7 +11,6 @@ import Link from "next/link";
 import {
   getFollowers,
   getFollowing,
-  type Profile,
   removeFollow,
   type Follower,
   type Following,
