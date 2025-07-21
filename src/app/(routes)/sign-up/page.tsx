@@ -14,9 +14,7 @@ import { ChevronLeft } from "lucide-react";
 export default async function SignUp() {
   const session = await auth();
 
-  if (!session) {
-    redirect("/sign-in");
-  }
+  if (!session) redirect("/sign-in");
 
   return (
     <div className="flex flex-col justify-center items-center h-[95vh] gap-4">

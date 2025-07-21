@@ -244,44 +244,6 @@ export async function getUserByUsername(username: string) {
   }
 }
 
-export async function isUsernameAvailable(username: string) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { username },
-      select: {
-        id: true,
-      },
-    });
-    return !user;
-  } catch (error) {
-    console.error("Error checking username availability:", error);
-    throw new Error("Error checking username availability", { cause: error });
-  }
-}
-
-export async function updateUser(
-  username: string,
-  name: string,
-  bio: string,
-  avatar: string
-) {
-  try {
-    const email = await getEmail();
-    await prisma.user.update({
-      where: { email },
-      data: {
-        username,
-        name,
-        bio,
-        avatar,
-      },
-    });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    throw new Error("Error updating user", { cause: error });
-  }
-}
-
 export async function createUser(
   email: string,
   username: string,
@@ -322,17 +284,5 @@ export async function searchUsers(q: string) {
   } catch (error) {
     console.error("Error searching users:", error);
     throw new Error("Error searching users", { cause: error });
-  }
-}
-
-export async function deleteUser() {
-  try {
-    const email = await getEmail();
-    await prisma.user.delete({
-      where: { email },
-    });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    throw new Error("Error deleting user", { cause: error });
   }
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,23 +20,21 @@ import {
   BIO_MAX,
 } from "@/limits";
 import { uploadFile } from "@/actions/actions";
-import { deleteUser, isUsernameAvailable, updateUser } from "@/actions/user";
+import {
+  isUsernameAvailable,
+  updateUser,
+  deleteUser,
+  type Profile,
+} from "@/actions/profile";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
+import Gradient from "@/components/Gradient";
 
-export default function Settings({
-  user,
-}: {
-  user: {
-    username: string;
-    name: string;
-    bio: string;
-    avatar: string;
-  };
-}) {
+export default function Settings({ profile }: { profile: Profile }) {
+  // TODO: add email to form schema
   const formSchema = z.object({
     username: z
       .string()
@@ -52,12 +48,9 @@ export default function Settings({
         `Username must be at most ${USERNAME_MAX} characters long`
       )
       .refine(
-        async (username) => {
-          if (username === user.username) {
-            return true;
-          }
-          return await isUsernameAvailable(username);
-        },
+        async (username) =>
+          username === profile.username ||
+          (await isUsernameAvailable(username)),
         {
           message: "This username is already taken",
         }
@@ -73,64 +66,60 @@ export default function Settings({
     avatar: z.string(),
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: user.username,
-      name: user.name,
-      bio: user.bio,
-      avatar: user.avatar,
+      username: profile.username,
+      name: profile.name,
+      bio: profile.bio,
+      avatar: profile.avatar,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      await updateUser(data.username, data.name, data.bio, data.avatar);
+      await updateUser(profile.username, data);
       toast.success("Settings updated");
     } catch (error) {
       toast.error((error as Error).message);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <div className="p-1 rounded-full bg-linear-to-tr from-ig-orange to-ig-red">
-        <div className="p-1 rounded-full bg-background">
-          <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
-            <Avatar className="w-40 h-40 group">
-              <AvatarImage
-                src={form.watch("avatar")}
-                alt={`${user.username} avatar`}
-                className="object-cover rounded-full"
-              />
-              <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-25" />
-              <Upload
-                size={40}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
-              />
-            </Avatar>
-          </Label>
-          <Input
-            id="avatar"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files?.[0]) {
-                try {
-                  const formData = new FormData();
-                  formData.append("file", e.target.files[0]);
-                  uploadFile(formData).then((url) => {
-                    form.setValue("avatar", url);
-                  });
-                } catch (error) {
-                  toast.error((error as Error).message);
-                }
+      <Gradient>
+        <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
+          <Avatar className="w-40 h-40 group">
+            <AvatarImage
+              src={form.watch("avatar")}
+              alt="Your avatar"
+              className="object-cover rounded-full"
+            />
+            <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-25" />
+            <Upload
+              size={40}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
+            />
+          </Avatar>
+        </Label>
+        <Input
+          id="avatar"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files?.[0])
+              try {
+                uploadFile(e.target.files[0]).then((url) =>
+                  form.setValue("avatar", url)
+                );
+                toast.success("Avatar updated");
+              } catch (error) {
+                toast.error((error as Error).message);
               }
-            }}
-          />
-        </div>
-      </div>
+          }}
+        />
+      </Gradient>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -190,26 +179,35 @@ export default function Settings({
               </FormItem>
             )}
           />
-          <Button type="submit">Save settings</Button>
+          <Button type="submit" className="cursor-pointer">
+            Save settings
+          </Button>
         </form>
       </Form>
       <div className="flex items-center justify-center gap-2">
+        {/* TODO: fix sign out */}
         <Button
           variant="destructive"
+          className="cursor-pointer"
           onClick={() => signOut({ redirectTo: "/sign-in" })}
         >
-          Sign Out
+          Sign out
         </Button>
+        {/* TODO: fix delete account */}
         <Button
           variant="destructive"
+          className="cursor-pointer"
           onClick={async () => {
             signOut({ redirectTo: "/sign-in" });
-            await deleteUser();
+            await deleteUser(profile.username);
           }}
         >
-          Delete Account
+          Delete account
         </Button>
       </div>
+      <p className="text-sm text-muted-foreground">
+        Account created on {profile.createdAt.toLocaleDateString()}
+      </p>
     </div>
   );
 }

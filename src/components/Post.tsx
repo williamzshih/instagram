@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import UserAvatar from "@/components/UserAvatar";
+import LinkAvatar from "@/components/LinkAvatar";
 import { COMMENT_MAX } from "@/limits";
 import { useTheme } from "next-themes";
 import {
@@ -372,7 +372,7 @@ export default function Post({
           </Button>
         )}
         <div className="flex gap-2">
-          <UserAvatar user={user} size={10} />
+          <LinkAvatar user={user} size={10} />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
               <FormField

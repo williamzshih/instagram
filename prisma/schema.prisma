@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// TODO: check all schemas, including default values
 model User {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String     @unique
@@ -46,31 +47,34 @@ model Comment {
 }
 
 model Like {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  email  String
-  user   User   @relation(fields: [email], references: [email])
-  postId String @db.ObjectId
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  user      User     @relation(fields: [email], references: [email])
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([email, postId])
 }
 
 model Bookmark {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  email  String
-  user   User   @relation(fields: [email], references: [email])
-  postId String @db.ObjectId
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  user      User     @relation(fields: [email], references: [email])
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([email, postId])
 }
 
 model Follow {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
   email             String
-  user              User   @relation("following", fields: [email], references: [email], onDelete: Cascade)
+  user              User     @relation("following", fields: [email], references: [email], onDelete: Cascade)
   followingUsername String
-  following         User   @relation("followers", fields: [followingUsername], references: [username], onDelete: Cascade)
+  following         User     @relation("followers", fields: [followingUsername], references: [username], onDelete: Cascade)
+  createdAt         DateTime @default(now())
 
   @@unique([email, followingUsername])
 }

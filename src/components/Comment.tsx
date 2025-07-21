@@ -1,4 +1,4 @@
-import UserHeader from "@/components/UserHeader";
+import UserBlock from "@/components/UserBlock";
 import { formatDistanceToNow } from "date-fns";
 
 export default function Comment({
@@ -18,7 +18,7 @@ export default function Comment({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <UserHeader user={user} size={size} />
+      <UserBlock user={user} size={size} />
       {comment && <p className="bg-muted p-2 rounded-lg">{comment}</p>}
       <div className="text-sm text-muted-foreground text-right">
         {formatDistanceToNow(createdAt, {

@@ -8,7 +8,7 @@ import { searchUsers } from "@/actions/user";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import UserHeader from "@/components/UserHeader";
+import UserBlock from "@/components/UserBlock";
 import Link from "next/link";
 import Masonry from "react-masonry-css";
 import Image from "next/image";
@@ -86,7 +86,7 @@ export default function Search() {
                   href={`/user/${user.username}`}
                   className="bg-muted rounded-lg px-4 py-2"
                 >
-                  <UserHeader user={user} size={16} />
+                  <UserBlock user={user} size={16} />
                 </Link>
               ))}
             </div>

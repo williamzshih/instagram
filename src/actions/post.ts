@@ -108,6 +108,8 @@ export async function getPosts(sortBy: string) {
       select: {
         id: true,
         image: true,
+        caption: true,
+        createdAt: true,
       },
     });
   } catch (error) {

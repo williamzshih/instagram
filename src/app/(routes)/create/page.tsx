@@ -84,15 +84,12 @@ export default function Create() {
         onChange={(e) => {
           if (e.target.files?.[0]) {
             try {
-              const formData = new FormData();
-              formData.append("file", e.target.files[0]);
-              uploadFile(formData).then((url) => {
-                form.setValue("image", url);
-              });
-            } catch (error) {
-              toast.error(
-                error instanceof Error ? error.message : "An error occurred"
+              uploadFile(e.target.files[0]).then((url) =>
+                form.setValue("image", url)
               );
+              toast.success("Image uploaded");
+            } catch (error) {
+              toast.error((error as Error).message);
             }
           }
         }}

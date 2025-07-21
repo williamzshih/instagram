@@ -1,13 +1,11 @@
-import { getUserProfile } from "@/actions/user";
-import CurrentProfilePage from "@/components/CurrentProfilePage";
+import { getProfile } from "@/actions/profile";
+import ProfilePage from "@/components/ProfilePage";
 import { redirect } from "next/navigation";
 
 export default async function Profile() {
-  const user = await getUserProfile();
+  const profile = await getProfile();
 
-  if (!user) {
-    redirect("/sign-up");
-  }
+  if (!profile) redirect("/sign-up"); // TODO: redirect somewhere else
 
-  return <CurrentProfilePage user={user} />;
+  return <ProfilePage profile={profile} />;
 }

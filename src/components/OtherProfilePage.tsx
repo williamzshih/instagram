@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import PostsGrid from "@/components/PostsGrid";
+import PostGrid from "@/components/PostGrid";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserByUsername } from "@/actions/user";
 import { toggleFollow } from "@/actions/toggle";
@@ -83,7 +83,7 @@ export default function OtherProfilePage({
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <ProfileInfo user={otherUser} />
+      <ProfileInfo profile={otherUser} />
       {follow ? (
         <Button
           className="bg-linear-to-tr from-ig-orange to-ig-red text-white"
@@ -97,7 +97,7 @@ export default function OtherProfilePage({
         <Button onClick={() => toggleFollowMutation()}>Follow</Button>
       )}
       <Separator />
-      <PostsGrid posts={otherUser.posts} />
+      <PostGrid posts={otherUser.posts} type="posts" />
     </div>
   );
 }

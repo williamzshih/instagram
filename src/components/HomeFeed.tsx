@@ -1,12 +1,13 @@
 "use client";
 
 import { Plus, LoaderCircle } from "lucide-react";
-import GradientAvatar from "@/components/GradientAvatar";
 import Post from "@/components/Post";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import { getUserHome } from "@/actions/user";
+import Gradient from "./Gradient";
+import LinkAvatar from "@/components/LinkAvatar";
 
 export default function HomeFeed({
   initialData,
@@ -51,7 +52,8 @@ export default function HomeFeed({
   }, [inView, hasNextPage, fetchNextPage]);
 
   const allPosts = data.pages.flatMap(
-    (page) => page?.following?.flatMap((follow) => follow.following.posts) || []
+    (page) =>
+      page?.following?.flatMap((follow) => follow.following.posts) || [],
   );
 
   return (
@@ -65,7 +67,9 @@ export default function HomeFeed({
             key={follow.id}
             className="flex flex-col items-center justify-center gap-1"
           >
-            <GradientAvatar user={follow.following} size={16} />
+            <Gradient>
+              <LinkAvatar user={follow.following} size={16} />
+            </Gradient>
             <p className="text-[12px] text-muted-foreground">
               @
               {follow.following.username.length > 9

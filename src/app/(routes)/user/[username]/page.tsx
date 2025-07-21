@@ -2,10 +2,12 @@ import { getUser } from "@/actions/user";
 import OtherProfilePage from "@/components/OtherProfilePage";
 import { redirect } from "next/navigation";
 
-export default async function User(props: {
+export default async function User({
+  params,
+}: {
   params: Promise<{ username: string }>;
 }) {
-  const params = await props.params;
+  const { username } = await params;
   const currentUser = await getUser();
 
   if (!currentUser) {
@@ -13,9 +15,6 @@ export default async function User(props: {
   }
 
   return (
-    <OtherProfilePage
-      otherUsername={params.username}
-      currentUserId={currentUser.id}
-    />
+    <OtherProfilePage otherUsername={username} currentUserId={currentUser.id} />
   );
 }

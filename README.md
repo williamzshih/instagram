@@ -5,30 +5,39 @@ A full-stack Instagram clone built with Next.js 14, React, TypeScript, and Mongo
 ## 📸 Screenshots
 
 ### Sign Up
+
 ![Sign Up](screenshots/sign-up.png)
 
 ### Home Feed
+
 ![Home Feed](screenshots/home-feed.png)
 
 ### Post Modal
+
 ![Post Modal](screenshots/post-modal.png)
 
 ### User Profile
+
 ![User Profile](screenshots/user-profile.png)
 
 ### Edit Profile
+
 ![Edit Profile](screenshots/edit-profile.png)
 
 ### Create Post
+
 ![Create Post](screenshots/create-post.png)
 
 ### Browse
+
 ![Browse](screenshots/browse.png)
 
 ### Search
+
 ![Search](screenshots/search.png)
 
 ### Mobile
+
 ![Mobile](screenshots/mobile.png)
 
 ## 🌟 Features

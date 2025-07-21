@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
-import UserHeader from "@/components/UserHeader";
+import UserBlock from "@/components/UserBlock";
 
 export default function DeletableComment({
   user,
@@ -29,7 +29,7 @@ export default function DeletableComment({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <UserHeader user={user} size={size} />
+        <UserBlock user={user} size={size} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

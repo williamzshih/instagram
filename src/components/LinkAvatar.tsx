@@ -1,16 +1,16 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
-export default function UserAvatar({
-  user,
-  size,
-}: {
+export type LinkAvatarProps = {
   user: {
     username: string;
     avatar: string;
   };
   size: number;
-}) {
+};
+
+export default function LinkAvatar({ user, size }: LinkAvatarProps) {
+  // TODO: fix sizes
   const sizeClass =
     size === 10
       ? "w-10 h-10"
@@ -23,14 +23,16 @@ export default function UserAvatar({
       : "w-10 h-10";
 
   return (
-    <Link href={`/user/${user.username}`}>
+    <Link href={`/user/${user.username}`} className="rounded-full block">
       <Avatar className={sizeClass}>
         <AvatarImage
           src={user.avatar}
-          alt={`${user.username} avatar`}
-          className="object-cover"
+          alt={`${user.username}'s avatar`}
+          className="object-cover rounded-full"
         />
       </Avatar>
     </Link>
   );
 }
+
+// TODO: remove unnecessary Tailwind classes

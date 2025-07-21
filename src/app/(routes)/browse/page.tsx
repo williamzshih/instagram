@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import PostsGrid from "@/components/PostsGrid";
+import PostGrid from "@/components/PostGrid";
 import BrowseSkeleton from "@/components/BrowseSkeleton";
 
 export default function Browse() {
@@ -65,7 +65,7 @@ export default function Browse() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <PostsGrid posts={posts} />
+      <PostGrid posts={posts} type="posts" />
     </div>
   );
 }
