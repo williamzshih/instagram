@@ -12,7 +12,7 @@ model User {
   email     String     @unique
   username  String     @unique
   name      String
-  bio       String     @default("") // TODO: needed?
+  bio       String // can be empty
   avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   posts     Post[]
   comments  Comment[]
@@ -26,7 +26,7 @@ model User {
 model Post {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   image     String
-  caption   String     @default("") // TODO: needed?
+  caption   String // can be empty
   user      User       @relation(fields: [email], references: [email], onDelete: Cascade) // TODO: better ref field
   email     String
   comments  Comment[]
