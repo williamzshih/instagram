@@ -28,9 +28,9 @@ export async function toggleBookmark(id: string | undefined, postId: string) {
         where: { id },
       });
     } else {
-      const email = await getEmail();
+      const userId = await getUserId();
       await prisma.bookmark.create({
-        data: { email, postId },
+        data: { userId, postId },
       });
     }
   } catch (error) {
