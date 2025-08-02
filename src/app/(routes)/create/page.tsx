@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/actions/post";
-import { uploadFile } from "@/actions/actions";
+import { uploadFile } from "@/actions/upload";
 import Image from "next/image";
 import { CAPTION_MAX } from "@/limits";
 import { z } from "zod";

@@ -1,16 +1,36 @@
 "use server";
 
-import { getEmail, getUserId } from "@/actions/actions";
+import { auth } from "@/auth";
 import { prisma } from "@/db";
 
-// check unnecessary exports
-export const getProfile = async (username?: string) => {
+export const getUserId = async () => {
   try {
-    const profile = await prisma.user.findUnique({
-      where: username ? { username } : { email: await getEmail() },
+    const session = await auth();
+    if (!session?.user?.email) throw new Error("Not signed in");
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email,
+      },
       select: {
         id: true,
-        email: true,
+      },
+    });
+    if (!user) throw new Error("User not found");
+
+    return user.id;
+  } catch (error) {
+    console.error("Error getting user id:", error);
+    throw new Error("Error getting user id:", { cause: error });
+  }
+};
+
+export const getProfile = async (username?: string) => {
+  try {
+    const profile = await prisma.user.findUnique({  
+      where: username ? { username } : { id: await getUserId() },
+      select: {
+        id: true,
         username: true,
         name: true,
         bio: true,
@@ -25,7 +45,6 @@ export const getProfile = async (username?: string) => {
       },
     });
 
-    // couldn't find other user
     if (username && !profile) throw new Error("User not found");
 
     return {

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/db";
 import { Prisma } from "@prisma/client";
-import { getUserId } from "@/actions/actions";
+import { getUserId } from "@/actions/profile";
 
 export async function getPost(id: string) {
   try {

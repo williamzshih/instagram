@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/db";
-import { getUserId } from "@/actions/actions";
+import { getUserId } from "@/actions/profile";
 
 export async function toggleLike(id: string | undefined, postId: string) {
   try {

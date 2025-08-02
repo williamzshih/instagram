@@ -1,13 +1,13 @@
 "use server";
 
-import { getEmail } from "@/actions/actions";
+  import { getUserId } from "@/actions/profile";
 import { prisma } from "@/db";
 
 export async function getUser() {
   try {
-    const email = await getEmail();
+    const id = await getUserId();
     return await prisma.user.findUnique({
-      where: { email },
+      where: { id },
       select: {
         id: true,
         username: true,

@@ -19,7 +19,7 @@ import {
   NAME_MAX,
   BIO_MAX,
 } from "@/limits";
-import { uploadFile } from "@/actions/actions";
+import { uploadFile } from "@/actions/upload";
 import {
   isUsernameAvailable,
   updateUser,
