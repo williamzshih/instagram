@@ -9,6 +9,7 @@ export const getProfile = async (username?: string) => {
     const profile = await prisma.user.findUnique({
       where: username ? { username } : { email: await getEmail() },
       select: {
+        id: true,
         email: true,
         username: true,
         name: true,
@@ -29,7 +30,7 @@ export const getProfile = async (username?: string) => {
 
     return {
       profile,
-      isFollowing: username ? await checkFollow(username) : false,
+      isFollowing: username ? await checkFollow(profile!.id) : false, // if username was provided, profile is not null
     };
   } catch (error) {
     // TODO: add error handling
@@ -161,6 +162,7 @@ export const getFollowers = async (username: string) => {
           select: {
             follower: {
               select: {
+                id: true,
                 email: true,
                 username: true,
                 name: true,
@@ -200,6 +202,7 @@ export const getFollowing = async (username: string) => {
           select: {
             followee: {
               select: {
+                id: true,
                 username: true,
                 name: true,
                 avatar: true,
@@ -269,14 +272,14 @@ const addFollow = async (followerId: string, followeeId: string) => {
 };
 
 export const toggleFollow = async (
-  followingUsername: string,
+  followeeId: string,
   isFollowing: boolean
 ) => {
   try {
-    const email = await getEmail();
+    const userId = await getUserId();
 
-    if (isFollowing) await removeFollow(email, followingUsername, "unfollow");
-    else await addFollow(email, followingUsername);
+    if (isFollowing) await removeFollow(userId, followeeId, "unfollow");
+    else await addFollow(userId, followeeId);
   } catch (error) {
     console.error("Error toggling follow:", error);
     throw new Error("Error toggling follow:", { cause: error });

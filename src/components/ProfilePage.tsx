@@ -50,15 +50,15 @@ export default function ProfilePage({
   });
 
   const { data: isFollowing = isFollowingInitial } = useQuery({
-    queryKey: ["isFollowing", profile.username],
-    queryFn: () => checkFollow(profile.username),
+    queryKey: ["isFollowing", profile.id],
+    queryFn: () => checkFollow(profile.id),
     enabled: !isCurrentUser,
   });
 
   const queryClient = useQueryClient();
 
   const { mutate: toggleFollowMutation } = useMutation({
-    mutationFn: () => toggleFollow(profile.username, !!isFollowing),
+    mutationFn: () => toggleFollow(profile.id, !!isFollowing),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: ["isFollowing", profile.username],

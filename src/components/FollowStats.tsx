@@ -48,9 +48,9 @@ export default function FollowStats({
   const queryClient = useQueryClient();
 
   const { mutate: remove } = useMutation({
-    mutationFn: (otherEmail: string) =>
-      removeFollow(otherEmail, profile.username, "remove"),
-    onMutate: async (otherEmail) => {
+    mutationFn: (followerId: string) =>
+      removeFollow(followerId, profile.id, "remove"),
+    onMutate: async (followerId) => {
       await queryClient.cancelQueries({
         queryKey: ["followers", profile.username],
       });
@@ -61,7 +61,7 @@ export default function FollowStats({
       queryClient.setQueryData(
         ["followers", profile.username],
         (old: Follower[]) =>
-          old.filter((follower) => follower.email !== otherEmail)
+          old.filter((follower) => follower.id !== followerId)
       );
       return { previousFollowers };
     },
@@ -77,9 +77,9 @@ export default function FollowStats({
   });
 
   const { mutate: unfollow } = useMutation({
-    mutationFn: (otherUsername: string) =>
-      removeFollow(profile.email, otherUsername, "unfollow"),
-    onMutate: async (otherUsername) => {
+    mutationFn: (followeeId: string) =>
+      removeFollow(profile.id, followeeId, "unfollow"),
+    onMutate: async (followeeId) => {
       await queryClient.cancelQueries({
         queryKey: ["following", profile.username],
       });
@@ -90,7 +90,7 @@ export default function FollowStats({
       queryClient.setQueryData(
         ["following", profile.username],
         (old: Following[]) =>
-          old.filter((following) => following.username !== otherUsername)
+          old.filter((following) => following.id !== followeeId)
       );
       return { previousFollowing };
     },
@@ -150,7 +150,7 @@ export default function FollowStats({
                               variant="destructive"
                               size="sm"
                               className="cursor-pointer"
-                              onClick={() => remove(follower.email)}
+                              onClick={() => remove(follower.id)}
                             >
                               Remove
                             </Button>
@@ -192,19 +192,19 @@ export default function FollowStats({
               {isLoadingFollowing ? (
                 <Loading />
               ) : following.length > 0 ? (
-                following.map((following) => (
+                following.map((followee) => (
                   <div
-                    key={following.username}
+                    key={followee.username}
                     className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
                   >
                     <HoverCard>
                       <HoverCardTrigger asChild>
                         <div className="flex items-center justify-center">
                           <Link
-                            href={`/user/${following.username}`}
+                            href={`/user/${followee.username}`}
                             className="flex-1"
                           >
-                            <UserBlock user={following} size={16} />
+                            <UserBlock user={followee} size={16} />
                             {/* TODO: <a> hydration error */}
                           </Link>
                           {isCurrentUser && (
@@ -212,7 +212,7 @@ export default function FollowStats({
                               variant="destructive"
                               size="sm"
                               className="cursor-pointer"
-                              onClick={() => unfollow(following.username)}
+                              onClick={() => unfollow(followee.id)}
                             >
                               Unfollow
                             </Button>
@@ -222,7 +222,7 @@ export default function FollowStats({
                       {isCurrentUser && (
                         <HoverCardContent className="text-center w-auto">
                           Followed you on{" "}
-                          {following.createdAt.toLocaleDateString()}
+                          {followee.createdAt.toLocaleDateString()}
                         </HoverCardContent>
                       )}
                     </HoverCard>

@@ -38,21 +38,3 @@ export async function toggleBookmark(id: string | undefined, postId: string) {
     throw new Error("Error toggling bookmark", { cause: error });
   }
 }
-
-export async function toggleFollow(id: string | undefined, followeeId: string) {
-  try {
-    if (id) {
-      await prisma.follow.delete({
-        where: { id },
-      });
-    } else {
-      const followerId = await getUserId();
-      return await prisma.follow.create({
-        data: { followerId, followeeId },
-      });
-    }
-  } catch (error) {
-    console.error("Error toggling follow:", error);
-    throw new Error("Error toggling follow", { cause: error });
-  }
-}
