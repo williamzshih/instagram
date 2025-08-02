@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/db";
-import { getEmail } from "@/actions/actions";
+import { getEmail, getUserId } from "@/actions/actions";
 
 export async function toggleLike(id: string | undefined, postId: string) {
   try {
@@ -10,9 +10,9 @@ export async function toggleLike(id: string | undefined, postId: string) {
         where: { id },
       });
     } else {
-      const email = await getEmail();
+      const userId = await getUserId();
       await prisma.like.create({
-        data: { email, postId },
+        data: { userId, postId },
       });
     }
   } catch (error) {
