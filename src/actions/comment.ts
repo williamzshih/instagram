@@ -1,13 +1,13 @@
 "use server";
 
 import { prisma } from "@/db";
-import { getEmail } from "@/actions/actions";
+import { getUserId } from "@/actions/actions";
 
 export async function createComment(postId: string, comment: string) {
   try {
-    const email = await getEmail();
+    const userId = await getUserId();
     await prisma.comment.create({
-      data: { email, postId, comment },
+      data: { userId, postId, comment },
     });
   } catch (error) {
     console.error("Error creating comment:", error);
