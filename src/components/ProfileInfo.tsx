@@ -2,12 +2,24 @@ import ProfileHeader from "@/components/ProfileHeader";
 import FollowStats from "@/components/FollowStats";
 import Gradient from "@/components/Gradient";
 import LinkAvatar from "@/components/LinkAvatar";
-import { type ProfilePageProps } from "@/components/ProfilePage";
 
-export default function ProfileInfo({
-  profile,
-  isCurrentUser,
-}: ProfilePageProps) {
+type Props = {
+  profile: {
+    id: string;
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    createdAt: Date;
+    _count: {
+      followers: number;
+      following: number;
+    };
+  };
+  isCurrentUser?: boolean;
+};
+
+export default function ProfileInfo({ profile, isCurrentUser }: Props) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 w-full">
       <ProfileHeader profile={profile} isCurrentUser={isCurrentUser} />

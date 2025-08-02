@@ -6,14 +6,18 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { type Post } from "@/actions/profile";
 
-type PostGridProps = {
-  posts: Post[];
+type Props = {
+  posts: {
+    id: string;
+    image: string;
+    caption: string;
+    createdAt: Date;
+  }[];
   type: "posts" | "likes" | "bookmarks";
 };
 
-export default function PostGrid({ posts, type }: PostGridProps) {
+export default function PostGrid({ posts, type }: Props) {
   return (
     <Masonry
       breakpointCols={{

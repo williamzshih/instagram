@@ -8,12 +8,19 @@ import {
 import { SettingsIcon } from "lucide-react";
 import Settings from "@/components/Settings";
 import { useRouter } from "next/navigation";
-import { type ProfilePageProps } from "@/components/ProfilePage";
 
-export default function ProfileHeader({
-  profile,
-  isCurrentUser,
-}: ProfilePageProps) {
+type Props = {
+  profile: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    createdAt: Date;
+  };
+  isCurrentUser?: boolean;
+};
+
+export default function ProfileHeader({ profile, isCurrentUser }: Props) {
   const router = useRouter();
 
   return (

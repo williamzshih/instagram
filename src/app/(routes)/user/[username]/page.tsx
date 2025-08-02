@@ -1,5 +1,5 @@
 // TODO: import 'type'
-import { getProfile, type Profile } from "@/actions/profile";
+import { getProfile } from "@/actions/profile";
 import ProfilePage from "@/components/ProfilePage";
 
 export default async function OtherProfile({
@@ -12,7 +12,7 @@ export default async function OtherProfile({
 
   return (
     <ProfilePage
-      profile={profile as Profile} // if profile was null, getProfile would have thrown an error
+      profile={profile!} // if profile was null, getProfile would have thrown an error
       isFollowingInitial={isFollowing}
     />
   );

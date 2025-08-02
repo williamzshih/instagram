@@ -23,25 +23,32 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import Loading from "@/components/Loading";
-import { type ProfilePageProps } from "@/components/ProfilePage";
 
-export default function FollowStats({
-  profile,
-  isCurrentUser,
-}: ProfilePageProps) {
+type Props = {
+  profile: {
+    id: string;
+    _count: {
+      followers: number;
+      following: number;
+    };
+  };
+  isCurrentUser?: boolean;
+};
+
+export default function FollowStats({ profile, isCurrentUser }: Props) {
   const [followingOpen, setFollowingOpen] = useState(false);
 
   const {
     data: followers = { followers: [], length: 0 },
     isLoading: isLoadingFollowers,
   } = useQuery({
-    queryKey: ["followers", profile.username],
-    queryFn: () => getFollowers(profile.username),
+    queryKey: ["followers", profile.id],
+    queryFn: () => getFollowers(profile.id),
   });
 
   const { data: following = [], isLoading: isLoadingFollowing } = useQuery({
-    queryKey: ["following", profile.username],
-    queryFn: () => getFollowing(profile.username),
+    queryKey: ["following", profile.id],
+    queryFn: () => getFollowing(profile.id),
     enabled: followingOpen,
   });
 
@@ -52,14 +59,14 @@ export default function FollowStats({
       removeFollow(followerId, profile.id, "remove"),
     onMutate: async (followerId) => {
       await queryClient.cancelQueries({
-        queryKey: ["followers", profile.username],
+        queryKey: ["followers", profile.id],
       });
       const previousFollowers = queryClient.getQueryData([
         "followers",
-        profile.username,
+        profile.id,
       ]);
       queryClient.setQueryData(
-        ["followers", profile.username],
+        ["followers", profile.id],
         (old: Follower[]) =>
           old.filter((follower) => follower.id !== followerId)
       );
@@ -67,12 +74,12 @@ export default function FollowStats({
     },
     onError: (_, __, context) =>
       queryClient.setQueryData(
-        ["followers", profile.username],
+        ["followers", profile.id],
         context?.previousFollowers
       ),
     onSettled: () =>
       queryClient.invalidateQueries({
-        queryKey: ["followers", profile.username],
+        queryKey: ["followers", profile.id],
       }),
   });
 
@@ -81,14 +88,14 @@ export default function FollowStats({
       removeFollow(profile.id, followeeId, "unfollow"),
     onMutate: async (followeeId) => {
       await queryClient.cancelQueries({
-        queryKey: ["following", profile.username],
+        queryKey: ["following", profile.id],
       });
       const previousFollowing = queryClient.getQueryData([
         "following",
-        profile.username,
+        profile.id,
       ]);
       queryClient.setQueryData(
-        ["following", profile.username],
+        ["following", profile.id],
         (old: Following[]) =>
           old.filter((following) => following.id !== followeeId)
       );
@@ -96,12 +103,12 @@ export default function FollowStats({
     },
     onError: (_, __, context) =>
       queryClient.setQueryData(
-        ["following", profile.username],
+        ["following", profile.id],
         context?.previousFollowing
       ),
     onSettled: () =>
       queryClient.invalidateQueries({
-        queryKey: ["following", profile.username],
+        queryKey: ["following", profile.id],
       }),
   });
 
@@ -132,7 +139,7 @@ export default function FollowStats({
               ) : followers.followers.length > 0 ? (
                 followers.followers.map((follower) => (
                   <div
-                    key={follower.username}
+                    key={follower.id}
                     className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
                   >
                     <HoverCard>
@@ -194,7 +201,7 @@ export default function FollowStats({
               ) : following.length > 0 ? (
                 following.map((followee) => (
                   <div
-                    key={followee.username}
+                    key={followee.id}
                     className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
                   >
                     <HoverCard>

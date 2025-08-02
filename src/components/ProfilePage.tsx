@@ -9,43 +9,52 @@ import {
   getPosts,
   getLikes,
   getBookmarks,
-  type Profile,
   checkFollow,
   toggleFollow,
   type Follower,
 } from "@/actions/profile";
 import Loading from "@/components/Loading";
 
-export type ProfilePageProps = {
-  profile: Profile;
-  isFollowingInitial?: boolean;
+type Props = {
+  profile: {
+    id: string;
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    createdAt: Date;
+    _count: {
+      followers: number;
+      following: number;
+    };
+  };
   isCurrentUser?: boolean;
+  isFollowingInitial?: boolean;
 };
 
-// TODO: refactor prop passing types
 export default function ProfilePage({
   profile,
-  isFollowingInitial,
   isCurrentUser,
-}: ProfilePageProps) {
+  isFollowingInitial,
+}: Props) {
   const [selectedTab, setSelectedTab] = useState("posts");
 
   // TODO: add error handling, isPending?
   const { data: posts = [], isLoading: isLoadingPosts } = useQuery({
-    queryKey: ["posts", profile.username],
-    queryFn: () => getPosts(profile.username),
+    queryKey: ["posts", profile.id],
+    queryFn: () => getPosts(profile.id),
     enabled: selectedTab === "posts" || !isCurrentUser,
   });
 
   const { data: likes = [], isLoading: isLoadingLikes } = useQuery({
-    queryKey: ["likes", profile.username],
-    queryFn: () => getLikes(profile.username),
+    queryKey: ["likes", profile.id],
+    queryFn: () => getLikes(profile.id),
     enabled: selectedTab === "likes" && isCurrentUser,
   });
 
   const { data: bookmarks = [], isLoading: isLoadingBookmarks } = useQuery({
-    queryKey: ["bookmarks", profile.username],
-    queryFn: () => getBookmarks(profile.username),
+    queryKey: ["bookmarks", profile.id],
+    queryFn: () => getBookmarks(profile.id),
     enabled: selectedTab === "bookmarks" && isCurrentUser,
   });
 
@@ -61,26 +70,26 @@ export default function ProfilePage({
     mutationFn: () => toggleFollow(profile.id, !!isFollowing),
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: ["isFollowing", profile.username],
+        queryKey: ["isFollowing", profile.id],
       });
       const previousIsFollowing = queryClient.getQueryData([
         "isFollowing",
-        profile.username,
+        profile.id,
       ]);
       queryClient.setQueryData(
-        ["isFollowing", profile.username],
+        ["isFollowing", profile.id],
         (old: boolean) => !old
       );
 
       await queryClient.cancelQueries({
-        queryKey: ["followers", profile.username],
+        queryKey: ["followers", profile.id],
       });
       const previousFollowers = queryClient.getQueryData([
         "followers",
-        profile.username,
+        profile.id,
       ]);
       queryClient.setQueryData(
-        ["followers", profile.username],
+        ["followers", profile.id],
         (old: { followers: Follower[]; length: number }) => ({
           followers: old.followers,
           length: old.length + (isFollowing ? -1 : 1),
@@ -91,20 +100,20 @@ export default function ProfilePage({
     },
     onError: (_, __, context) => {
       queryClient.setQueryData(
-        ["isFollowing", profile.username],
+        ["isFollowing", profile.id],
         context?.previousIsFollowing
       );
       queryClient.setQueryData(
-        ["followers", profile.username],
+        ["followers", profile.id],
         context?.previousFollowers
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["isFollowing", profile.username],
+        queryKey: ["isFollowing", profile.id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["followers", profile.username],
+        queryKey: ["followers", profile.id],
       });
     },
   });

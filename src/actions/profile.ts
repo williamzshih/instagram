@@ -74,10 +74,10 @@ export const checkFollow = async (followeeId: string) => {
   }
 };
 
-export const getPosts = async (username: string) => {
+export const getPosts = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       select: {
         posts: {
           select: {
@@ -102,10 +102,10 @@ export const getPosts = async (username: string) => {
   }
 };
 
-export const getLikes = async (username: string) => {
+export const getLikes = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       select: {
         likes: {
           select: {
@@ -137,10 +137,10 @@ export const getLikes = async (username: string) => {
   }
 };
 
-export const getBookmarks = async (username: string) => {
+export const getBookmarks = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       select: {
         bookmarks: {
           select: {
@@ -172,10 +172,10 @@ export const getBookmarks = async (username: string) => {
   }
 };
 
-export const getFollowers = async (username: string) => {
+export const getFollowers = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       select: {
         followers: {
           select: {
@@ -212,10 +212,10 @@ export const getFollowers = async (username: string) => {
   }
 };
 
-export const getFollowing = async (username: string) => {
+export const getFollowing = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       select: {
         following: {
           select: {
@@ -248,7 +248,6 @@ export const getFollowing = async (username: string) => {
   }
 };
 
-// TODO: maybe change params after changing schema
 export const removeFollow = async (
   followerId: string,
   followeeId: string,

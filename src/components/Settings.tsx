@@ -20,12 +20,7 @@ import {
   BIO_MAX,
 } from "@/limits";
 import { uploadFile } from "@/actions/upload";
-import {
-  isUsernameAvailable,
-  updateUser,
-  deleteUser,
-  type Profile,
-} from "@/actions/profile";
+import { isUsernameAvailable, updateUser, deleteUser } from "@/actions/profile";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
@@ -33,7 +28,17 @@ import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 import Gradient from "@/components/Gradient";
 
-export default function Settings({ profile }: { profile: Profile }) {
+type Props = {
+  profile: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    createdAt: Date;
+  };
+};
+
+export default function Settings({ profile }: Props) {
   // TODO: add email to form schema
   const formSchema = z.object({
     username: z

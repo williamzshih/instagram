@@ -1,13 +1,15 @@
-import LinkAvatar, { type LinkAvatarProps } from "@/components/LinkAvatar";
+import LinkAvatar from "@/components/LinkAvatar";
 
-type UserBlockProps = Omit<LinkAvatarProps, "isProfilePage"> & {
+type Props = {
   user: {
     username: string;
     name: string;
+    avatar: string;
   };
+  size: number;
 };
 
-export default function UserBlock({ user, size }: UserBlockProps) {
+export default function UserBlock({ user, size }: Props) {
   return (
     <div className="flex items-center gap-4">
       <LinkAvatar user={user} size={size} />

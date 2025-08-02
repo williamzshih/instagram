@@ -2,7 +2,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export type LinkAvatarProps = {
+type Props = {
   user: {
     username: string;
     avatar: string;
@@ -11,11 +11,7 @@ export type LinkAvatarProps = {
   isProfilePage?: boolean;
 };
 
-export default function LinkAvatar({
-  user,
-  size,
-  isProfilePage,
-}: LinkAvatarProps) {
+export default function LinkAvatar({ user, size, isProfilePage }: Props) {
   // TODO: fix sizes
   const sizeClass =
     size === 10
