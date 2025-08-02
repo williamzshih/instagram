@@ -11,7 +11,6 @@ import {
   getBookmarks,
   checkFollow,
   toggleFollow,
-  type Follower,
 } from "@/actions/profile";
 import Loading from "@/components/Loading";
 
@@ -90,7 +89,16 @@ export default function ProfilePage({
       ]);
       queryClient.setQueryData(
         ["followers", profile.id],
-        (old: { followers: Follower[]; length: number }) => ({
+        (old: { followers: {
+          id: string;
+          email: string;
+          username: string;
+          name: string;
+          avatar: string;
+          createdAt: Date;
+        }[];
+        length: number;
+      }) => ({
           followers: old.followers,
           length: old.length + (isFollowing ? -1 : 1),
         })

@@ -12,8 +12,6 @@ import {
   getFollowers,
   getFollowing,
   removeFollow,
-  type Follower,
-  type Following,
 } from "@/actions/profile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -67,7 +65,7 @@ export default function FollowStats({ profile, isCurrentUser }: Props) {
       ]);
       queryClient.setQueryData(
         ["followers", profile.id],
-        (old: Follower[]) =>
+        (old: { id: string }[]) =>
           old.filter((follower) => follower.id !== followerId)
       );
       return { previousFollowers };
@@ -96,7 +94,7 @@ export default function FollowStats({ profile, isCurrentUser }: Props) {
       ]);
       queryClient.setQueryData(
         ["following", profile.id],
-        (old: Following[]) =>
+        (old: { id: string }[]) =>
           old.filter((following) => following.id !== followeeId)
       );
       return { previousFollowing };

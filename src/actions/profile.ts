@@ -347,12 +347,3 @@ export const deleteUser = async (username: string) => {
     throw new Error("Error deleting user:", { cause: error });
   }
 };
-
-export type Profile = NonNullable<
-  Awaited<ReturnType<typeof getProfile>>["profile"]
->;
-export type Post = Awaited<ReturnType<typeof getPosts>>[number];
-export type Follower = Awaited<
-  ReturnType<typeof getFollowers>
->["followers"][number];
-export type Following = Awaited<ReturnType<typeof getFollowing>>[number];
