@@ -7,13 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: check all schemas, including default values
 model User {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String     @unique
   username  String     @unique
   name      String
-  bio       String     @default("")
+  bio       String     @default("") // TODO: needed?
   avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
   posts     Post[]
   comments  Comment[]
@@ -26,10 +25,10 @@ model User {
 
 model Post {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  email     String
-  user      User       @relation(fields: [email], references: [email], onDelete: Cascade)
   image     String
-  caption   String     @default("")
+  caption   String     @default("") // TODO: needed?
+  user      User       @relation(fields: [email], references: [email], onDelete: Cascade) // TODO: better ref field
+  email     String
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
@@ -38,20 +37,20 @@ model Post {
 
 model Comment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String
-  user      User     @relation(fields: [email], references: [email])
-  postId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment   String
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade) // TODO: better ref field
+  email     String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
   createdAt DateTime @default(now())
 }
 
 model Like {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade) // TODO: better ref field
   email     String
-  user      User     @relation(fields: [email], references: [email])
-  postId    String   @db.ObjectId
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
   createdAt DateTime @default(now())
 
   @@unique([email, postId])
@@ -59,22 +58,24 @@ model Like {
 
 model Bookmark {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade) // TODO: better ref field
   email     String
-  user      User     @relation(fields: [email], references: [email])
-  postId    String   @db.ObjectId
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
   createdAt DateTime @default(now())
 
   @@unique([email, postId])
 }
 
 model Follow {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  email             String
-  user              User     @relation("following", fields: [email], references: [email], onDelete: Cascade)
-  followingUsername String
-  following         User     @relation("followers", fields: [followingUsername], references: [username], onDelete: Cascade)
-  createdAt         DateTime @default(now())
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  follower         User     @relation("following", fields: [followerEmail], references: [email], onDelete: Cascade) // TODO: better ref field
+  followerEmail    String
+  followee         User     @relation("followers", fields: [followeeUsername], references: [username], onDelete: Cascade) // TODO: better ref field
+  followeeUsername String
+  createdAt        DateTime @default(now())
 
-  @@unique([email, followingUsername])
+  @@unique([followerEmail, followeeUsername])
 }
+
+// TODO: add session model
