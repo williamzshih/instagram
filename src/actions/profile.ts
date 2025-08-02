@@ -1,6 +1,6 @@
 "use server";
 
-import { getEmail } from "@/actions/actions";
+import { getEmail, getUserId } from "@/actions/actions";
 import { prisma } from "@/db";
 
 // check unnecessary exports
@@ -38,13 +38,13 @@ export const getProfile = async (username?: string) => {
   }
 };
 
-export const checkFollow = async (followeeUsername: string) => {
+export const checkFollow = async (followeeId: string) => {
   try {
     return !!(await prisma.follow.findUnique({
       where: {
-        followerEmail_followeeUsername: {
-          followerEmail: await getEmail(),
-          followeeUsername,
+        followerId_followeeId: {
+          followerId: await getUserId(),
+          followeeId,
         },
       },
     }));
@@ -228,16 +228,16 @@ export const getFollowing = async (username: string) => {
 
 // TODO: maybe change params after changing schema
 export const removeFollow = async (
-  followerEmail: string,
-  followeeUsername: string,
+  followerId: string,
+  followeeId: string,
   type: "remove" | "unfollow"
 ) => {
   try {
     await prisma.follow.delete({
       where: {
-        followerEmail_followeeUsername: {
-          followerEmail,
-          followeeUsername,
+        followerId_followeeId: {
+          followerId,
+          followeeId,
         },
       },
     });
@@ -257,10 +257,10 @@ export const removeFollow = async (
   }
 };
 
-const addFollow = async (followerEmail: string, followeeUsername: string) => {
+const addFollow = async (followerId: string, followeeId: string) => {
   try {
     await prisma.follow.create({
-      data: { followerEmail, followeeUsername },
+      data: { followerId, followeeId },
     });
   } catch (error) {
     console.error("Error following user:", error);

@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/db";
-import { getEmail, getUserId } from "@/actions/actions";
+import { getUserId } from "@/actions/actions";
 
 export async function toggleLike(id: string | undefined, postId: string) {
   try {
@@ -39,16 +39,16 @@ export async function toggleBookmark(id: string | undefined, postId: string) {
   }
 }
 
-export async function toggleFollow(id: string | undefined, followeeUsername: string) {
+export async function toggleFollow(id: string | undefined, followeeId: string) {
   try {
     if (id) {
       await prisma.follow.delete({
         where: { id },
       });
     } else {
-      const followerEmail = await getEmail();
+      const followerId = await getUserId();
       return await prisma.follow.create({
-        data: { followerEmail, followeeUsername },
+        data: { followerId, followeeId },
       });
     }
   } catch (error) {

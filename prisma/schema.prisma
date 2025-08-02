@@ -68,14 +68,14 @@ model Bookmark {
 }
 
 model Follow {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  follower         User     @relation("following", fields: [followerEmail], references: [email], onDelete: Cascade) // TODO: better ref field
-  followerEmail    String
-  followee         User     @relation("followers", fields: [followeeUsername], references: [username], onDelete: Cascade) // TODO: better ref field
-  followeeUsername String
-  createdAt        DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  follower   User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String   @db.ObjectId
+  followee   User     @relation("followers", fields: [followeeId], references: [id], onDelete: Cascade)
+  followeeId String   @db.ObjectId
+  createdAt  DateTime @default(now())
 
-  @@unique([followerEmail, followeeUsername])
+  @@unique([followerId, followeeId])
 }
 
 // TODO: add session model
