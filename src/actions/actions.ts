@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { prisma } from "@/db";
 import { pinata } from "@/utils/config";
 
 // TODO: check if this is needed elsewhere besides profile.ts
@@ -12,6 +13,22 @@ export const getEmail = async () => {
   } catch (error) {
     console.error("Error fetching email:", error);
     throw new Error("Error fetching email:", { cause: error });
+  }
+};
+
+export const getUserId = async () => {
+  const email = await getEmail();
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) throw new Error("User not found");
+    return user.id;
+  } catch (error) {
+    console.error("Error fetching user id:", error);
+    throw new Error("Error fetching user id:", { cause: error });
   }
 };
 

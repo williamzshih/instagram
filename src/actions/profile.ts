@@ -38,13 +38,13 @@ export const getProfile = async (username?: string) => {
   }
 };
 
-export const checkFollow = async (followingUsername: string) => {
+export const checkFollow = async (followeeUsername: string) => {
   try {
     return !!(await prisma.follow.findUnique({
       where: {
-        email_followingUsername: {
-          email: await getEmail(),
-          followingUsername,
+        followerEmail_followeeUsername: {
+          followerEmail: await getEmail(),
+          followeeUsername,
         },
       },
     }));
@@ -159,7 +159,7 @@ export const getFollowers = async (username: string) => {
       select: {
         followers: {
           select: {
-            user: {
+            follower: {
               select: {
                 email: true,
                 username: true,
@@ -180,7 +180,7 @@ export const getFollowers = async (username: string) => {
 
     return {
       followers: user.followers.map((follower) => ({
-        ...follower.user,
+        ...follower.follower,
         createdAt: follower.createdAt,
       })),
       length: user.followers.length,
@@ -198,7 +198,7 @@ export const getFollowing = async (username: string) => {
       select: {
         following: {
           select: {
-            following: {
+            followee: {
               select: {
                 username: true,
                 name: true,
@@ -217,7 +217,7 @@ export const getFollowing = async (username: string) => {
     if (!user) throw new Error("User not found");
 
     return user.following.map((following) => ({
-      ...following.following,
+      ...following.followee,
       createdAt: following.createdAt,
     }));
   } catch (error) {
@@ -228,16 +228,16 @@ export const getFollowing = async (username: string) => {
 
 // TODO: maybe change params after changing schema
 export const removeFollow = async (
-  email: string,
-  followingUsername: string,
+  followerEmail: string,
+  followeeUsername: string,
   type: "remove" | "unfollow"
 ) => {
   try {
     await prisma.follow.delete({
       where: {
-        email_followingUsername: {
-          email,
-          followingUsername,
+        followerEmail_followeeUsername: {
+          followerEmail,
+          followeeUsername,
         },
       },
     });
@@ -257,9 +257,11 @@ export const removeFollow = async (
   }
 };
 
-const addFollow = async (email: string, followingUsername: string) => {
+const addFollow = async (followerEmail: string, followeeUsername: string) => {
   try {
-    await prisma.follow.create({ data: { email, followingUsername } });
+    await prisma.follow.create({
+      data: { followerEmail, followeeUsername },
+    });
   } catch (error) {
     console.error("Error following user:", error);
     throw new Error("Error following user:", { cause: error });

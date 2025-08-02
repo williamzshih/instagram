@@ -15,7 +15,7 @@ export default function HomeFeed({
   initialData: {
     following: {
       id: string;
-      following: {
+      followee: {
         username: string;
         avatar: string;
         posts: {
@@ -53,7 +53,7 @@ export default function HomeFeed({
 
   const allPosts = data.pages.flatMap(
     (page) =>
-      page?.following?.flatMap((follow) => follow.following.posts) || [],
+      page?.following?.flatMap((follow) => follow.followee.posts) || [],
   );
 
   return (
@@ -68,13 +68,13 @@ export default function HomeFeed({
             className="flex flex-col items-center justify-center gap-1"
           >
             <Gradient>
-              <LinkAvatar user={follow.following} size={16} />
+              <LinkAvatar user={follow.followee} size={16} />
             </Gradient>
             <p className="text-[12px] text-muted-foreground">
               @
-              {follow.following.username.length > 9
-                ? follow.following.username.slice(0, 9) + "..."
-                : follow.following.username}
+              {follow.followee.username.length > 9
+                ? follow.followee.username.slice(0, 9) + "..."
+                : follow.followee.username}
             </p>
           </div>
         )) || []}

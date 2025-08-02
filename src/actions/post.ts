@@ -2,7 +2,7 @@
 
 import { prisma } from "@/db";
 import { Prisma } from "@prisma/client";
-import { getEmail } from "@/actions/actions";
+import { getUserId } from "@/actions/actions";
 
 export async function getPost(id: string) {
   try {
@@ -120,10 +120,10 @@ export async function getPosts(sortBy: string) {
 
 export async function createPost(image: string, caption: string) {
   try {
-    const email = await getEmail();
+    const userId = await getUserId();
     return (
       await prisma.post.create({
-        data: { email, image, caption },
+        data: { userId, image, caption },
       })
     ).id;
   } catch (error) {

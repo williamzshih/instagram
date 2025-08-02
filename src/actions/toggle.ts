@@ -39,16 +39,16 @@ export async function toggleBookmark(id: string | undefined, postId: string) {
   }
 }
 
-export async function toggleFollow(id: string | undefined, username: string) {
+export async function toggleFollow(id: string | undefined, followeeUsername: string) {
   try {
     if (id) {
       await prisma.follow.delete({
         where: { id },
       });
     } else {
-      const email = await getEmail();
+      const followerEmail = await getEmail();
       return await prisma.follow.create({
-        data: { email, followingUsername: username },
+        data: { followerEmail, followeeUsername },
       });
     }
   } catch (error) {
