@@ -1,6 +1,6 @@
-import { BeatLoader } from "react-spinners";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { BeatLoader } from "react-spinners";
 
 export default function Loading() {
   const [mounted, setMounted] = useState(false);

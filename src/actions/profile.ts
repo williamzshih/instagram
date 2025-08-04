@@ -6,18 +6,18 @@ import { prisma } from "@/db";
 export const getUserId = async () => {
   try {
     const session = await auth();
+    // TODO: fix this
     if (!session?.user?.email) throw new Error("Not signed in");
-
     const user = await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
       select: {
         id: true,
       },
+      where: {
+        email: session.user.email,
+      },
     });
+    // TODO: fix this
     if (!user) throw new Error("User not found");
-
     return user.id;
   } catch (error) {
     console.error("Error getting user id:", error);
@@ -25,226 +25,207 @@ export const getUserId = async () => {
   }
 };
 
-export const getProfile = async (username?: string) => {
+export const getProfile = async ({
+  email,
+  username,
+}: {
+  email?: string;
+  username?: string;
+}) => {
   try {
-    const profile = await prisma.user.findUnique({  
-      where: username ? { username } : { id: await getUserId() },
+    const profile = await prisma.user.findUnique({
       select: {
-        id: true,
-        username: true,
-        name: true,
-        bio: true,
-        avatar: true,
-        createdAt: true,
         _count: {
           select: {
             followers: true,
             following: true,
           },
         },
+        avatar: true,
+        bio: true,
+        createdAt: true,
+        id: true,
+        name: true,
+        username: true,
       },
+      where: email ? { email } : { username },
     });
-
-    if (username && !profile) throw new Error("User not found");
-
-    return {
-      profile,
-      isFollowing: username ? await checkFollow(profile!.id) : false, // if username was provided, profile is not null
-    };
+    if (!profile) throw new Error("User not found");
+    return profile;
   } catch (error) {
-    // TODO: add error handling
-    console.error("Error fetching profile:", error);
-    throw new Error("Error fetching profile:", { cause: error });
-  }
-};
-
-export const checkFollow = async (followeeId: string) => {
-  try {
-    return !!(await prisma.follow.findUnique({
-      where: {
-        followerId_followeeId: {
-          followerId: await getUserId(),
-          followeeId,
-        },
-      },
-    }));
-  } catch (error) {
-    console.error("Error checking if following:", error);
-    throw new Error("Error checking if following:", { cause: error });
+    console.error("Error getting profile:", error);
+    throw new Error("Error getting profile:", { cause: error });
   }
 };
 
 export const getPosts = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
       select: {
         posts: {
-          select: {
-            id: true,
-            image: true,
-            caption: true,
-            createdAt: true,
-          },
           orderBy: {
             createdAt: "desc",
           },
+          select: {
+            caption: true,
+            createdAt: true,
+            id: true,
+            image: true,
+          },
         },
       },
+      where: { id },
     });
-
     if (!user) throw new Error("User not found");
-
     return user.posts;
   } catch (error) {
-    console.error("Error fetching posts:", error);
-    throw new Error("Error fetching posts:", { cause: error });
+    console.error("Error getting posts:", error);
+    throw new Error("Error getting posts:", { cause: error });
   }
 };
 
 export const getLikes = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
       select: {
         likes: {
-          select: {
-            post: {
-              select: {
-                id: true,
-                image: true,
-                caption: true,
-              },
-            },
-            createdAt: true,
-          },
           orderBy: {
             createdAt: "desc",
           },
+          select: {
+            createdAt: true,
+            post: {
+              select: {
+                caption: true,
+                id: true,
+                image: true,
+              },
+            },
+          },
         },
       },
+      where: { id },
     });
-
     if (!user) throw new Error("User not found");
-
     return user.likes.map((like) => ({
       ...like.post,
       createdAt: like.createdAt,
     }));
   } catch (error) {
-    console.error("Error fetching likes:", error);
-    throw new Error("Error fetching likes:", { cause: error });
+    console.error("Error getting likes:", error);
+    throw new Error("Error getting likes:", { cause: error });
   }
 };
 
 export const getBookmarks = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
       select: {
         bookmarks: {
-          select: {
-            post: {
-              select: {
-                id: true,
-                image: true,
-                caption: true,
-              },
-            },
-            createdAt: true,
-          },
           orderBy: {
             createdAt: "desc",
           },
+          select: {
+            createdAt: true,
+            post: {
+              select: {
+                caption: true,
+                id: true,
+                image: true,
+              },
+            },
+          },
         },
       },
+      where: { id },
     });
-
     if (!user) throw new Error("User not found");
-
     return user.bookmarks.map((bookmark) => ({
       ...bookmark.post,
       createdAt: bookmark.createdAt,
     }));
   } catch (error) {
-    console.error("Error fetching bookmarks:", error);
-    throw new Error("Error fetching bookmarks:", { cause: error });
+    console.error("Error getting bookmarks:", error);
+    throw new Error("Error getting bookmarks:", { cause: error });
   }
 };
 
 export const getFollowers = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
       select: {
         followers: {
-          select: {
-            follower: {
-              select: {
-                id: true,
-                email: true,
-                username: true,
-                name: true,
-                avatar: true,
-              },
-            },
-            createdAt: true,
-          },
           orderBy: {
             createdAt: "desc",
           },
+          select: {
+            createdAt: true,
+            follower: {
+              select: {
+                avatar: true,
+                id: true,
+                name: true,
+                username: true,
+              },
+            },
+          },
         },
       },
+      where: { id },
     });
-
     if (!user) throw new Error("User not found");
-
-    return {
-      followers: user.followers.map((follower) => ({
-        ...follower.follower,
-        createdAt: follower.createdAt,
-      })),
-      length: user.followers.length,
-    };
+    return user.followers.map((follow) => ({
+      ...follow.follower,
+      createdAt: follow.createdAt,
+    }));
   } catch (error) {
-    console.error("Error fetching followers:", error);
-    throw new Error("Error fetching followers:", { cause: error });
+    console.error("Error getting followers:", error);
+    throw new Error("Error getting followers:", { cause: error });
   }
 };
 
 export const getFollowing = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
       select: {
         following: {
-          select: {
-            followee: {
-              select: {
-                id: true,
-                username: true,
-                name: true,
-                avatar: true,
-              },
-            },
-            createdAt: true,
-          },
           orderBy: {
             createdAt: "desc",
           },
+          select: {
+            createdAt: true,
+            followee: {
+              select: {
+                avatar: true,
+                id: true,
+                name: true,
+                username: true,
+              },
+            },
+          },
         },
       },
+      where: { id },
     });
-
     if (!user) throw new Error("User not found");
-
-    return user.following.map((following) => ({
-      ...following.followee,
-      createdAt: following.createdAt,
+    return user.following.map((follow) => ({
+      ...follow.followee,
+      createdAt: follow.createdAt,
     }));
   } catch (error) {
-    console.error("Error fetching following:", error);
-    throw new Error("Error fetching following:", { cause: error });
+    console.error("Error getting followed users:", error);
+    throw new Error("Error getting followed users:", { cause: error });
+  }
+};
+
+export const toggleFollow = async (followeeId: string, following: boolean) => {
+  try {
+    const userId = await getUserId();
+    if (following) await removeFollow(userId, followeeId, "unfollow");
+    else await addFollow(userId, followeeId);
+  } catch (error) {
+    console.error("Error toggling follow:", error);
+    throw new Error("Error toggling follow:", { cause: error });
   }
 };
 
@@ -257,31 +238,25 @@ export const removeFollow = async (
     await prisma.follow.delete({
       where: {
         followerId_followeeId: {
-          followerId,
           followeeId,
+          followerId,
         },
       },
     });
   } catch (error) {
-    console.error(
+    const message =
       type === "remove"
         ? "Error removing follower:"
-        : "Error unfollowing user:",
-      error
-    );
-    throw new Error(
-      type === "remove"
-        ? "Error removing follower:"
-        : "Error unfollowing user:",
-      { cause: error }
-    );
+        : "Error unfollowing user:";
+    console.error(message, error);
+    throw new Error(message, { cause: error });
   }
 };
 
 const addFollow = async (followerId: string, followeeId: string) => {
   try {
     await prisma.follow.create({
-      data: { followerId, followeeId },
+      data: { followeeId, followerId },
     });
   } catch (error) {
     console.error("Error following user:", error);
@@ -289,28 +264,27 @@ const addFollow = async (followerId: string, followeeId: string) => {
   }
 };
 
-export const toggleFollow = async (
-  followeeId: string,
-  isFollowing: boolean
-) => {
+export const checkFollow = async (followeeId: string) => {
   try {
-    const userId = await getUserId();
-
-    if (isFollowing) await removeFollow(userId, followeeId, "unfollow");
-    else await addFollow(userId, followeeId);
+    return !!(await prisma.follow.findUnique({
+      where: {
+        followerId_followeeId: {
+          followeeId,
+          followerId: await getUserId(),
+        },
+      },
+    }));
   } catch (error) {
-    console.error("Error toggling follow:", error);
-    throw new Error("Error toggling follow:", { cause: error });
+    console.error("Error checking if following:", error);
+    throw new Error("Error checking if following:", { cause: error });
   }
 };
 
-export const isUsernameAvailable = async (username: string) => {
+export const checkUsername = async (username: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    return !(await prisma.user.findUnique({
       where: { username },
-    });
-
-    return !user;
+    }));
   } catch (error) {
     console.error("Error checking username availability:", error);
     throw new Error("Error checking username availability:", { cause: error });
@@ -318,18 +292,18 @@ export const isUsernameAvailable = async (username: string) => {
 };
 
 export const updateUser = async (
-  username: string,
+  id: string,
   data: {
-    username: string;
-    name: string;
-    bio: string;
     avatar: string;
+    bio: string;
+    name: string;
+    username: string;
   }
 ) => {
   try {
     await prisma.user.update({
-      where: { username },
       data,
+      where: { id },
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -337,10 +311,10 @@ export const updateUser = async (
   }
 };
 
-export const deleteUser = async (username: string) => {
+export const deleteUser = async (id: string) => {
   try {
     await prisma.user.delete({
-      where: { username },
+      where: { id },
     });
   } catch (error) {
     console.error("Error deleting user:", error);

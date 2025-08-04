@@ -49,9 +49,9 @@ export default function ProfilePageSkeleton({
         </div>
         <div className="flex -ml-4 w-full">
           {[...Array(4)].map((_, colIndex) => (
-            <div key={colIndex} className="pl-4 w-1/4">
+            <div className="pl-4 w-1/4" key={colIndex}>
               {[...Array(2)].map((_, rowIndex) => (
-                <div key={`${colIndex}-${rowIndex}`} className="mb-4">
+                <div className="mb-4" key={`${colIndex}-${rowIndex}`}>
                   <Skeleton className="w-full h-40 aspect-square rounded-md" />
                 </div>
               ))}

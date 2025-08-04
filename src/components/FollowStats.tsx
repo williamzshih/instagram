@@ -1,3 +1,13 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  getFollowers,
+  getFollowing,
+  removeFollow,
+  toggleFollow,
+} from "@/actions/profile";
+import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -5,57 +15,84 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import UserBlock from "@/components/UserBlock";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import Link from "next/link";
-import {
-  getFollowers,
-  getFollowing,
-  removeFollow,
-} from "@/actions/profile";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import Loading from "@/components/Loading";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import UserBlock from "@/components/UserBlock";
+import useToggle from "@/hooks/useToggle";
 
 type Props = {
+  currentUser?: boolean;
+  following?: boolean;
   profile: {
-    id: string;
     _count: {
       followers: number;
       following: number;
     };
+    id: string;
   };
-  isCurrentUser?: boolean;
 };
 
-export default function FollowStats({ profile, isCurrentUser }: Props) {
+export default function FollowStats({
+  currentUser,
+  following: initialFollowing = false,
+  profile,
+}: Props) {
+  const [isFollowing, setIsFollowing] = useState(initialFollowing);
+  const [toggledFollowers, setToggledFollowers] = useToggle(
+    profile._count.followers,
+    profile._count.followers + (initialFollowing ? -1 : 1),
+    profile._count.followers
+  );
+  const [numFollowers, setNumFollowers] = useState(profile._count.followers);
+  const [numFollowing, setNumFollowing] = useState(profile._count.following);
+  const [followersOpen, setFollowersOpen] = useState(false);
   const [followingOpen, setFollowingOpen] = useState(false);
 
   const {
-    data: followers = { followers: [], length: 0 },
-    isLoading: isLoadingFollowers,
+    data: followers,
+    error: followersError,
+    isPending: followersPending,
   } = useQuery({
-    queryKey: ["followers", profile.id],
+    enabled: followersOpen,
     queryFn: () => getFollowers(profile.id),
+    queryKey: ["followers", profile.id],
   });
 
-  const { data: following = [], isLoading: isLoadingFollowing } = useQuery({
-    queryKey: ["following", profile.id],
-    queryFn: () => getFollowing(profile.id),
+  const {
+    data: following,
+    error: followingError,
+    isPending: followingPending,
+  } = useQuery({
     enabled: followingOpen,
+    queryFn: () => getFollowing(profile.id),
+    queryKey: ["following", profile.id],
   });
+
+  if (followersError) {
+    console.error("Error getting followers:", followersError);
+    throw new Error("Error getting followers:", { cause: followersError });
+  }
+  if (followingError) {
+    console.error("Error getting followed users:", followingError);
+    throw new Error("Error getting followed users:", { cause: followingError });
+  }
 
   const queryClient = useQueryClient();
 
   const { mutate: remove } = useMutation({
     mutationFn: (followerId: string) =>
       removeFollow(followerId, profile.id, "remove"),
+    onError: (_, __, context: undefined | { previousFollowers: unknown }) =>
+      queryClient.setQueryData(
+        ["followers", profile.id],
+        context?.previousFollowers
+      ),
     onMutate: async (followerId) => {
+      setNumFollowers(numFollowers - 1);
       await queryClient.cancelQueries({
         queryKey: ["followers", profile.id],
       });
@@ -65,16 +102,18 @@ export default function FollowStats({ profile, isCurrentUser }: Props) {
       ]);
       queryClient.setQueryData(
         ["followers", profile.id],
-        (old: { id: string }[]) =>
-          old.filter((follower) => follower.id !== followerId)
+        (
+          old: {
+            avatar: string;
+            createdAt: Date;
+            id: string;
+            name: string;
+            username: string;
+          }[]
+        ) => old.filter((follower) => follower.id !== followerId)
       );
       return { previousFollowers };
     },
-    onError: (_, __, context) =>
-      queryClient.setQueryData(
-        ["followers", profile.id],
-        context?.previousFollowers
-      ),
     onSettled: () =>
       queryClient.invalidateQueries({
         queryKey: ["followers", profile.id],
@@ -84,7 +123,13 @@ export default function FollowStats({ profile, isCurrentUser }: Props) {
   const { mutate: unfollow } = useMutation({
     mutationFn: (followeeId: string) =>
       removeFollow(profile.id, followeeId, "unfollow"),
+    onError: (_, __, context: undefined | { previousFollowing: unknown }) =>
+      queryClient.setQueryData(
+        ["following", profile.id],
+        context?.previousFollowing
+      ),
     onMutate: async (followeeId) => {
+      setNumFollowing(numFollowing - 1);
       await queryClient.cancelQueries({
         queryKey: ["following", profile.id],
       });
@@ -94,154 +139,179 @@ export default function FollowStats({ profile, isCurrentUser }: Props) {
       ]);
       queryClient.setQueryData(
         ["following", profile.id],
-        (old: { id: string }[]) =>
-          old.filter((following) => following.id !== followeeId)
+        (
+          old: {
+            avatar: string;
+            createdAt: Date;
+            id: string;
+            name: string;
+            username: string;
+          }[]
+        ) => old.filter((followee) => followee.id !== followeeId)
       );
       return { previousFollowing };
     },
-    onError: (_, __, context) =>
-      queryClient.setQueryData(
-        ["following", profile.id],
-        context?.previousFollowing
-      ),
     onSettled: () =>
       queryClient.invalidateQueries({
         queryKey: ["following", profile.id],
       }),
   });
 
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    setToggledFollowers();
+    toggleFollow(profile.id, isFollowing);
+  };
+
   return (
-    <div className="flex items-center justify-center gap-2">
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            className="h-fit flex flex-col items-center justify-center gap-0 cursor-pointer"
-          >
-            <p className="text-lg font-bold">
-              {followers.length || profile._count.followers}
-            </p>
-            <p>
-              {followers.length === 1 || profile._count.followers === 1
-                ? "Follower"
-                : "Followers"}
-            </p>
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-4">
-          <DialogTitle className="text-xl">Followers</DialogTitle>
-          <ScrollArea className="h-[80vh] px-3">
-            <div className="flex flex-col gap-2">
-              {isLoadingFollowers ? (
-                <Loading />
-              ) : followers.followers.length > 0 ? (
-                followers.followers.map((follower) => (
-                  <div
-                    key={follower.id}
-                    className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
-                  >
-                    <HoverCard>
-                      <HoverCardTrigger asChild>
-                        <div className="flex items-center justify-center">
-                          <Link
-                            href={`/user/${follower.username}`}
-                            className="flex-1"
-                          >
-                            <UserBlock user={follower} size={16} />
-                            {/* TODO: <a> hydration error */}
-                          </Link>
-                          {isCurrentUser && (
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="cursor-pointer"
-                              onClick={() => remove(follower.id)}
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center justify-center gap-2">
+        <Dialog onOpenChange={setFollowersOpen} open={followersOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="h-fit flex flex-col items-center justify-center gap-0 cursor-pointer"
+              variant="ghost"
+            >
+              <p className="text-lg font-bold">
+                {currentUser ? numFollowers : toggledFollowers}
+              </p>
+              <p>
+                {currentUser
+                  ? numFollowers === 1
+                    ? "Follower"
+                    : "Followers"
+                  : toggledFollowers === 1
+                    ? "Follower"
+                    : "Followers"}
+              </p>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="p-4">
+            <DialogTitle className="text-xl">Followers</DialogTitle>
+            <ScrollArea className="h-[80vh] px-3">
+              <div className="flex flex-col gap-2">
+                {followersPending ? (
+                  <Loading />
+                ) : followers.length > 0 ? (
+                  followers.map((follower) => (
+                    <div
+                      className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
+                      key={follower.id}
+                    >
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <div className="flex items-center justify-center">
+                            <Link
+                              className="flex-1"
+                              href={`/user/${follower.username}`}
                             >
-                              Remove
-                            </Button>
-                          )}
-                        </div>
-                      </HoverCardTrigger>
-                      {isCurrentUser && (
-                        <HoverCardContent className="text-center w-auto">
-                          Followed you on{" "}
-                          {follower.createdAt.toLocaleDateString()}
-                        </HoverCardContent>
-                      )}
-                    </HoverCard>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground">No followers yet</p>
-              )}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={followingOpen} onOpenChange={setFollowingOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            className="h-fit flex flex-col items-center justify-center gap-0 cursor-pointer"
-          >
-            <p className="text-lg font-bold">
-              {following.length || profile._count.following}
-            </p>
-            <p>Following</p>
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-4">
-          <DialogTitle className="text-xl">Following</DialogTitle>
-          <ScrollArea className="h-[80vh] px-3">
-            <div className="flex flex-col gap-2">
-              {isLoadingFollowing ? (
-                <Loading />
-              ) : following.length > 0 ? (
-                following.map((followee) => (
-                  <div
-                    key={followee.id}
-                    className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
-                  >
-                    <HoverCard>
-                      <HoverCardTrigger asChild>
-                        <div className="flex items-center justify-center">
-                          <Link
-                            href={`/user/${followee.username}`}
-                            className="flex-1"
-                          >
-                            <UserBlock user={followee} size={16} />
-                            {/* TODO: <a> hydration error */}
-                          </Link>
-                          {isCurrentUser && (
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="cursor-pointer"
-                              onClick={() => unfollow(followee.id)}
+                              <UserBlock noLink profile={follower} size={16} />
+                            </Link>
+                            {currentUser && (
+                              <Button
+                                className="cursor-pointer"
+                                onClick={() => remove(follower.id)}
+                                size="sm"
+                                variant="destructive"
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+                        </HoverCardTrigger>
+                        {currentUser && (
+                          <HoverCardContent className="text-center w-auto">
+                            Followed you on{" "}
+                            {follower.createdAt.toLocaleDateString()}
+                          </HoverCardContent>
+                        )}
+                      </HoverCard>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">No followers yet</p>
+                )}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+        <Dialog onOpenChange={setFollowingOpen} open={followingOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="h-fit flex flex-col items-center justify-center gap-0 cursor-pointer"
+              variant="ghost"
+            >
+              <p className="text-lg font-bold">{numFollowing}</p>
+              <p>Following</p>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="p-4">
+            <DialogTitle className="text-xl">Following</DialogTitle>
+            <ScrollArea className="h-[80vh] px-3">
+              <div className="flex flex-col gap-2">
+                {followingPending ? (
+                  <Loading />
+                ) : following.length > 0 ? (
+                  following.map((followee) => (
+                    <div
+                      className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
+                      key={followee.id}
+                    >
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <div className="flex items-center justify-center">
+                            <Link
+                              className="flex-1"
+                              href={`/user/${followee.username}`}
                             >
-                              Unfollow
-                            </Button>
-                          )}
-                        </div>
-                      </HoverCardTrigger>
-                      {isCurrentUser && (
-                        <HoverCardContent className="text-center w-auto">
-                          Followed you on{" "}
-                          {followee.createdAt.toLocaleDateString()}
-                        </HoverCardContent>
-                      )}
-                    </HoverCard>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground">
-                  Not following anyone yet
-                </p>
-              )}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
+                              <UserBlock noLink profile={followee} size={16} />
+                            </Link>
+                            {currentUser && (
+                              <Button
+                                className="cursor-pointer"
+                                onClick={() => unfollow(followee.id)}
+                                size="sm"
+                                variant="destructive"
+                              >
+                                Unfollow
+                              </Button>
+                            )}
+                          </div>
+                        </HoverCardTrigger>
+                        {currentUser && (
+                          <HoverCardContent className="text-center w-auto">
+                            Followed you on{" "}
+                            {followee.createdAt.toLocaleDateString()}
+                          </HoverCardContent>
+                        )}
+                      </HoverCard>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">
+                    Not following anyone yet
+                  </p>
+                )}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {!currentUser &&
+        (isFollowing ? (
+          <Button
+            className="bg-linear-to-tr from-ig-orange to-ig-red cursor-pointer"
+            onClick={handleFollow}
+            onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
+            onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}
+          >
+            Following
+          </Button>
+        ) : (
+          <Button className="cursor-pointer" onClick={handleFollow}>
+            Follow
+          </Button>
+        ))}
     </div>
   );
 }

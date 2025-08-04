@@ -1,3 +1,6 @@
+import { SettingsIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Settings from "@/components/Settings";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -5,29 +8,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { SettingsIcon } from "lucide-react";
-import Settings from "@/components/Settings";
-import { useRouter } from "next/navigation";
 
 type Props = {
+  currentUser?: boolean;
   profile: {
-    username: string;
-    name: string;
-    bio: string;
     avatar: string;
+    bio: string;
     createdAt: Date;
+    id: string;
+    name: string;
+    username: string;
   };
-  isCurrentUser?: boolean;
 };
 
-export default function ProfileHeader({ profile, isCurrentUser }: Props) {
+export default function ProfileHeader({ currentUser, profile }: Props) {
   const router = useRouter();
 
   return (
     <div className="flex items-center justify-between w-full">
-      <Button size="icon" className="invisible" />
+      <Button className="invisible" size="icon" />
       <p className="text-2xl font-bold">@{profile.username}</p>
-      {isCurrentUser ? (
+      {currentUser ? (
         <Dialog onOpenChange={(open) => !open && router.refresh()}>
           <DialogTrigger asChild>
             <Button size="icon" variant="ghost">
@@ -40,7 +41,7 @@ export default function ProfileHeader({ profile, isCurrentUser }: Props) {
           </DialogContent>
         </Dialog>
       ) : (
-        <Button size="icon" className="invisible" />
+        <Button className="invisible" size="icon" />
       )}
     </div>
   );

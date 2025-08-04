@@ -1,192 +1,130 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { redirect, useSearchParams } from "next/navigation";
+import { getBookmarks, getLikes, getPosts } from "@/actions/profile";
+import Loading from "@/components/Loading";
 import PostGrid from "@/components/PostGrid";
 import ProfileInfo from "@/components/ProfileInfo";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getPosts,
-  getLikes,
-  getBookmarks,
-  checkFollow,
-  toggleFollow,
-} from "@/actions/profile";
-import Loading from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 
 type Props = {
+  currentUser?: boolean;
+  following?: boolean;
   profile: {
-    id: string;
-    username: string;
-    name: string;
-    bio: string;
-    avatar: string;
-    createdAt: Date;
     _count: {
       followers: number;
       following: number;
     };
+    avatar: string;
+    bio: string;
+    createdAt: Date;
+    id: string;
+    name: string;
+    username: string;
   };
-  isCurrentUser?: boolean;
-  isFollowingInitial?: boolean;
 };
 
 export default function ProfilePage({
+  currentUser,
+  following,
   profile,
-  isCurrentUser,
-  isFollowingInitial,
 }: Props) {
-  const [selectedTab, setSelectedTab] = useState("posts");
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") || "posts";
 
-  // TODO: add error handling, isPending?
-  const { data: posts = [], isLoading: isLoadingPosts } = useQuery({
-    queryKey: ["posts", profile.id],
+  const {
+    data: posts,
+    error: postsError,
+    isPending: postsPending,
+  } = useQuery({
+    enabled: view === "posts" || !currentUser,
     queryFn: () => getPosts(profile.id),
-    enabled: selectedTab === "posts" || !isCurrentUser,
+    queryKey: ["posts", profile.id],
   });
 
-  const { data: likes = [], isLoading: isLoadingLikes } = useQuery({
-    queryKey: ["likes", profile.id],
+  const {
+    data: likes,
+    error: likesError,
+    isPending: likesPending,
+  } = useQuery({
+    enabled: view === "likes" && currentUser,
     queryFn: () => getLikes(profile.id),
-    enabled: selectedTab === "likes" && isCurrentUser,
+    queryKey: ["likes", profile.id],
   });
 
-  const { data: bookmarks = [], isLoading: isLoadingBookmarks } = useQuery({
-    queryKey: ["bookmarks", profile.id],
+  const {
+    data: bookmarks,
+    error: bookmarksError,
+    isPending: bookmarksPending,
+  } = useQuery({
+    enabled: view === "bookmarks" && currentUser,
     queryFn: () => getBookmarks(profile.id),
-    enabled: selectedTab === "bookmarks" && isCurrentUser,
+    queryKey: ["bookmarks", profile.id],
   });
 
-  const { data: isFollowing = isFollowingInitial } = useQuery({
-    queryKey: ["isFollowing", profile.id],
-    queryFn: () => checkFollow(profile.id),
-    enabled: !isCurrentUser,
-  });
-
-  const queryClient = useQueryClient();
-
-  const { mutate: toggleFollowMutation } = useMutation({
-    mutationFn: () => toggleFollow(profile.id, !!isFollowing),
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["isFollowing", profile.id],
-      });
-      const previousIsFollowing = queryClient.getQueryData([
-        "isFollowing",
-        profile.id,
-      ]);
-      queryClient.setQueryData(
-        ["isFollowing", profile.id],
-        (old: boolean) => !old
-      );
-
-      await queryClient.cancelQueries({
-        queryKey: ["followers", profile.id],
-      });
-      const previousFollowers = queryClient.getQueryData([
-        "followers",
-        profile.id,
-      ]);
-      queryClient.setQueryData(
-        ["followers", profile.id],
-        (old: { followers: {
-          id: string;
-          email: string;
-          username: string;
-          name: string;
-          avatar: string;
-          createdAt: Date;
-        }[];
-        length: number;
-      }) => ({
-          followers: old.followers,
-          length: old.length + (isFollowing ? -1 : 1),
-        })
-      );
-
-      return { previousIsFollowing, previousFollowers };
-    },
-    onError: (_, __, context) => {
-      queryClient.setQueryData(
-        ["isFollowing", profile.id],
-        context?.previousIsFollowing
-      );
-      queryClient.setQueryData(
-        ["followers", profile.id],
-        context?.previousFollowers
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["isFollowing", profile.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["followers", profile.id],
-      });
-    },
-  });
+  if (postsError) {
+    console.error("Error getting posts:", postsError);
+    throw new Error("Error getting posts:", { cause: postsError });
+  }
+  if (likesError) {
+    console.error("Error getting likes:", likesError);
+    throw new Error("Error getting likes:", { cause: likesError });
+  }
+  if (bookmarksError) {
+    console.error("Error getting bookmarks:", bookmarksError);
+    throw new Error("Error getting bookmarks:", { cause: bookmarksError });
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <ProfileInfo profile={profile} isCurrentUser={isCurrentUser} />
-      {isCurrentUser ? (
+      <ProfileInfo
+        currentUser={currentUser}
+        following={following}
+        profile={profile}
+      />
+      {currentUser && (
         <div className="flex items-center justify-center gap-2">
           <Button
-            variant={selectedTab === "posts" ? "default" : "ghost"}
-            onClick={() => setSelectedTab("posts")}
             className="text-lg cursor-pointer"
+            onClick={() => redirect(`?view=posts`)}
+            variant={view === "posts" ? "default" : "ghost"}
           >
             Posts
           </Button>
           <Button
-            variant={selectedTab === "likes" ? "default" : "ghost"}
-            onClick={() => setSelectedTab("likes")}
             className="text-lg cursor-pointer"
+            onClick={() => redirect(`?view=likes`)}
+            variant={view === "likes" ? "default" : "ghost"}
           >
             Likes
           </Button>
           <Button
-            variant={selectedTab === "bookmarks" ? "default" : "ghost"}
-            onClick={() => setSelectedTab("bookmarks")}
             className="text-lg cursor-pointer"
+            onClick={() => redirect(`?view=bookmarks`)}
+            variant={view === "bookmarks" ? "default" : "ghost"}
           >
             Bookmarks
           </Button>
         </div>
-      ) : isFollowing ? (
-        <Button
-          className="bg-linear-to-tr from-ig-orange to-ig-red cursor-pointer"
-          onClick={() => toggleFollowMutation()}
-          onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
-          onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}
-        >
-          Following
-        </Button>
-      ) : (
-        <Button
-          className="cursor-pointer"
-          onClick={() => toggleFollowMutation()}
-        >
-          Follow
-        </Button>
       )}
-      {selectedTab === "posts" ? (
-        isLoadingPosts ? (
+      {view === "posts" ? (
+        postsPending ? (
           <Loading />
         ) : posts.length > 0 ? (
           <PostGrid posts={posts} type="posts" />
         ) : (
           <div className="text-muted-foreground">No posts yet</div>
         )
-      ) : selectedTab === "likes" ? (
-        isLoadingLikes ? (
+      ) : view === "likes" ? (
+        likesPending ? (
           <Loading />
         ) : likes.length > 0 ? (
           <PostGrid posts={likes} type="likes" />
         ) : (
           <div className="text-muted-foreground">No likes yet</div>
         )
-      ) : isLoadingBookmarks ? (
+      ) : bookmarksPending ? (
         <Loading />
       ) : bookmarks.length > 0 ? (
         <PostGrid posts={bookmarks} type="bookmarks" />

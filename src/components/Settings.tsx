@@ -1,46 +1,56 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Upload } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { checkUsername, deleteUser, updateUser } from "@/actions/profile";
+import { uploadFile } from "@/actions/upload";
+import Gradient from "@/components/Gradient";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormLabel,
-  FormItem,
   FormControl,
-  FormMessage,
   FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
-import {
-  USERNAME_MIN,
-  USERNAME_MAX,
-  NAME_MIN,
-  NAME_MAX,
-  BIO_MAX,
-} from "@/limits";
-import { uploadFile } from "@/actions/upload";
-import { isUsernameAvailable, updateUser, deleteUser } from "@/actions/profile";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Upload } from "lucide-react";
-import { toast } from "sonner";
-import { signOut } from "next-auth/react";
-import Gradient from "@/components/Gradient";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  BIO_MAX,
+  NAME_MAX,
+  NAME_MIN,
+  USERNAME_MAX,
+  USERNAME_MIN,
+} from "@/limits";
 
 type Props = {
   profile: {
-    username: string;
-    name: string;
-    bio: string;
     avatar: string;
+    bio: string;
     createdAt: Date;
+    id: string;
+    name: string;
+    username: string;
   };
 };
 
 export default function Settings({ profile }: Props) {
   // TODO: add email to form schema
   const formSchema = z.object({
+    avatar: z.string(),
+    bio: z
+      .string()
+      .max(BIO_MAX, `Bio must be at most ${BIO_MAX} characters long`),
+    name: z
+      .string()
+      .min(1, "Name is required")
+      .min(NAME_MIN, `Name must be at least ${NAME_MIN} characters long`)
+      .max(NAME_MAX, `Name must be at most ${NAME_MAX} characters long`),
     username: z
       .string()
       .min(1, "Username is required")
@@ -54,36 +64,26 @@ export default function Settings({ profile }: Props) {
       )
       .refine(
         async (username) =>
-          username === profile.username ||
-          (await isUsernameAvailable(username)),
+          username === profile.username || (await checkUsername(username)),
         {
           message: "This username is already taken",
         }
       ),
-    name: z
-      .string()
-      .min(1, "Name is required")
-      .min(NAME_MIN, `Name must be at least ${NAME_MIN} characters long`)
-      .max(NAME_MAX, `Name must be at most ${NAME_MAX} characters long`),
-    bio: z
-      .string()
-      .max(BIO_MAX, `Bio must be at most ${BIO_MAX} characters long`),
-    avatar: z.string(),
   });
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
     defaultValues: {
-      username: profile.username,
-      name: profile.name,
-      bio: profile.bio,
       avatar: profile.avatar,
+      bio: profile.bio,
+      name: profile.name,
+      username: profile.username,
     },
+    resolver: zodResolver(formSchema),
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      await updateUser(profile.username, data);
+      await updateUser(profile.id, data);
       toast.success("Settings updated");
     } catch (error) {
       toast.error((error as Error).message);
@@ -93,25 +93,24 @@ export default function Settings({ profile }: Props) {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <Gradient>
-        <Label htmlFor="avatar" className="rounded-full block cursor-pointer">
+        <Label className="rounded-full block cursor-pointer" htmlFor="avatar">
           <Avatar className="w-40 h-40 group">
             <AvatarImage
-              src={form.watch("avatar")}
               alt="Your avatar"
               className="object-cover rounded-full"
+              src={form.watch("avatar")}
             />
             <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-25" />
             <Upload
-              size={40}
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
+              size={40}
             />
           </Avatar>
         </Label>
         <Input
-          id="avatar"
-          type="file"
           accept="image/*"
           className="hidden"
+          id="avatar"
           onChange={(e) => {
             if (e.target.files?.[0])
               try {
@@ -123,12 +122,13 @@ export default function Settings({ profile }: Props) {
                 toast.error((error as Error).message);
               }
           }}
+          type="file"
         />
       </Gradient>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4 w-full"
+          onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
             control={form.control}
@@ -184,7 +184,7 @@ export default function Settings({ profile }: Props) {
               </FormItem>
             )}
           />
-          <Button type="submit" className="cursor-pointer">
+          <Button className="cursor-pointer" type="submit">
             Save settings
           </Button>
         </form>
@@ -192,20 +192,20 @@ export default function Settings({ profile }: Props) {
       <div className="flex items-center justify-center gap-2">
         {/* TODO: fix sign out */}
         <Button
-          variant="destructive"
           className="cursor-pointer"
           onClick={() => signOut({ redirectTo: "/sign-in" })}
+          variant="destructive"
         >
           Sign out
         </Button>
         {/* TODO: fix delete account */}
         <Button
-          variant="destructive"
           className="cursor-pointer"
           onClick={async () => {
             signOut({ redirectTo: "/sign-in" });
-            await deleteUser(profile.username);
+            await deleteUser(profile.id);
           }}
+          variant="destructive"
         >
           Delete account
         </Button>

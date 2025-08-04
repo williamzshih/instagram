@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import Masonry from "react-masonry-css";
 import {
   HoverCard,
@@ -9,37 +9,57 @@ import {
 
 type Props = {
   posts: {
-    id: string;
-    image: string;
     caption: string;
     createdAt: Date;
+    id: string;
+    image: string;
   }[];
-  type: "posts" | "likes" | "bookmarks";
+  type: "bookmarks" | "likes" | "posts";
 };
 
 export default function PostGrid({ posts, type }: Props) {
+  // TODO: fix this
+  const getImageWidth = (url: string) => {
+    if (url.startsWith("https://picsum.photos/id/")) {
+      const segments = url.split("/");
+      const width = segments[segments.length - 2];
+      return parseInt(width);
+    }
+    return 1920;
+  };
+
+  // TODO: fix this
+  const getImageHeight = (url: string) => {
+    if (url.startsWith("https://picsum.photos/id/")) {
+      const segments = url.split("/");
+      const height = segments[segments.length - 1];
+      return parseInt(height);
+    }
+    return 1080;
+  };
+
   return (
     <Masonry
       breakpointCols={{
-        default: 4,
-        1100: 3,
-        700: 2,
         500: 1,
+        700: 2,
+        1100: 3,
+        default: 4,
       }}
       className="flex -ml-4"
       columnClassName="pl-4"
     >
       {posts.map((post) => (
-        <div key={post.id} className="mb-4">
+        <div className="mb-4" key={post.id}>
           <HoverCard>
             <HoverCardTrigger asChild>
               <Link href={`/post/${post.id}`}>
                 <Image
-                  src={post.image}
-                  alt={post.caption || "Post image"}
-                  width={1920}
-                  height={1080}
+                  alt={post.caption || "Image of the post"}
                   className="hover:opacity-75 transition-opacity"
+                  height={getImageHeight(post.image)}
+                  src={post.image}
+                  width={getImageWidth(post.image)}
                 />
               </Link>
             </HoverCardTrigger>
@@ -47,8 +67,8 @@ export default function PostGrid({ posts, type }: Props) {
               {type === "posts"
                 ? "Posted"
                 : type === "likes"
-                ? "Liked"
-                : "Bookmarked"}
+                  ? "Liked"
+                  : "Bookmarked"}
               {" on "}
               {post.createdAt.toLocaleDateString()}
             </HoverCardContent>

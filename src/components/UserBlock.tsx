@@ -1,21 +1,22 @@
 import LinkAvatar from "@/components/LinkAvatar";
 
 type Props = {
-  user: {
-    username: string;
-    name: string;
+  noLink?: boolean;
+  profile: {
     avatar: string;
+    name: string;
+    username: string;
   };
   size: number;
 };
 
-export default function UserBlock({ user, size }: Props) {
+export default function UserBlock({ profile, size }: Props) {
   return (
     <div className="flex items-center gap-4">
-      <LinkAvatar user={user} size={size} />
+      <LinkAvatar noLink profile={profile} size={size} />
       <div className="flex flex-col">
-        <p>{user.name}</p>
-        <p className="text-sm text-muted-foreground">@{user.username}</p>
+        <p>{profile.name}</p>
+        <p className="text-sm text-muted-foreground">@{profile.username}</p>
       </div>
     </div>
   );

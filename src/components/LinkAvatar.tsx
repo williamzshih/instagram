@@ -1,42 +1,49 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 type Props = {
-  user: {
-    username: string;
+  noLink?: boolean;
+  profile: {
     avatar: string;
+    username: string;
   };
+  profilePage?: boolean;
   size: number;
-  isProfilePage?: boolean;
 };
 
-export default function LinkAvatar({ user, size, isProfilePage }: Props) {
+export default function LinkAvatar({
+  noLink,
+  profile,
+  profilePage,
+  size,
+}: Props) {
   // TODO: fix sizes
   const sizeClass =
     size === 10
       ? "w-10 h-10"
       : size === 12
-      ? "w-12 h-12"
-      : size === 16
-      ? "w-16 h-16"
-      : size === 40
-      ? "w-40 h-40"
-      : "w-10 h-10";
+        ? "w-12 h-12"
+        : size === 16
+          ? "w-16 h-16"
+          : size === 40
+            ? "w-40 h-40"
+            : "w-10 h-10";
 
-  return (
-    <Link
-      href={`/user/${user.username}`}
-      className={cn(
-        "rounded-full block",
-        isProfilePage && "pointer-events-none"
-      )}
-    >
+  return noLink || profilePage ? (
+    <Avatar className={sizeClass}>
+      <AvatarImage
+        alt={`@${profile.username}'s avatar`}
+        className="object-cover rounded-full"
+        src={profile.avatar}
+      />
+    </Avatar>
+  ) : (
+    <Link className="rounded-full block" href={`/user/${profile.username}`}>
       <Avatar className={sizeClass}>
         <AvatarImage
-          src={user.avatar}
-          alt={`${user.username}'s avatar`}
+          alt={`@${profile.username}'s avatar`}
           className="object-cover rounded-full"
+          src={profile.avatar}
         />
       </Avatar>
     </Link>

@@ -1,19 +1,14 @@
-// TODO: import 'type'
-import { getProfile } from "@/actions/profile";
+import { checkFollow, getProfile } from "@/actions/profile";
 import ProfilePage from "@/components/ProfilePage";
 
-export default async function OtherProfile({
+export default async function UserProfile({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const { profile, isFollowing } = await getProfile(username);
+  const profile = await getProfile({ username });
+  const following = await checkFollow(profile.id);
 
-  return (
-    <ProfilePage
-      profile={profile!} // if profile was null, getProfile would have thrown an error
-      isFollowingInitial={isFollowing}
-    />
-  );
+  return <ProfilePage following={following} profile={profile} />;
 }
