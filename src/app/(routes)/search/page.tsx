@@ -1,70 +1,55 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import Masonry from "react-masonry-css";
+import { getImageHeight, getImageWidth } from "@/actions/image";
+import { searchPosts } from "@/actions/search";
+import { searchUsers } from "@/actions/search";
+import Comment from "@/components/Comment";
+import Loading from "@/components/Loading";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
-import { searchPosts } from "@/actions/post";
-import { searchUsers } from "@/actions/user";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import UserBlock from "@/components/UserBlock";
-import Link from "next/link";
-import Masonry from "react-masonry-css";
-import Image from "next/image";
-import Comment from "@/components/Comment";
-import SearchSkeleton from "@/components/SearchSkeleton";
 
 export default function Search() {
   const form = useForm();
-  const search = form.watch("search");
+  const search: string = form.watch("search");
   const [debouncedValue, setDebouncedValue] = useState(search);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(search), 300);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [search]);
 
   const {
     data: users,
-    isPending: isUsersPending,
     error: usersError,
+    isPending: usersPending,
   } = useQuery({
-    queryKey: ["users", debouncedValue],
     queryFn: () => searchUsers(debouncedValue),
-    placeholderData: keepPreviousData,
+    queryKey: ["users", debouncedValue],
   });
 
   const {
     data: posts,
-    isPending: isPostsPending,
     error: postsError,
+    isPending: postsPending,
   } = useQuery({
-    queryKey: ["posts", debouncedValue],
     queryFn: () => searchPosts(debouncedValue),
-    placeholderData: keepPreviousData,
+    queryKey: ["posts", debouncedValue],
   });
 
-  if (isUsersPending || isPostsPending) {
-    return <SearchSkeleton />;
+  if (usersError) {
+    console.error("Error searching users:", usersError);
+    throw new Error("Error searching users:", { cause: usersError });
   }
-
-  if (usersError || postsError) {
-    if (usersError) {
-      toast.error(usersError.message);
-    }
-    if (postsError) {
-      toast.error(postsError.message);
-    }
-    return (
-      <div>
-        <p>{usersError && usersError.message}</p>
-        <p>{postsError && postsError.message}</p>
-      </div>
-    );
+  if (postsError) {
+    console.error("Error searching posts:", postsError);
+    throw new Error("Error searching posts:", { cause: postsError });
   }
 
   return (
@@ -77,59 +62,63 @@ export default function Search() {
             Search results for: {debouncedValue}
           </p>
           <Separator />
-          <p className="text-2xl font-bold">Users</p>
-          {users.length > 0 ? (
+          <p className="text-2xl font-semibold">Users</p>
+          {usersPending ? (
+            <Loading />
+          ) : users.length > 0 ? (
             <div className="flex flex-wrap gap-4">
               {users.map((user) => (
                 <Link
-                  key={user.id}
+                  className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
                   href={`/user/${user.username}`}
-                  className="bg-muted rounded-lg px-4 py-2"
+                  key={user.id}
                 >
-                  <UserBlock user={user} size={16} />
+                  <UserBlock noLink profile={user} size={16} />
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No users found</p>
+            <p className="text-muted-foreground">No users found</p>
           )}
           <Separator />
-          <p className="text-2xl font-bold">Posts</p>
-          {posts.length > 0 ? (
+          <p className="text-2xl font-semibold">Posts</p>
+          {postsPending ? (
+            <Loading />
+          ) : posts.length > 0 ? (
             <Masonry
               breakpointCols={{
-                default: 4,
-                1100: 3,
-                700: 2,
                 500: 1,
+                700: 2,
+                1100: 3,
+                default: 4,
               }}
               className="flex -ml-4"
               columnClassName="pl-4"
             >
               {posts.map((post) => (
                 <Link
-                  key={post.id}
+                  className="bg-muted rounded-lg p-4 flex flex-col gap-4 mb-4"
                   href={`/post/${post.id}`}
-                  className="bg-muted rounded-lg p-2 flex flex-col gap-2 mb-4"
+                  key={post.id}
                 >
                   <Image
+                    alt={post.caption || "Image of the post"}
+                    height={getImageHeight(post.image)}
                     src={post.image}
-                    alt="Post image"
-                    width={1920}
-                    height={1080}
+                    width={getImageWidth(post.image)}
                   />
                   <Separator />
                   <Comment
-                    user={post.user}
                     comment={post.caption}
                     createdAt={post.createdAt}
                     size={12}
+                    user={post.user}
                   />
                 </Link>
               ))}
             </Masonry>
           ) : (
-            <p className="text-sm text-muted-foreground">No posts found</p>
+            <p className="text-muted-foreground">No posts found</p>
           )}
         </div>
       )}

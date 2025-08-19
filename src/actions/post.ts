@@ -1,8 +1,71 @@
 "use server";
 
-import { prisma } from "@/db";
 import { Prisma } from "@prisma/client";
 import { getUserId } from "@/actions/profile";
+import { prisma } from "@/db";
+
+export const getPosts = async (sortBy: string) => {
+  try {
+    let orderBy: Prisma.PostOrderByWithRelationInput;
+
+    switch (sortBy) {
+      case "newest":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "oldest":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "trending":
+        orderBy = {
+          likes: {
+            _count: "desc",
+          },
+        };
+        break;
+      default:
+        orderBy = { createdAt: "desc" };
+        break;
+    }
+
+    return await prisma.post.findMany({
+      orderBy,
+      select: {
+        caption: true,
+        createdAt: true,
+        id: true,
+        image: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error getting posts:", error);
+    throw new Error("Error getting posts:", { cause: error });
+  }
+};
+
+export const createPost = async (data: { caption: string; image: string }) => {
+  try {
+    return (
+      await prisma.post.create({
+        data: {
+          ...data,
+          userId: await getUserId(),
+        },
+      })
+    ).id;
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw new Error("Error creating post:", { cause: error });
+  }
+};
+
+export async function deletePost(id: string) {
+  try {
+    await prisma.post.delete({ where: { id } });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw new Error("Error deleting post", { cause: error });
+  }
+}
 
 export async function getPost(id: string) {
   try {
@@ -80,94 +143,3 @@ export async function getPost(id: string) {
   }
 }
 
-export async function getPosts(sortBy: string) {
-  try {
-    let orderBy: Prisma.PostOrderByWithRelationInput;
-
-    switch (sortBy) {
-      case "Newest":
-        orderBy = { createdAt: "desc" };
-        break;
-      case "Oldest":
-        orderBy = { createdAt: "asc" };
-        break;
-      case "Most popular":
-        orderBy = {
-          likes: {
-            _count: "desc",
-          },
-        };
-        break;
-      default:
-        orderBy = { createdAt: "desc" };
-        break;
-    }
-
-    return await prisma.post.findMany({
-      orderBy,
-      select: {
-        id: true,
-        image: true,
-        caption: true,
-        createdAt: true,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    throw new Error("Error fetching posts", { cause: error });
-  }
-}
-
-export async function createPost(image: string, caption: string) {
-  try {
-    const userId = await getUserId();
-    return (
-      await prisma.post.create({
-        data: { userId, image, caption },
-      })
-    ).id;
-  } catch (error) {
-    console.error("Error creating post:", error);
-    throw new Error("Error creating post", { cause: error });
-  }
-}
-
-export async function searchPosts(q: string) {
-  try {
-    return await prisma.post.findMany({
-      where: {
-        caption: {
-          contains: q,
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        image: true,
-        caption: true,
-        createdAt: true,
-        user: {
-          select: {
-            username: true,
-            avatar: true,
-            name: true,
-          },
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Error searching posts:", error);
-    throw new Error("Error searching posts", { cause: error });
-  }
-}
-
-export async function deletePost(id: string) {
-  try {
-    await prisma.post.delete({ where: { id } });
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    throw new Error("Error deleting post", { cause: error });
-  }
-}

@@ -1,42 +1,35 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { redirect, useSearchParams } from "next/navigation";
 import { getPosts } from "@/actions/post";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useState } from "react";
+import Loading from "@/components/Loading";
+import PostGrid from "@/components/PostGrid";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import PostGrid from "@/components/PostGrid";
-import BrowseSkeleton from "@/components/BrowseSkeleton";
 
 export default function Browse() {
-  const [sortBy, setSortBy] = useState("Newest");
+  const searchParams = useSearchParams();
+  const sort = searchParams.get("sort") || "newest";
 
   const {
     data: posts,
-    isPending,
     error,
+    isPending,
   } = useQuery({
-    queryKey: ["posts", sortBy],
-    queryFn: () => getPosts(sortBy),
-    placeholderData: keepPreviousData,
+    queryFn: () => getPosts(sort),
+    queryKey: ["posts", sort],
   });
 
-  if (isPending) {
-    return <BrowseSkeleton />;
-  }
-
   if (error) {
-    toast.error(error.message);
-    return <div>{error.message}</div>;
+    console.error("Error getting posts:", error);
+    throw new Error("Error getting posts:", { cause: error });
   }
 
   return (
@@ -46,26 +39,35 @@ export default function Browse() {
         <p>Sort by:</p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">{sortBy}</Button>
+            <Button variant="outline">
+              {sort.charAt(0).toUpperCase() + sort.slice(1)}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-              <DropdownMenuRadioItem value="Newest">
+            <DropdownMenuRadioGroup
+              onValueChange={(value) => redirect(`?sort=${value}`)}
+              value={sort}
+            >
+              <DropdownMenuRadioItem value="newest">
                 Newest
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Oldest">
+              <DropdownMenuRadioItem value="oldest">
                 Oldest
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Most popular">
-                Most popular
+              <DropdownMenuRadioItem value="trending">
+                Trending
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <PostGrid posts={posts} type="posts" />
+      {isPending ? (
+        <div className="flex items-center justify-center">
+          <Loading />
+        </div>
+      ) : (
+        <PostGrid posts={posts} type="posts" />
+      )}
     </div>
   );
 }

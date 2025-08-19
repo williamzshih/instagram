@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Masonry from "react-masonry-css";
+import { getImageHeight, getImageWidth } from "@/actions/image";
 import {
   HoverCard,
   HoverCardContent,
@@ -18,26 +19,6 @@ type Props = {
 };
 
 export default function PostGrid({ posts, type }: Props) {
-  // TODO: fix this
-  const getImageWidth = (url: string) => {
-    if (url.startsWith("https://picsum.photos/id/")) {
-      const segments = url.split("/");
-      const width = segments[segments.length - 2];
-      return parseInt(width);
-    }
-    return 1920;
-  };
-
-  // TODO: fix this
-  const getImageHeight = (url: string) => {
-    if (url.startsWith("https://picsum.photos/id/")) {
-      const segments = url.split("/");
-      const height = segments[segments.length - 1];
-      return parseInt(height);
-    }
-    return 1080;
-  };
-
   return (
     <Masonry
       breakpointCols={{
