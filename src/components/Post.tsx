@@ -6,6 +6,7 @@ import { Bookmark, Heart } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -78,6 +79,7 @@ export default function Post({
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const {
     data: post,
@@ -166,8 +168,10 @@ export default function Post({
       queryClient.setQueryData(["post", postId], null);
       return { previousPost };
     },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ["post", postId] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+      router.back();
+    },
   });
 
   const form = useForm({

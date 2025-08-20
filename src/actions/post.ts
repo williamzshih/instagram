@@ -29,6 +29,42 @@ export const getPost = async (id: string) => {
   }
 };
 
+export const getPostInitial = async (id: string) => {
+  try {
+    return await prisma.post.findUnique({
+      select: {
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+        bookmarks: {
+          select: {
+            user: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        likes: {
+          select: {
+            user: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error getting post:", error);
+    throw new Error("Error getting post:", { cause: error });
+  }
+};
+
 export const getPosts = async (userId: string) => {
   try {
     const following = await prisma.user.findUnique({

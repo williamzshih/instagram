@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "../globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import MobileNav from "@/components/MobileNav";
-import DesktopNav from "@/components/DesktopNav";
-import QueryProvider from "@/components/QueryProvider";
-import { ThemeProvider } from "next-themes";
-import { auth } from "@/auth";
-import ThemeSwitch from "@/components/ThemeSwitch";
-import { getUser } from "@/actions/user";
 import { Analytics } from "@vercel/analytics/react";
+import "../globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ThemeProvider } from "next-themes";
+import localFont from "next/font/local";
+import { redirect } from "next/navigation";
+import { getProfile } from "@/actions/profile";
+import { auth } from "@/auth";
+import DesktopNav from "@/components/DesktopNav";
+import MobileNav from "@/components/MobileNav";
+import QueryProvider from "@/components/QueryProvider";
+import ThemeSwitch from "@/components/ThemeSwitch";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -25,8 +26,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Instagram",
   description: "Instagram",
+  title: "Instagram",
 };
 
 export default async function RootLayout({
@@ -40,9 +41,11 @@ export default async function RootLayout({
   const session = await auth();
 
   if (session) {
-    const user = await getUser();
+    const session = await auth();
+    if (!session?.user?.email) redirect("/sign-in");
+    const profile = await getProfile({ email: session.user.email });
 
-    if (user) {
+    if (profile) {
       showNav = true;
     }
   }

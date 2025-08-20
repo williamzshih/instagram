@@ -1,10 +1,10 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState } from "react";
 import ThemeSwitch from "@/components/ThemeSwitch";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Modal({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -12,21 +12,17 @@ export default function Modal({ children }: { children: React.ReactNode }) {
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        if (!open) {
-          router.back();
-        }
+        if (!open) router.back();
       }}
+      open={isOpen}
     >
       <DialogContent
         className="max-w-[95vw] h-[95vh]"
         onClick={(e) => {
           const link = (e.target as HTMLElement).closest("a");
-          if (link) {
-            setIsOpen(false);
-          }
+          if (link) setIsOpen(false);
         }}
       >
         <DialogTitle />
