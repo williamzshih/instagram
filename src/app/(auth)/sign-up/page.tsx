@@ -33,7 +33,7 @@ export default async function SignUp() {
           await signOut();
         }}
       >
-        <Button className="p-6 pl-2" variant="outline">
+        <Button className="p-6 pl-2 cursor-pointer" variant="outline">
           <ChevronLeft />
           Back
         </Button>

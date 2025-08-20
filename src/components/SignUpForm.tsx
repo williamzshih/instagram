@@ -85,7 +85,9 @@ export default function SignUpForm({ session }: { session: Session }) {
             </FormItem>
           )}
         />
-        <Button type="submit">Sign up</Button>
+        <Button className="cursor-pointer" type="submit">
+          Sign up
+        </Button>
       </form>
     </Form>
   );

@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
+import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
-import "../globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
+import QueryProvider from "@/components/QueryProvider";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
+  src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 
 const geistMono = localFont({
-  src: "../fonts/GeistMonoVF.woff",
+  src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
@@ -35,9 +36,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class">
-          <ThemeSwitch />
-          <Toaster position="bottom-left" />
-          {children}
+          <QueryProvider>
+            <ThemeSwitch />
+            <Toaster position="bottom-left" />
+            {children}
+          </QueryProvider>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
