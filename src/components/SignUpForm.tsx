@@ -39,27 +39,27 @@ const formSchema = z.object({
 
 export default function SignUpForm({ session }: { session: Session }) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     defaultValues: {
       username: "",
     },
     resolver: zodResolver(formSchema),
   });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      await createUser(
-        session.user?.email || "",
-        data.username,
-        session.user?.name || "",
-        session.user?.image || undefined
-      );
+      await createUser({
+        avatar: session.user?.image || undefined,
+        email: session.user?.email || "",
+        name: session.user?.name || "",
+        username: data.username,
+      });
       toast.success("User created");
       router.push("/");
     } catch (error) {
       toast.error((error as Error).message);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -73,7 +73,7 @@ export default function SignUpForm({ session }: { session: Session }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center justify-between">
-                <p>Username</p>
+                Username
                 <p className="text-sm text-muted-foreground">
                   {form.watch("username").length}/{USERNAME_MAX}
                 </p>
@@ -85,7 +85,7 @@ export default function SignUpForm({ session }: { session: Session }) {
             </FormItem>
           )}
         />
-        <Button type="submit">Sign Up</Button>
+        <Button type="submit">Sign up</Button>
       </form>
     </Form>
   );

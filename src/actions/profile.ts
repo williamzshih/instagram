@@ -323,19 +323,19 @@ export const checkUsername = async (username: string) => {
   }
 };
 
-export const createUser = async (
-  email: string,
-  username: string,
-  name: string,
-  avatar?: string
-) => {
+export const createUser = async (data: {
+  avatar?: string;
+  email: string;
+  name: string;
+  username: string;
+}) => {
   try {
     await prisma.user.create({
-      data: { avatar, email, name, username },
+      data,
     });
   } catch (error) {
     console.error("Error creating user:", error);
-    throw new Error("Error creating user", { cause: error });
+    throw new Error("Error creating user:", { cause: error });
   }
 };
 
