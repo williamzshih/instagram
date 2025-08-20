@@ -3,16 +3,16 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
         hostname: process.env.NEXT_PUBLIC_GATEWAY_URL,
+        protocol: "https",
       },
       {
-        protocol: "https",
         hostname: "upload.wikimedia.org",
+        protocol: "https",
       },
       {
-        protocol: "https",
         hostname: "picsum.photos",
+        protocol: "https",
       },
     ],
   },
