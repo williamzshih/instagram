@@ -5,7 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
 import { redirect } from "next/navigation";
-import { getProfile } from "@/actions/profile";
+import { getProfileRedirect } from "@/actions/profile";
 import { auth } from "@/auth";
 import DesktopNav from "@/components/DesktopNav";
 import MobileNav from "@/components/MobileNav";
@@ -37,18 +37,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
-  let showNav = false;
   const session = await auth();
-
-  if (session) {
-    const session = await auth();
-    if (!session?.user?.email) redirect("/sign-in");
-    const profile = await getProfile({ email: session.user.email });
-
-    if (profile) {
-      showNav = true;
-    }
-  }
+  if (!session?.user?.email) redirect("/sign-in");
+  const profile = await getProfileRedirect({ email: session.user.email });
+  if (!profile) redirect("/sign-up");
+  const showNav = true;
 
   return (
     <html lang="en" suppressHydrationWarning>
