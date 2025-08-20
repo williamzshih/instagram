@@ -86,13 +86,13 @@ export default function HomePage({ profile }: Props) {
         ) : (
           posts.map((post) => (
             <Post
-              bookmarked={post.bookmarks.some(
+              bookmarked={post.bookmarks?.some(
                 (bookmark) => bookmark.user.id === profile.id
               )}
               fromHome
               key={post.id}
-              liked={post.likes.some((like) => like.user.id === profile.id)}
-              likes={post._count.likes}
+              liked={post.likes?.some((like) => like.user.id === profile.id)}
+              likes={post._count?.likes ?? 0}
               postId={post.id}
               profile={profile}
             />

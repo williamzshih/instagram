@@ -100,7 +100,9 @@ export const getPosts = async (userId: string) => {
             },
           },
         },
+        createdAt: true,
         id: true,
+        image: true,
         likes: {
           select: {
             user: {
