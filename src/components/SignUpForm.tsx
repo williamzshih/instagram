@@ -1,24 +1,24 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { checkUsername } from "@/actions/profile";
+import { createUser } from "@/actions/profile";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormField,
   FormItem,
   FormLabel,
-  FormField,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { USERNAME_MIN, USERNAME_MAX } from "@/limits";
-import { isUsernameAvailable } from "@/actions/profile";
-import { createUser } from "@/actions/user";
-import { Session } from "next-auth";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { USERNAME_MAX, USERNAME_MIN } from "@/limits";
 
 const formSchema = z.object({
   username: z
@@ -32,7 +32,7 @@ const formSchema = z.object({
     .max(USERNAME_MAX, {
       message: `Username must be at most ${USERNAME_MAX} characters`,
     })
-    .refine(isUsernameAvailable, {
+    .refine(checkUsername, {
       message: "This username is already taken",
     }),
 });
@@ -40,10 +40,10 @@ const formSchema = z.object({
 export default function SignUpForm({ session }: { session: Session }) {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
     },
+    resolver: zodResolver(formSchema),
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
@@ -64,8 +64,8 @@ export default function SignUpForm({ session }: { session: Session }) {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-4"
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}

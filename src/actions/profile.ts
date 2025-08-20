@@ -50,7 +50,6 @@ export const getProfile = async ({
       },
       where: email ? { email } : { username },
     });
-    if (!profile) throw new Error("User not found");
     return profile;
   } catch (error) {
     console.error("Error getting profile:", error);
@@ -288,6 +287,22 @@ export const checkUsername = async (username: string) => {
   } catch (error) {
     console.error("Error checking username availability:", error);
     throw new Error("Error checking username availability:", { cause: error });
+  }
+};
+
+export const createUser = async (
+  email: string,
+  username: string,
+  name: string,
+  avatar?: string
+) => {
+  try {
+    await prisma.user.create({
+      data: { avatar, email, name, username },
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw new Error("Error creating user", { cause: error });
   }
 };
 

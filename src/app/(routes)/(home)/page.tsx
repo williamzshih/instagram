@@ -7,6 +7,7 @@ export default async function Home() {
   const session = await auth();
   if (!session?.user?.email) redirect("/sign-in");
   const profile = await getProfile({ email: session.user.email });
+  if (!profile) redirect("/sign-up");
 
   return <HomePage profile={profile} />;
 }
