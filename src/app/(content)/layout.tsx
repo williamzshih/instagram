@@ -30,7 +30,7 @@ export default async function ContentLayout({
         {modal}
         <div className="flex">
           <DesktopNav />
-          <div className="flex-1 p-4 mb-16 md:mb-0 -ml-4">{children}</div>
+          <div className="flex-1 p-4 mb-16 lg:mb-0">{children}</div>
         </div>
         <MobileNav />
       </IdInitializer>

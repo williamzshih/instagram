@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function MobileNav() {
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:hidden p-2 flex items-center justify-evenly rounded-full border border-muted backdrop-blur-md shadow-md shadow-muted-foreground/10 text-foreground">
+    <div className="fixed bottom-4 left-4 right-4 lg:hidden p-2 flex items-center justify-evenly rounded-full border border-muted backdrop-blur-md shadow-md shadow-muted-foreground/10 text-foreground">
       <Button
         className="hover:bg-transparent hover:scale-105 transition-transform"
         size="icon"

@@ -23,7 +23,7 @@ export default function DesktopNav() {
 
   return (
     <div
-      className={`hidden md:flex flex-col gap-6 p-4 h-[calc(100vh-32px)] sticky inset-4 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md ${googleSans.className}`}
+      className={`hidden lg:flex flex-col gap-6 p-4 h-[calc(100vh-48px)] sticky inset-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 ${googleSans.className}`}
     >
       <Button
         className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
@@ -41,7 +41,7 @@ export default function DesktopNav() {
             className="mt-1"
             height={32}
             src={theme === "dark" ? "/text_light.svg" : "/text_dark.svg"}
-            width={128}
+            width={96}
           />
         </Link>
       </Button>

@@ -7,7 +7,7 @@ export default function ProfilePageSkeleton({
   isCurrentUser?: boolean;
 }) {
   return (
-    <div className="flex-1 p-4 mb-16 md:mb-0">
+    <div className="flex-1 p-4 mb-16 lg:mb-0">
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col items-center justify-center gap-4 w-full">
           <div className="flex items-center justify-between w-full">
