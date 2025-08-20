@@ -4,7 +4,7 @@ import { prisma } from "@/db";
 
 export const searchUsers = async (q: string) => {
   try {
-    return await prisma.user.findMany({
+    return await prisma.user1.findMany({
       orderBy: {
         username: "asc",
       },

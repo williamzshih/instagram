@@ -67,7 +67,7 @@ export const getPostInitial = async (id: string) => {
 
 export const getPosts = async (userId: string) => {
   try {
-    const following = await prisma.user.findUnique({
+    const following = await prisma.user1.findUnique({
       select: {
         following: {
           select: {

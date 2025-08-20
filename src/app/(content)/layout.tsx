@@ -14,7 +14,7 @@ export default async function ContentLayout({
 }>) {
   const session = await auth();
   if (!session?.user?.email) redirect("/sign-in");
-  const profile = await prisma.user.findUnique({
+  const profile = await prisma.user1.findUnique({
     select: {
       id: true,
     },

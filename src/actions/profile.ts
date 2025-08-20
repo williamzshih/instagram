@@ -8,7 +8,7 @@ export const getUserId = async () => {
     const session = await auth();
     // TODO: fix this
     if (!session?.user?.email) throw new Error("Not signed in");
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         id: true,
       },
@@ -33,7 +33,7 @@ export const getProfile = async ({
   username?: string;
 }) => {
   try {
-    const profile = await prisma.user.findUnique({
+    const profile = await prisma.user1.findUnique({
       select: {
         _count: {
           select: {
@@ -66,7 +66,7 @@ export const getProfileRedirect = async ({
   username?: string;
 }) => {
   try {
-    const profile = await prisma.user.findUnique({
+    const profile = await prisma.user1.findUnique({
       select: {
         _count: {
           select: {
@@ -92,7 +92,7 @@ export const getProfileRedirect = async ({
 
 export const getPosts = async (id: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         posts: {
           orderBy: {
@@ -118,7 +118,7 @@ export const getPosts = async (id: string) => {
 
 export const getLikes = async (id: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         likes: {
           orderBy: {
@@ -151,7 +151,7 @@ export const getLikes = async (id: string) => {
 
 export const getBookmarks = async (id: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         bookmarks: {
           orderBy: {
@@ -184,7 +184,7 @@ export const getBookmarks = async (id: string) => {
 
 export const getFollowers = async (id: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         followers: {
           orderBy: {
@@ -218,7 +218,7 @@ export const getFollowers = async (id: string) => {
 
 export const getFollowing = async (id: string) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user1.findUnique({
       select: {
         following: {
           orderBy: {
@@ -314,7 +314,7 @@ export const checkFollow = async (followeeId: string) => {
 
 export const checkUsername = async (username: string) => {
   try {
-    return !(await prisma.user.findUnique({
+    return !(await prisma.user1.findUnique({
       where: { username },
     }));
   } catch (error) {
@@ -330,7 +330,7 @@ export const createUser = async (data: {
   username: string;
 }) => {
   try {
-    await prisma.user.create({
+    await prisma.user1.create({
       data,
     });
   } catch (error) {
@@ -349,7 +349,7 @@ export const updateUser = async (
   }
 ) => {
   try {
-    await prisma.user.update({
+    await prisma.user1.update({
       data,
       where: { id },
     });
@@ -361,7 +361,7 @@ export const updateUser = async (
 
 export const deleteUser = async (id: string) => {
   try {
-    await prisma.user.delete({
+    await prisma.user1.delete({
       where: { id },
     });
   } catch (error) {
