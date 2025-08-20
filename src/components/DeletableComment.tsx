@@ -1,46 +1,45 @@
-import { Button } from "@/components/ui/button";
+import { formatDistanceToNow } from "date-fns";
 import { EllipsisVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDistanceToNow } from "date-fns";
 import UserBlock from "@/components/UserBlock";
 
-export default function DeletableComment({
-  user,
-  comment,
-  createdAt,
-  size,
-  onDelete,
-}: {
-  user: {
-    username: string;
-    avatar: string;
-    name: string;
-  };
+type Props = {
   comment: string;
   createdAt: Date;
-  size: number;
   onDelete: () => void;
-}) {
+  size: number;
+  user: {
+    avatar: string;
+    name: string;
+    username: string;
+  };
+};
+
+export default function DeletableComment({
+  comment,
+  createdAt,
+  onDelete,
+  size,
+  user,
+}: Props) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <UserBlock user={user} size={size} />
+        <UserBlock profile={user} size={size} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="[&_svg]:size-4 h-0 w-0 px-2 py-4"
-            >
+            <Button className="[&_svg]:size-4 px-2 py-4" variant="ghost">
               <EllipsisVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onSelect={onDelete}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={onDelete}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

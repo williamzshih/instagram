@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useSearchParams } from "next/navigation";
-import { getPosts } from "@/actions/post";
+import { getSortedPosts } from "@/actions/post";
 import Loading from "@/components/Loading";
 import PostGrid from "@/components/PostGrid";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export default function Browse() {
     error,
     isPending,
   } = useQuery({
-    queryFn: () => getPosts(sort),
+    queryFn: () => getSortedPosts(sort),
     queryKey: ["posts", sort],
   });
 

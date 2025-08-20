@@ -1,20 +1,12 @@
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import HomeFeed from "@/components/HomeFeed";
-import { getUserHome } from "@/actions/user";
+import { getProfile } from "@/actions/profile";
+import { auth } from "@/auth";
+import HomePage from "@/components/HomePage";
 
 export default async function Home() {
   const session = await auth();
+  if (!session?.user?.email) redirect("/sign-in");
+  const profile = await getProfile({ email: session.user.email });
 
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  const user = await getUserHome(1);
-
-  if (!user) {
-    redirect("/sign-up");
-  }
-
-  return <HomeFeed initialData={user} />;
+  return <HomePage profile={profile} />;
 }

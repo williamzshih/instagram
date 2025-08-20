@@ -1,40 +1,52 @@
 "use server";
 
-import { prisma } from "@/db";
 import { getUserId } from "@/actions/profile";
+import { prisma } from "@/db";
 
-export async function toggleLike(id: string | undefined, postId: string) {
+export const toggleBookmark = async (postId: string, isBookmarked: boolean) => {
   try {
-    if (id) {
-      await prisma.like.delete({
-        where: { id },
-      });
-    } else {
-      const userId = await getUserId();
-      await prisma.like.create({
-        data: { userId, postId },
-      });
-    }
-  } catch (error) {
-    console.error("Error toggling like:", error);
-    throw new Error("Error toggling like", { cause: error });
-  }
-}
-
-export async function toggleBookmark(id: string | undefined, postId: string) {
-  try {
-    if (id) {
+    const userId = await getUserId();
+    if (isBookmarked)
       await prisma.bookmark.delete({
-        where: { id },
+        where: {
+          userId_postId: {
+            postId,
+            userId,
+          },
+        },
       });
-    } else {
-      const userId = await getUserId();
+    else
       await prisma.bookmark.create({
-        data: { userId, postId },
+        data: { postId, userId },
       });
-    }
   } catch (error) {
-    console.error("Error toggling bookmark:", error);
-    throw new Error("Error toggling bookmark", { cause: error });
+    const message = isBookmarked
+      ? "Error unbookmarking post:"
+      : "Error bookmarking post:";
+    console.error(message, error);
+    throw new Error(message, { cause: error });
   }
-}
+};
+
+export const toggleLike = async (postId: string, isLiked: boolean) => {
+  try {
+    const userId = await getUserId();
+    if (isLiked)
+      await prisma.like.delete({
+        where: {
+          userId_postId: {
+            postId,
+            userId,
+          },
+        },
+      });
+    else
+      await prisma.like.create({
+        data: { postId, userId },
+      });
+  } catch (error) {
+    const message = isLiked ? "Error unliking post:" : "Error liking post:";
+    console.error(message, error);
+    throw new Error(message, { cause: error });
+  }
+};

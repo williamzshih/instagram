@@ -1,41 +1,34 @@
 "use client";
 
-import { deletePost, getPost } from "@/actions/post";
-import { toggleLike, toggleBookmark } from "@/actions/toggle";
-import { createComment, deleteComment } from "@/actions/comment";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  Like as LikeType,
-  Post as PostType,
-  User as UserType,
-  Comment as CommentType,
-  Bookmark as BookmarkType,
-} from "@prisma/client";
-import { useForm } from "react-hook-form";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import LinkAvatar from "@/components/LinkAvatar";
-import { COMMENT_MAX } from "@/limits";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { createComment, deleteComment, getComments } from "@/actions/comment";
+import { getImageHeight, getImageWidth } from "@/actions/image";
+import { deletePost, getPost } from "@/actions/post";
+import { toggleBookmark, toggleLike } from "@/actions/toggle";
+import Comment from "@/components/Comment";
+import DeletableComment from "@/components/DeletableComment";
+import LinkAvatar from "@/components/LinkAvatar";
+import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormMessage,
   FormControl,
-  FormItem,
   FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import PostSkeleton from "@/components/PostSkeleton";
-import Link from "next/link";
-import DeletableComment from "@/components/DeletableComment";
-import { useRouter } from "next/navigation";
-import Comment from "@/components/Comment";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import useToggle from "@/hooks/useToggle";
+import { COMMENT_MAX } from "@/limits";
+import Loading from "./Loading";
 
 const formSchema = z.object({
   comment: z
@@ -46,335 +39,282 @@ const formSchema = z.object({
     }),
 });
 
-export default function Post({
-  id,
-  searchParams,
-  user,
-}: {
-  id: string;
-  searchParams?: { from: string };
-  user: {
-    id: string;
+type Props = {
+  bookmarked: boolean;
+  fromHome?: boolean;
+  liked: boolean;
+  likes: number;
+  postId: string;
+  profile: {
+    _count: {
+      followers: number;
+      following: number;
+    };
     avatar: string;
-    username: string;
+    bio: string;
+    createdAt: Date;
+    id: string;
     name: string;
+    username: string;
   };
-}) {
-  const fromHomeFeed = searchParams?.from === "homeFeed";
-  const [showComments, setShowComments] = useState(!fromHomeFeed);
+};
+
+export default function Post({
+  bookmarked,
+  fromHome,
+  liked,
+  likes,
+  postId,
+  profile,
+}: Props) {
+  const [commentsVisible, setCommentsVisible] = useState(!fromHome);
+  const [isLiked, setIsLiked] = useState(liked);
+  const [toggledLikes, setToggledLikes] = useToggle(
+    likes,
+    likes + (liked ? -1 : 1),
+    likes
+  );
+  const [isBookmarked, setIsBookmarked] = useState(bookmarked);
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const {
     data: post,
-    isPending,
-    error,
+    error: postError,
+    isPending: postPending,
   } = useQuery({
-    queryKey: ["post", id],
-    queryFn: () => getPost(id),
+    queryFn: () => getPost(postId),
+    queryKey: ["post", postId],
   });
 
-  const { mutate: toggleLikeMutate } = useMutation({
-    mutationFn: () => toggleLike(like?.id, id),
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["post", id],
-      });
-      const previousPost = queryClient.getQueryData(["post", id]);
-      queryClient.setQueryData(
-        ["post", id],
-        (
-          old: PostType & {
-            likes: (LikeType & { user: UserType })[];
-          }
-        ) => ({
-          ...old,
-          likes: like
-            ? old.likes.filter((l) => l.id !== like.id)
-            : [...old.likes, { user: { id: user.id } }],
-        })
-      );
-      return { previousPost };
-    },
-    onError: (error, _, context) => {
-      toast.error(error.message);
-      queryClient.setQueryData(["post", id], context?.previousPost);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-    },
+  const {
+    data: comments,
+    error: commentsError,
+    isPending: commentsPending,
+  } = useQuery({
+    queryFn: () => getComments(postId),
+    queryKey: ["comments", postId],
   });
 
-  const { mutate: toggleBookmarkMutate } = useMutation({
-    mutationFn: () => toggleBookmark(bookmark?.id, id),
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["post", id],
-      });
-      const previousPost = queryClient.getQueryData(["post", id]);
-      queryClient.setQueryData(
-        ["post", id],
-        (
-          old: PostType & {
-            bookmarks: (BookmarkType & { user: UserType })[];
-          }
-        ) => ({
-          ...old,
-          bookmarks: bookmark
-            ? old.bookmarks.filter((b) => b.id !== bookmark.id)
-            : [...old.bookmarks, { user: { id: user.id } }],
-        })
-      );
-      return { previousPost };
-    },
-    onError: (error, _, context) => {
-      toast.error(error.message);
-      queryClient.setQueryData(["post", id], context?.previousPost);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-    },
-  });
+  if (postError) {
+    console.error("Error getting post:", postError);
+    throw new Error("Error getting post:", { cause: postError });
+  }
+  if (commentsError) {
+    console.error("Error getting comments:", commentsError);
+    throw new Error("Error getting comments:", { cause: commentsError });
+  }
 
-  const { mutate: createCommentMutate } = useMutation({
-    mutationFn: (comment: string) => createComment(id, comment),
+  const { mutate: createCommentMutation } = useMutation({
+    mutationFn: (comment: string) => createComment(postId, comment),
+    onError: (_, __, context: undefined | { previousComments: unknown }) =>
+      queryClient.setQueryData(["comments", postId], context?.previousComments),
     onMutate: async (comment) => {
       await queryClient.cancelQueries({
-        queryKey: ["post", id],
+        queryKey: ["comments", postId],
       });
-      const previousPost = queryClient.getQueryData(["post", id]);
+      const previousComments = queryClient.getQueryData(["comments", postId]);
       queryClient.setQueryData(
-        ["post", id],
-        (
-          old: PostType & {
-            comments: (CommentType & { user: UserType })[];
-          }
-        ) => ({
+        ["comments", postId],
+        (old: Awaited<ReturnType<typeof getComments>>) => [
           ...old,
-          comments: [
-            ...old.comments,
-            {
-              comment: comment,
-              createdAt: new Date(),
-              user: {
-                id: user.id,
-                avatar: user.avatar,
-                username: user.username,
-                name: user.name,
-              },
-            },
-          ],
-        })
+          {
+            comment,
+            createdAt: new Date(),
+            id: crypto.randomUUID(),
+            postId,
+            user: profile,
+          },
+        ]
       );
-      return { previousPost };
+      return { previousComments };
     },
-    onError: (error, _, context) => {
-      toast.error(error.message);
-      queryClient.setQueryData(["post", id], context?.previousPost);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] }),
   });
 
-  const { mutate: deleteCommentMutate } = useMutation({
+  const { mutate: deleteCommentMutation } = useMutation({
     mutationFn: (commentId: string) => deleteComment(commentId),
+    onError: (_, __, context: undefined | { previousComments: unknown }) =>
+      queryClient.setQueryData(["comments", postId], context?.previousComments),
     onMutate: async (commentId) => {
       await queryClient.cancelQueries({
-        queryKey: ["post", id],
+        queryKey: ["comments", postId],
       });
-      const previousPost = queryClient.getQueryData(["post", id]);
+      const previousComments = queryClient.getQueryData(["comments", postId]);
       queryClient.setQueryData(
-        ["post", id],
-        (
-          old: PostType & {
-            comments: CommentType[];
-          }
-        ) => ({
-          ...old,
-          comments: old.comments.filter((c) => c.id !== commentId),
-        })
+        ["comments", postId],
+        (old: Awaited<ReturnType<typeof getComments>>) =>
+          old.filter((comment) => comment.id !== commentId)
       );
-      return { previousPost };
+      return { previousComments };
     },
-    onError: (error, _, context) => {
-      toast.error(error.message);
-      queryClient.setQueryData(["post", id], context?.previousPost);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] }),
   });
 
-  const { mutate: deletePostMutate } = useMutation({
-    mutationFn: () => deletePost(id),
+  const { mutate: deletePostMutation } = useMutation({
+    mutationFn: () => deletePost(postId),
+    onError: (_, __, context) =>
+      queryClient.setQueryData(["post", postId], context?.previousPost),
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: ["post", id],
+        queryKey: ["post", postId],
       });
-      const previousPost = queryClient.getQueryData(["post", id]);
-      queryClient.setQueryData(["post", id], () => {});
+      const previousPost = queryClient.getQueryData(["post", postId]);
+      queryClient.setQueryData(["post", postId], null);
       return { previousPost };
     },
-    onError: (error, _, context) => {
-      toast.error(error.message);
-      queryClient.setQueryData(["post", id], context?.previousPost);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-      router.back();
-    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["post", postId] }),
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm({
     defaultValues: {
       comment: "",
     },
+    resolver: zodResolver(formSchema),
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     form.reset();
-    createCommentMutate(data.comment);
-  }
+    createCommentMutation(data.comment);
+  };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    setToggledLikes();
+    toggleLike(postId, isLiked);
+  };
 
-  if (!mounted) {
-    return null;
-  }
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toggleBookmark(postId, isBookmarked);
+  };
 
-  if (isPending) {
-    return <PostSkeleton />;
-  }
+  useEffect(() => setMounted(true), []);
 
-  if (error) {
-    toast.error(error.message);
-    return <div>{error.message}</div>;
-  }
+  if (!mounted) return;
 
-  if (!post) {
-    return null;
-  }
-
-  const like = post.likes.find((l) => l.user.id === user.id);
-  const bookmark = post.bookmarks.find((b) => b.user.id === user.id);
+  if (!post) return;
 
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <div className="flex flex-col gap-2">
-        {fromHomeFeed ? (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-4">
+        {postPending ? (
+          <Loading />
+        ) : fromHome ? (
           <Link href={`/post/${post.id}`}>
             <Image
+              alt={post.caption || "Image of the post"}
+              height={getImageHeight(post.image)}
               src={post.image}
-              alt="Post image"
-              width={1920}
-              height={1080}
+              width={getImageWidth(post.image)}
             />
           </Link>
         ) : (
-          <Image src={post.image} alt="Post image" width={1920} height={1080} />
+          <Image
+            alt={post.caption || "Image of the post"}
+            height={getImageHeight(post.image)}
+            src={post.image}
+            width={getImageWidth(post.image)}
+          />
         )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => toggleLikeMutate()}
-            >
+            <Button onClick={handleLike} size="icon" variant="ghost">
               <Heart
+                fill={isLiked ? "red" : theme === "light" ? "white" : "black"}
                 size={32}
-                absoluteStrokeWidth
-                stroke={like ? "red" : theme === "light" ? "black" : "white"}
-                fill={like ? "red" : theme === "light" ? "white" : "black"}
+                stroke={isLiked ? "red" : theme === "light" ? "black" : "white"}
               />
             </Button>
-            <p>{post.likes.length}</p>
+            <p>{toggledLikes}</p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => toggleBookmarkMutate()}
-          >
+          <Button onClick={handleBookmark} size="icon" variant="ghost">
             <Bookmark
-              size={32}
-              absoluteStrokeWidth
               fill={
-                bookmark
+                isBookmarked
                   ? theme === "light"
                     ? "black"
                     : "white"
                   : theme === "light"
-                  ? "white"
-                  : "black"
+                    ? "white"
+                    : "black"
               }
+              size={32}
             />
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {post.user.id === user.id ? (
+      <div className="flex flex-col gap-4">
+        {post.user.id === profile.id ? (
           <DeletableComment
-            user={post.user}
             comment={post.caption}
             createdAt={post.createdAt}
+            onDelete={() => deletePostMutation()}
             size={12}
-            onDelete={() => deletePostMutate()}
+            user={post.user}
           />
         ) : (
           <Comment
-            user={post.user}
             comment={post.caption}
             createdAt={post.createdAt}
             size={12}
+            user={post.user}
           />
         )}
         <Separator />
-        {showComments &&
-          post.comments.map((comment) =>
-            comment.user.id === user.id ? (
-              <DeletableComment
-                key={comment.id}
-                user={comment.user}
-                comment={comment.comment}
-                createdAt={comment.createdAt}
-                size={10}
-                onDelete={() => deleteCommentMutate(comment.id)}
-              />
-            ) : (
-              <Comment
-                key={comment.id}
-                user={comment.user}
-                comment={comment.comment}
-                createdAt={comment.createdAt}
-                size={10}
-              />
+        {commentsVisible &&
+          (commentsPending ? (
+            <Loading />
+          ) : (
+            comments.map((comment) =>
+              comment.user.id === profile.id ? (
+                <DeletableComment
+                  comment={comment.comment}
+                  createdAt={comment.createdAt}
+                  key={comment.id}
+                  onDelete={() => deleteCommentMutation(comment.id)}
+                  size={10}
+                  user={comment.user}
+                />
+              ) : (
+                <Comment
+                  comment={comment.comment}
+                  createdAt={comment.createdAt}
+                  key={comment.id}
+                  size={10}
+                  user={comment.user}
+                />
+              )
             )
-          )}
-        {post.comments.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="self-center"
-            onClick={() => setShowComments(!showComments)}
-          >
-            {showComments
-              ? `Hide ${post.comments.length} comment${
-                  post.comments.length > 1 ? "s" : ""
-                }`
-              : `Show ${post.comments.length} comment${
-                  post.comments.length > 1 ? "s" : ""
-                }`}
-          </Button>
+          ))}
+        {commentsPending ? (
+          <Loading />
+        ) : (
+          comments.length > 0 && (
+            <Button
+              className="self-center"
+              onClick={() => setCommentsVisible(!commentsVisible)}
+              size="sm"
+              variant="ghost"
+            >
+              {commentsVisible
+                ? `Hide ${comments.length} comment${
+                    comments.length > 1 ? "s" : ""
+                  }`
+                : `Show ${comments.length} comment${
+                    comments.length > 1 ? "s" : ""
+                  }`}
+            </Button>
+          )
         )}
-        <div className="flex gap-2">
-          <LinkAvatar user={user} size={10} />
+        <div className="flex gap-4">
+          <LinkAvatar profile={profile} size={10} />
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+            <form className="w-full" onSubmit={form.handleSubmit(onSubmit)}>
               <FormField
                 control={form.control}
                 name="comment"
