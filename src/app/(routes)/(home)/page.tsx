@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { getProfile } from "@/actions/profile";
+import { getProfileRedirect } from "@/actions/profile";
 import { auth } from "@/auth";
 import HomePage from "@/components/HomePage";
 
 export default async function Home() {
   const session = await auth();
   if (!session?.user?.email) redirect("/sign-in");
-  const profile = await getProfile({ email: session.user.email });
+  const profile = await getProfileRedirect({ email: session.user.email });
   if (!profile) redirect("/sign-up");
 
   return <HomePage profile={profile} />;

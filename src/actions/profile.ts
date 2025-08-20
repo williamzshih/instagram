@@ -50,6 +50,39 @@ export const getProfile = async ({
       },
       where: email ? { email } : { username },
     });
+    if (!profile) throw new Error("User not found");
+    return profile;
+  } catch (error) {
+    console.error("Error getting profile:", error);
+    throw new Error("Error getting profile:", { cause: error });
+  }
+};
+
+export const getProfileRedirect = async ({
+  email,
+  username,
+}: {
+  email?: string;
+  username?: string;
+}) => {
+  try {
+    const profile = await prisma.user.findUnique({
+      select: {
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          },
+        },
+        avatar: true,
+        bio: true,
+        createdAt: true,
+        id: true,
+        name: true,
+        username: true,
+      },
+      where: email ? { email } : { username },
+    });
     return profile;
   } catch (error) {
     console.error("Error getting profile:", error);

@@ -1,6 +1,8 @@
+import { ChevronLeft } from "lucide-react";
+import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import SignUpForm from "@/components/SignUpForm";
-import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,8 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 export default async function SignUp() {
   const session = await auth();
