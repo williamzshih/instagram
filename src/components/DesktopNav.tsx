@@ -1,92 +1,103 @@
 "use client";
 
-import { House, LayoutGrid, Plus, Search, User } from "lucide-react";
+import { House, LayoutGrid, LogOut, Plus, Search, User } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
+import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
+const googleSans = localFont({
+  src: "../app/fonts/GoogleSansCodeVF.ttf",
+});
+
 export default function DesktopNav() {
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return;
 
   return (
-    <div className="hidden md:flex flex-col gap-4 p-4 h-screen sticky inset-0 shadow-md shadow-muted-foreground">
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/">
-          <div className="flex items-center gap-2">
-            <Image
-              alt="Instagram logo"
-              height={32}
-              src={
-                theme === "dark"
-                  ? "/Instagram_Glyph_White.svg"
-                  : "/Instagram_Glyph_Black.svg"
-              }
-              width={32}
-            />
-            <Image
-              alt="Instagram text"
-              className="mt-1"
-              height={36}
-              src={
-                theme === "dark"
-                  ? "/Instagram_logo_white.svg"
-                  : "/Instagram_logo_black.svg"
-              }
-              width={100}
-            />
-          </div>
+    <div
+      className={`hidden md:flex flex-col gap-6 p-4 h-[calc(100vh-32px)] sticky inset-4 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md ${googleSans.className}`}
+    >
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-2" href="/">
+          <Image
+            alt="Instagram logo"
+            height={32}
+            src={theme === "dark" ? "/logo_light.svg" : "/logo_dark.svg"}
+            width={32}
+          />
+          <Image
+            alt="Instagram text"
+            className="mt-1"
+            height={32}
+            src={theme === "dark" ? "/text_light.svg" : "/text_dark.svg"}
+            width={128}
+          />
         </Link>
       </Button>
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/">
-          <div className="flex items-center gap-4">
-            <House size={32} />
-            <p className="text-lg">Home</p>
-          </div>
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-4" href="/">
+          <House />
+          <p className="text-lg">Home</p>
         </Link>
       </Button>
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/search">
-          <div className="flex items-center gap-4">
-            <Search size={32} />
-            <p className="text-lg">Search</p>
-          </div>
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-4" href="/search">
+          <Search />
+          <p className="text-lg">Search</p>
         </Link>
       </Button>
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/create">
-          <div className="flex items-center gap-4">
-            <Plus size={32} />
-            <p className="text-lg">Create</p>
-          </div>
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-4" href="/create">
+          <Plus />
+          <p className="text-lg">Create</p>
         </Link>
       </Button>
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/browse">
-          <div className="flex items-center gap-4">
-            <LayoutGrid size={32} />
-            <p className="text-lg">Browse</p>
-          </div>
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-4" href="/browse">
+          <LayoutGrid />
+          <p className="text-lg">Browse</p>
         </Link>
       </Button>
-      <Button className="w-fit h-fit" variant="ghost">
-        <Link href="/profile">
-          <div className="flex items-center gap-4">
-            <User size={32} />
-            <p className="text-lg">Profile</p>
-          </div>
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        variant="ghost"
+      >
+        <Link className="flex items-center gap-4" href="/profile">
+          <User />
+          <p className="text-lg">Profile</p>
         </Link>
+      </Button>
+      <div className="flex-1" />
+      <Button
+        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform flex items-center gap-4"
+        onClick={() => signOut()}
+        variant="ghost"
+      >
+        <LogOut />
+        <p className="text-lg">Sign out</p>
       </Button>
     </div>
   );
