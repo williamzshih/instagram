@@ -12,8 +12,17 @@ type Props = {
 };
 
 export default function LinkImage({ noLink, profilePage, size, user }: Props) {
+  const sizeClass =
+    size === 10
+      ? "size-10"
+      : size === 12
+        ? "size-12"
+        : size === 16
+          ? "size-16"
+          : "size-40";
+
   return noLink || profilePage ? (
-    <Avatar className={`size-${size}`}>
+    <Avatar className={sizeClass}>
       <AvatarImage
         alt={`@${user.username}'s profile picture`}
         src={
@@ -24,7 +33,7 @@ export default function LinkImage({ noLink, profilePage, size, user }: Props) {
     </Avatar>
   ) : (
     <Link className="rounded-full size-fit" href={`/user/${user.username}`}>
-      <Avatar className={`size-${size}`}>
+      <Avatar className={sizeClass}>
         <AvatarImage
           alt={`@${user.username}'s profile picture`}
           src={

@@ -1,33 +1,25 @@
 "use client";
 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import ThemeSwitch from "@/components/ThemeSwitch";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Modal({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
 
   return (
     <Dialog
+      defaultOpen
       onOpenChange={(open) => {
-        setIsOpen(open);
         if (!open) router.back();
       }}
-      open={isOpen}
     >
-      <DialogContent
-        className="max-w-[95vw] h-[95vh]"
-        onClick={(e) => {
-          const link = (e.target as HTMLElement).closest("a");
-          if (link) setIsOpen(false);
-        }}
-      >
-        <DialogTitle />
-        <ScrollArea className="pr-4">{children}</ScrollArea>
-        <ThemeSwitch />
+      <DialogContent className="sm:max-w-[95%]" showCloseButton={false}>
+        <VisuallyHidden asChild>
+          <DialogTitle>Post</DialogTitle>
+        </VisuallyHidden>
+        <ScrollArea className="sm:max-h-[85vh] pr-4">{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );
