@@ -64,8 +64,8 @@ type Comment = {
   id: string;
   realUser: {
     id: string;
-    image: null | string;
-    name: null | string;
+    image?: null | string;
+    name?: null | string;
     username: string;
   };
 };
@@ -108,9 +108,6 @@ export default function Post({
   );
 
   const form = useForm({
-    defaultValues: {
-      comment: "",
-    },
     resolver: zodResolver(formSchema),
   });
 
@@ -132,9 +129,7 @@ export default function Post({
         id: "",
         realUser: {
           id: user.id,
-          image: user.image || "",
-          name: user.name || "",
-          username: user.username,
+          ...user,
         },
       });
       await createComment({
@@ -178,7 +173,7 @@ export default function Post({
         postId: post.id,
         realUserId: user.id,
       });
-      toast.success("Liked post");
+      toast.success(liked ? "Unliked post" : "Liked post");
     } catch (error) {
       toast.error((error as Error).message);
     }
@@ -193,7 +188,7 @@ export default function Post({
         postId: post.id,
         realUserId: user.id,
       });
-      toast.success("Bookmarked post");
+      toast.success(bookmarked ? "Unbookmarked post" : "Bookmarked post");
     } catch (error) {
       toast.error((error as Error).message);
     }
@@ -254,9 +249,7 @@ export default function Post({
         <Comment
           comment={post.caption}
           createdAt={post.createdAt}
-          onClick={
-            post.realUser.id === user.id ? () => handleDeletePost() : undefined
-          }
+          onClick={post.realUser.id === user.id ? handleDeletePost : undefined}
           size={12}
           user={post.realUser}
         />

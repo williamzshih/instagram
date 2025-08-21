@@ -76,17 +76,19 @@ model Bookmark {
 }
 
 model Follow {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  follower   User1    @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
-  followerId String   @db.ObjectId
-  followee   User1    @relation("followers", fields: [followeeId], references: [id], onDelete: Cascade)
-  followeeId String   @db.ObjectId
-  createdAt  DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  follower       User1?   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId     String?  @db.ObjectId
+  followee       User1?   @relation("followers", fields: [followeeId], references: [id], onDelete: Cascade)
+  followeeId     String?  @db.ObjectId
+  createdAt      DateTime @default(now())
+  realFollower   User     @relation("realFollowing", fields: [realFollowerId], references: [id], onDelete: Cascade)
+  realFollowerId String   @db.ObjectId
+  realFollowee   User     @relation("realFollowers", fields: [realFolloweeId], references: [id], onDelete: Cascade)
+  realFolloweeId String   @db.ObjectId
 
   @@unique([followerId, followeeId])
 }
-
-// TODO: add session model
 
 model User {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
@@ -108,6 +110,8 @@ model User {
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
+  followers Follow[]   @relation("realFollowers")
+  following Follow[]   @relation("realFollowing")
 }
 
 model Account {

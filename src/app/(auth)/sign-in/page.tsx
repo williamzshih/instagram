@@ -11,7 +11,7 @@ import {
 export default function SignIn() {
   return (
     <div className="flex justify-center items-center h-screen text-center">
-      <Card>
+      <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>

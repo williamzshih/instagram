@@ -1,5 +1,4 @@
 import { SettingsIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Settings from "@/components/Settings";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,37 +10,40 @@ import {
 
 type Props = {
   currentUser?: boolean;
-  profile: {
-    avatar: string;
+  user: {
     bio: string;
     createdAt: Date;
-    id: string;
-    name: string;
+    email?: null | string;
+    id?: string;
+    image?: null | string;
+    name?: null | string;
     username: string;
   };
 };
 
-export default function ProfileHeader({ currentUser, profile }: Props) {
-  const router = useRouter();
-
+export default function ProfileHeader({ currentUser, user }: Props) {
   return (
-    <div className="flex items-center justify-between w-full">
-      <Button className="invisible" size="icon" />
-      <p className="text-2xl font-bold">@{profile.username}</p>
+    <div className="flex items-center justify-between w-full h-full">
+      <Button className="invisible">
+        <SettingsIcon className="size-8" />
+      </Button>
+      <p className="text-2xl font-semibold">@{user.username}</p>
       {currentUser ? (
-        <Dialog onOpenChange={(open) => !open && router.refresh()}>
+        <Dialog>
           <DialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <SettingsIcon />
+            <Button className="size-fit cursor-pointer" variant="ghost">
+              <SettingsIcon className="size-8" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="p-4">
+          <DialogContent showCloseButton={false}>
             <DialogTitle className="text-xl">Settings</DialogTitle>
-            <Settings profile={profile} />
+            <Settings user={user} />
           </DialogContent>
         </Dialog>
       ) : (
-        <Button className="invisible" size="icon" />
+        <Button className="invisible">
+          <SettingsIcon className="size-8" />
+        </Button>
       )}
     </div>
   );

@@ -14,8 +14,8 @@ type Props = {
   onClick?: () => void;
   size: number;
   user: {
-    image: null | string;
-    name: null | string;
+    image?: null | string;
+    name?: null | string;
     username: string;
   };
 };
@@ -40,9 +40,9 @@ export default function Comment({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-4">
               <Button
-                className="cursor-pointer text-red-500 w-full"
+                className="cursor-pointer text-red-500 hover:text-red-500 w-full"
                 onClick={onClick}
-                variant="secondary"
+                variant="outline"
               >
                 Delete
               </Button>

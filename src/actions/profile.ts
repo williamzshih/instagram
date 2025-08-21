@@ -312,17 +312,6 @@ export const checkFollow = async (followeeId: string) => {
   }
 };
 
-export const checkUsername = async (username: string) => {
-  try {
-    return !(await prisma.user1.findUnique({
-      where: { username },
-    }));
-  } catch (error) {
-    console.error("Error checking username availability:", error);
-    throw new Error("Error checking username availability:", { cause: error });
-  }
-};
-
 export const createUser = async (data: {
   avatar?: string;
   email: string;
@@ -336,36 +325,5 @@ export const createUser = async (data: {
   } catch (error) {
     console.error("Error creating user:", error);
     throw new Error("Error creating user:", { cause: error });
-  }
-};
-
-export const updateUser = async (
-  id: string,
-  data: {
-    avatar: string;
-    bio: string;
-    name: string;
-    username: string;
-  }
-) => {
-  try {
-    await prisma.user1.update({
-      data,
-      where: { id },
-    });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    throw new Error("Error updating user:", { cause: error });
-  }
-};
-
-export const deleteUser = async (id: string) => {
-  try {
-    await prisma.user1.delete({
-      where: { id },
-    });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    throw new Error("Error deleting user:", { cause: error });
   }
 };

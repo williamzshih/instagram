@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Masonry from "react-masonry-css";
-import { getImageHeight, getImageWidth } from "@/actions/image";
 import {
   HoverCard,
   HoverCardContent,
@@ -10,15 +9,14 @@ import {
 
 type Props = {
   posts: {
-    caption: string;
     createdAt: Date;
     id: string;
     image: string;
   }[];
-  type: "bookmarks" | "likes" | "posts";
+  type?: "bookmarks" | "likes" | "posts";
 };
 
-export default function PostGrid({ posts, type }: Props) {
+export default function PostGrid({ posts, type = "posts" }: Props) {
   return (
     <Masonry
       breakpointCols={{
@@ -27,7 +25,7 @@ export default function PostGrid({ posts, type }: Props) {
         1100: 3,
         default: 4,
       }}
-      className="flex -ml-4"
+      className="flex -ml-4 w-full"
       columnClassName="pl-4"
     >
       {posts.map((post) => (
@@ -36,22 +34,22 @@ export default function PostGrid({ posts, type }: Props) {
             <HoverCardTrigger asChild>
               <Link href={`/post/${post.id}`}>
                 <Image
-                  alt={post.caption || "Image of the post"}
-                  className="hover:opacity-75 transition-opacity"
-                  height={getImageHeight(post.image)}
-                  src={post.image}
-                  width={getImageWidth(post.image)}
+                  alt="Image of the post"
+                  className="hover:brightness-75 transition-all"
+                  height={500}
+                  src={`${post.image}?img-width=500&img-height=500`}
+                  width={500}
                 />
               </Link>
             </HoverCardTrigger>
-            <HoverCardContent className="text-center w-auto">
+            <HoverCardContent className="w-fit">
               {type === "posts"
                 ? "Posted"
                 : type === "likes"
                   ? "Liked"
                   : "Bookmarked"}
               {" on "}
-              {post.createdAt.toLocaleDateString()}
+              {new Date(post.createdAt).toLocaleDateString()}
             </HoverCardContent>
           </HoverCard>
         </div>

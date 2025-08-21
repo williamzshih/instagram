@@ -19,7 +19,11 @@ export default function ThemeSwitch() {
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       variant="ghost"
     >
-      {theme === "light" ? <Moon /> : <Sun />}
+      {theme === "light" ? (
+        <Moon className="size-8" />
+      ) : (
+        <Sun className="size-8" />
+      )}
     </Button>
   );
 }

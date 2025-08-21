@@ -7,6 +7,7 @@ import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 
 const googleSans = localFont({
@@ -21,9 +22,18 @@ export default function DesktopNav() {
 
   if (!mounted) return;
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("You have been signed out");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
+
   return (
     <div
-      className={`hidden lg:flex flex-col gap-6 p-4 sticky m-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 border border-muted ${googleSans.className}`}
+      className={`hidden lg:flex flex-col h-fit gap-6 p-4 sticky m-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 border border-muted ${googleSans.className}`}
     >
       <Button
         className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
@@ -93,7 +103,7 @@ export default function DesktopNav() {
       <div className="flex-1" />
       <Button
         className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform flex items-center gap-4"
-        onClick={() => signOut()}
+        onClick={handleSignOut}
         variant="ghost"
       >
         <LogOut className="size-8" />

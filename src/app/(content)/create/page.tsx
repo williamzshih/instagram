@@ -30,7 +30,7 @@ const formSchema = z.object({
   caption: z
     .string()
     .max(CAPTION_MAX, `Caption must be at most ${CAPTION_MAX} characters long`),
-  image: z.string().url(),
+  image: z.string(),
 });
 
 export default function Create() {
@@ -39,7 +39,6 @@ export default function Create() {
   const form = useForm({
     defaultValues: {
       caption: "",
-      image: "",
     },
     resolver: zodResolver(formSchema),
   });
@@ -133,7 +132,7 @@ export default function Create() {
                   </p>
                 </FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Caption" {...field} />
+                  <Textarea placeholder="Caption" rows={3} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

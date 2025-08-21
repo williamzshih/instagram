@@ -4,8 +4,8 @@ type Props = {
   noLink?: boolean;
   size: number;
   user: {
-    image: null | string;
-    name: null | string;
+    image?: null | string;
+    name?: null | string;
     username: string;
   };
 };
