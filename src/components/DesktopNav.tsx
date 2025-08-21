@@ -23,7 +23,7 @@ export default function DesktopNav() {
 
   return (
     <div
-      className={`hidden lg:flex flex-col gap-6 p-4 h-[calc(100vh-48px)] sticky inset-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 ${googleSans.className}`}
+      className={`hidden lg:flex flex-col gap-6 p-4 sticky m-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 border border-muted ${googleSans.className}`}
     >
       <Button
         className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
