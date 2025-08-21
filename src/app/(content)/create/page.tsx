@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "lucide-react";
+import { LoaderCircle, Upload } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { createPost } from "@/actions/post";
+import { createPost } from "@/actions/create";
 import { uploadFile } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,16 +24,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { CAPTION_MAX } from "@/limits";
+import { useUserStore } from "@/store/userStore";
 
 const formSchema = z.object({
   caption: z
     .string()
     .max(CAPTION_MAX, `Caption must be at most ${CAPTION_MAX} characters long`),
-  image: z.string(),
+  image: z.string().url(),
 });
 
 export default function Create() {
   const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
   const form = useForm({
     defaultValues: {
       caption: "",
@@ -40,10 +43,12 @@ export default function Create() {
     },
     resolver: zodResolver(formSchema),
   });
+  const user = useUserStore((state) => state.user);
+  if (!user) return;
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const id = await createPost(data);
+      const id = await createPost({ realUserId: user.id!, ...data });
       form.reset();
       toast.success("Post created");
       router.push(`/post/${id}`);
@@ -53,45 +58,57 @@ export default function Create() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-2xl font-bold">Create Post</p>
-      <Label
-        className={cn(
-          "cursor-pointer relative group",
-          !form.watch("image") && "w-1/3 h-1/3 bg-muted"
+    <div className="flex flex-col items-center gap-4">
+      <h1 className="text-2xl font-semibold">Create Post</h1>
+      <Label className="cursor-pointer group size-1/3 relative" htmlFor="image">
+        {form.watch("image") ? (
+          <Image
+            alt="Uploaded image"
+            className={cn(
+              "hover:brightness-75 transition-all",
+              isUploading && "brightness-75"
+            )}
+            height={500}
+            src={`${form.watch("image")}?img-width=500&img-height=500`}
+            width={500}
+          />
+        ) : (
+          <div
+            className={cn(
+              "aspect-square bg-muted hover:brightness-75 transition-all",
+              isUploading && "brightness-75"
+            )}
+          />
         )}
-        htmlFor="image"
-      >
-        <Image
-          alt="Uploaded image"
-          className={cn(form.watch("image") && "max-w-[32rem] max-h-[32rem]")}
-          height={1080}
-          src={
-            form.watch("image") ||
-            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Transparent.png"
-          }
-          width={1920}
-        />
-        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-25 transition-opacity" />
-        <Upload
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-white"
-          size={48}
-        />
+        {isUploading ? (
+          <LoaderCircle
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white animate-spin"
+            size={48}
+          />
+        ) : (
+          <Upload
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover:block text-white"
+            size={48}
+          />
+        )}
       </Label>
       <Input
         accept="image/*"
         className="hidden"
         id="image"
-        onChange={(e) => {
-          if (e.target.files?.[0])
+        onChange={async (e) => {
+          if (e.target.files?.[0]) {
+            setIsUploading(true);
             try {
-              uploadFile(e.target.files[0]).then((url) =>
-                form.setValue("image", url)
-              );
+              const url = await uploadFile(e.target.files[0]);
+              form.setValue("image", url);
               toast.success("Image uploaded");
             } catch (error) {
               toast.error((error as Error).message);
+            } finally {
+              setIsUploading(false);
             }
+          }
         }}
         type="file"
       />
@@ -106,8 +123,8 @@ export default function Create() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center justify-between">
-                  <p>Caption</p>
-                  <p className="text-sm text-muted-foreground">
+                  Caption
+                  <p className="text-muted-foreground">
                     {form.watch("caption").length}/{CAPTION_MAX}
                   </p>
                 </FormLabel>

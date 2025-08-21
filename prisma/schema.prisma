@@ -24,15 +24,17 @@ model User1 {
 }
 
 model Post {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  image     String
-  caption   String // can be empty
-  user      User1      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String     @db.ObjectId
-  comments  Comment[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  createdAt DateTime   @default(now())
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  image      String
+  caption    String // can be empty
+  user       User1?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?    @db.ObjectId
+  realUser   User       @relation(fields: [realUserId], references: [id], onDelete: Cascade)
+  realUserId String     @db.ObjectId
+  comments   Comment[]
+  likes      Like[]
+  bookmarks  Bookmark[]
+  createdAt  DateTime   @default(now())
 }
 
 model Comment {
@@ -96,6 +98,7 @@ model User {
 
   username String @unique
   bio      String @default("")
+  posts    Post[]
 }
 
 model Account {
