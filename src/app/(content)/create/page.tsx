@@ -48,8 +48,9 @@ export default function Create() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const id = await createPost({ realUserId: user.id!, ...data });
+      if (!user.id) return;
       form.reset();
+      const id = await createPost({ realUserId: user.id, ...data });
       toast.success("Post created");
       router.push(`/post/${id}`);
     } catch (error) {

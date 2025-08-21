@@ -1,35 +1,29 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, Heart } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Bookmark, Heart, Link } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { createComment, deleteComment, getComments } from "@/actions/comment";
-import { getImageHeight, getImageWidth } from "@/actions/image";
-import { deletePost, getPost } from "@/actions/post";
-import { toggleBookmark, toggleLike } from "@/actions/toggle";
-import Comment from "@/components/Comment";
-import DeletableComment from "@/components/DeletableComment";
-import LinkAvatar from "@/components/LinkAvatar";
-import { Button } from "@/components/ui/button";
+import { create } from "zustand";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+  createComment,
+  deleteComment as deleteCommentAction,
+} from "@/actions/comment";
+import { deletePost } from "@/actions/post";
+import { toggleBookmark, toggleLike } from "@/actions/post";
 import useToggle from "@/hooks/useToggle";
 import { COMMENT_MAX } from "@/limits";
-import Loading from "./Loading";
+import { useUserStore } from "@/store/userStore";
+import Comment from "./Comment";
+import LinkImage from "./LinkImage";
+import { Button } from "./ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
+import { Separator } from "./ui/separator";
+import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
   comment: z
@@ -40,139 +34,72 @@ const formSchema = z.object({
     }),
 });
 
-type Props = {
-  bookmarked: boolean;
-  fromHome?: boolean;
-  liked: boolean;
-  likes: number;
-  postId: string;
-  profile: {
-    _count: {
-      followers: number;
-      following: number;
-    };
-    avatar: string;
-    bio: string;
-    createdAt: Date;
+type CommentStore = {
+  addComment: (comment: Comment) => void;
+  comments: Comment[];
+  deleteComment: (commentId: string) => void;
+  setComments: (comments: Comment[]) => void;
+};
+
+const useCommentStore = create<CommentStore>((set) => ({
+  addComment: (comment) =>
+    set((state) => ({ comments: [...state.comments, comment] })),
+  comments: [],
+  deleteComment: (commentId) =>
+    set((state) => ({
+      comments: state.comments.filter((comment) => comment.id !== commentId),
+    })),
+  setComments: (comments) => set({ comments }),
+}));
+
+type Comment = {
+  comment: string;
+  createdAt: Date;
+  id: string;
+  realUser: {
     id: string;
-    name: string;
+    image: null | string;
+    name: null | string;
     username: string;
   };
 };
 
+type Props = {
+  initialBookmarked: boolean;
+  initialLiked: boolean;
+  linked?: boolean;
+  post: {
+    _count: {
+      likes: number;
+    };
+    caption: string;
+    comments: Comment[];
+    createdAt: Date;
+    id: string;
+    image: string;
+    realUser: {
+      id: string;
+      image: null | string;
+      name: null | string;
+      username: string;
+    };
+  };
+};
+
 export default function Post({
-  bookmarked,
-  fromHome,
-  liked,
-  likes,
-  postId,
-  profile,
+  initialBookmarked,
+  initialLiked,
+  linked,
+  post,
 }: Props) {
-  const [commentsVisible, setCommentsVisible] = useState(!fromHome);
-  const [isLiked, setIsLiked] = useState(liked);
-  const [toggledLikes, setToggledLikes] = useToggle(
-    likes,
-    likes + (liked ? -1 : 1),
-    likes
-  );
-  const [isBookmarked, setIsBookmarked] = useState(bookmarked);
-  const [mounted, setMounted] = useState(false);
-  const { theme } = useTheme();
-  const queryClient = useQueryClient();
   const router = useRouter();
-
-  const {
-    data: post,
-    error: postError,
-    isPending: postPending,
-  } = useQuery({
-    queryFn: () => getPost(postId),
-    queryKey: ["post", postId],
-  });
-
-  const {
-    data: comments,
-    error: commentsError,
-    isPending: commentsPending,
-  } = useQuery({
-    queryFn: () => getComments(postId),
-    queryKey: ["comments", postId],
-  });
-
-  if (postError) {
-    console.error("Error getting post:", postError);
-    throw new Error("Error getting post:", { cause: postError });
-  }
-  if (commentsError) {
-    console.error("Error getting comments:", commentsError);
-    throw new Error("Error getting comments:", { cause: commentsError });
-  }
-
-  const { mutate: createCommentMutation } = useMutation({
-    mutationFn: (comment: string) => createComment(postId, comment),
-    onError: (_, __, context: undefined | { previousComments: unknown }) =>
-      queryClient.setQueryData(["comments", postId], context?.previousComments),
-    onMutate: async (comment) => {
-      await queryClient.cancelQueries({
-        queryKey: ["comments", postId],
-      });
-      const previousComments = queryClient.getQueryData(["comments", postId]);
-      queryClient.setQueryData(
-        ["comments", postId],
-        (old: Awaited<ReturnType<typeof getComments>>) => [
-          ...old,
-          {
-            comment,
-            createdAt: new Date(),
-            id: crypto.randomUUID(),
-            postId,
-            user: profile,
-          },
-        ]
-      );
-      return { previousComments };
-    },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] }),
-  });
-
-  const { mutate: deleteCommentMutation } = useMutation({
-    mutationFn: (commentId: string) => deleteComment(commentId),
-    onError: (_, __, context: undefined | { previousComments: unknown }) =>
-      queryClient.setQueryData(["comments", postId], context?.previousComments),
-    onMutate: async (commentId) => {
-      await queryClient.cancelQueries({
-        queryKey: ["comments", postId],
-      });
-      const previousComments = queryClient.getQueryData(["comments", postId]);
-      queryClient.setQueryData(
-        ["comments", postId],
-        (old: Awaited<ReturnType<typeof getComments>>) =>
-          old.filter((comment) => comment.id !== commentId)
-      );
-      return { previousComments };
-    },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] }),
-  });
-
-  const { mutate: deletePostMutation } = useMutation({
-    mutationFn: () => deletePost(postId),
-    onError: (_, __, context) =>
-      queryClient.setQueryData(["post", postId], context?.previousPost),
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["post", postId],
-      });
-      const previousPost = queryClient.getQueryData(["post", postId]);
-      queryClient.setQueryData(["post", postId], null);
-      return { previousPost };
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-      router.back();
-    },
-  });
+  const [bookmarked, setBookmarked] = useState(initialBookmarked);
+  const [liked, setLiked] = useState(initialLiked);
+  const [likes, toggleLikes] = useToggle(
+    post._count.likes,
+    post._count.likes + (liked ? -1 : 1),
+    post._count.likes
+  );
 
   const form = useForm({
     defaultValues: {
@@ -181,144 +108,167 @@ export default function Post({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    form.reset();
-    createCommentMutation(data.comment);
+  const user = useUserStore((state) => state.user);
+  const comments = useCommentStore((state) => state.comments);
+  const addComment = useCommentStore((state) => state.addComment);
+  const deleteComment = useCommentStore((state) => state.deleteComment);
+  const setComments = useCommentStore((state) => state.setComments);
+  useEffect(() => setComments(post.comments), [post.comments, setComments]);
+  if (!user) return;
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      if (!user.id) return;
+      form.reset();
+      addComment({
+        comment: data.comment,
+        createdAt: new Date(),
+        id: "",
+        realUser: {
+          id: user.id,
+          image: user.image || "",
+          name: user.name || "",
+          username: user.username,
+        },
+      });
+      await createComment({
+        comment: data.comment,
+        postId: post.id,
+        realUserId: user.id,
+      });
+      toast.success("Comment created");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   };
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setToggledLikes();
-    toggleLike(postId, isLiked);
+  const handleDeletePost = async () => {
+    try {
+      await deletePost(post.id);
+      toast.success("Post deleted");
+      router.push("/");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   };
 
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    toggleBookmark(postId, isBookmarked);
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      deleteComment(commentId);
+      await deleteCommentAction(commentId);
+      toast.success("Comment deleted");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   };
 
-  useEffect(() => setMounted(true), []);
+  const handleLike = async () => {
+    try {
+      if (!user.id) return;
+      setLiked(!liked);
+      toggleLikes();
+      await toggleLike({
+        liked,
+        postId: post.id,
+        realUserId: user.id,
+      });
+      toast.success("Liked post");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
 
-  if (!mounted) return;
-
-  if (!post) return;
+  const handleBookmark = async () => {
+    try {
+      if (!user.id) return;
+      setBookmarked(!bookmarked);
+      await toggleBookmark({
+        bookmarked,
+        postId: post.id,
+        realUserId: user.id,
+      });
+      toast.success("Bookmarked post");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
 
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
-        {postPending ? (
-          <Loading />
-        ) : fromHome ? (
+        {linked ? (
           <Link href={`/post/${post.id}`}>
             <Image
-              alt={post.caption || "Image of the post"}
-              height={getImageHeight(post.image)}
-              src={post.image}
-              width={getImageWidth(post.image)}
+              alt="Image of the post"
+              height={1000}
+              priority
+              src={`${post.image}?img-width=1000&img-height=1000`}
+              width={1000}
             />
           </Link>
         ) : (
           <Image
-            alt={post.caption || "Image of the post"}
-            height={getImageHeight(post.image)}
-            src={post.image}
-            width={getImageWidth(post.image)}
+            alt="Image of the post"
+            height={1000}
+            priority
+            src={`${post.image}?img-width=1000&img-height=1000`}
+            width={1000}
           />
         )}
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between">
           <div className="flex items-center gap-1">
-            <Button onClick={handleLike} size="icon" variant="ghost">
+            <Button
+              className="cursor-pointer"
+              onClick={handleLike}
+              size="icon"
+              variant="ghost"
+            >
               <Heart
-                fill={isLiked ? "red" : theme === "light" ? "white" : "black"}
-                size={32}
-                stroke={isLiked ? "red" : theme === "light" ? "black" : "white"}
+                fill={liked ? "red" : "background"}
+                stroke={liked ? "red" : "currentColor"}
               />
             </Button>
-            <p>{toggledLikes}</p>
+            <p className="text-lg">{likes}</p>
           </div>
-          <Button onClick={handleBookmark} size="icon" variant="ghost">
-            <Bookmark
-              fill={
-                isBookmarked
-                  ? theme === "light"
-                    ? "black"
-                    : "white"
-                  : theme === "light"
-                    ? "white"
-                    : "black"
-              }
-              size={32}
-            />
+          <Button
+            className="cursor-pointer"
+            onClick={handleBookmark}
+            size="icon"
+            variant="ghost"
+          >
+            <Bookmark fill={bookmarked ? "currentColor" : "background"} />
           </Button>
         </div>
       </div>
       <div className="flex flex-col gap-4">
-        {post.user.id === profile.id ? (
-          <DeletableComment
-            comment={post.caption}
-            createdAt={post.createdAt}
-            onDelete={() => deletePostMutation()}
-            size={12}
-            user={post.user}
-          />
-        ) : (
-          <Comment
-            comment={post.caption}
-            createdAt={post.createdAt}
-            size={12}
-            user={post.user}
-          />
-        )}
+        <Comment
+          comment={post.caption}
+          createdAt={post.createdAt}
+          onClick={
+            post.realUser.id === user.id ? () => handleDeletePost() : undefined
+          }
+          size={12}
+          user={post.realUser}
+        />
         <Separator />
-        {commentsVisible &&
-          (commentsPending ? (
-            <Loading />
-          ) : (
-            comments.map((comment) =>
-              comment.user.id === profile.id ? (
-                <DeletableComment
-                  comment={comment.comment}
-                  createdAt={comment.createdAt}
-                  key={comment.id}
-                  onDelete={() => deleteCommentMutation(comment.id)}
-                  size={10}
-                  user={comment.user}
-                />
-              ) : (
-                <Comment
-                  comment={comment.comment}
-                  createdAt={comment.createdAt}
-                  key={comment.id}
-                  size={10}
-                  user={comment.user}
-                />
-              )
-            )
-          ))}
-        {commentsPending ? (
-          <Loading />
-        ) : (
-          comments.length > 0 && (
-            <Button
-              className="self-center"
-              onClick={() => setCommentsVisible(!commentsVisible)}
-              size="sm"
-              variant="ghost"
-            >
-              {commentsVisible
-                ? `Hide ${comments.length} comment${
-                    comments.length > 1 ? "s" : ""
-                  }`
-                : `Show ${comments.length} comment${
-                    comments.length > 1 ? "s" : ""
-                  }`}
-            </Button>
-          )
-        )}
-        <div className="flex gap-4">
-          <LinkAvatar profile={profile} size={10} />
+        {comments.map((comment) => (
+          <Comment
+            comment={comment.comment}
+            createdAt={comment.createdAt}
+            key={comment.id}
+            onClick={
+              comment.realUser.id === user.id
+                ? () => handleDeleteComment(comment.id)
+                : undefined
+            }
+            size={10}
+            user={comment.realUser}
+          />
+        ))}
+        <div className="flex gap-4 items-center">
+          <LinkImage size={10} user={user} />
           <Form {...form}>
-            <form className="w-full" onSubmit={form.handleSubmit(onSubmit)}>
+            <form className="w-full">
               <FormField
                 control={form.control}
                 name="comment"
@@ -327,6 +277,7 @@ export default function Post({
                     <FormControl>
                       <Textarea
                         placeholder="Comment"
+                        rows={3}
                         {...field}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {

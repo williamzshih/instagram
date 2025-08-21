@@ -38,35 +38,41 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  comment   String
-  user      User1    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment    String
+  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?  @db.ObjectId
+  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
+  realUserId String   @db.ObjectId
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String   @db.ObjectId
+  createdAt  DateTime @default(now())
 }
 
 model Like {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user      User1    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?  @db.ObjectId
+  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
+  realUserId String   @db.ObjectId
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String   @db.ObjectId
+  createdAt  DateTime @default(now())
 
-  @@unique([userId, postId])
+  @@unique([realUserId, postId])
 }
 
 model Bookmark {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user      User1    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?  @db.ObjectId
+  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
+  realUserId String   @db.ObjectId
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String   @db.ObjectId
+  createdAt  DateTime @default(now())
 
-  @@unique([userId, postId])
+  @@unique([realUserId, postId])
 }
 
 model Follow {
@@ -96,9 +102,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  username String @unique
-  bio      String @default("")
-  posts    Post[]
+  username  String     @unique
+  bio       String     @default("")
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
 }
 
 model Account {

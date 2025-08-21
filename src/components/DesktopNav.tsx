@@ -29,7 +29,7 @@ export default function DesktopNav() {
         className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
         variant="ghost"
       >
-        <Link className="flex items-center gap-2" href="/">
+        <Link className="flex items-center gap-3" href="/">
           <Image
             alt="Instagram logo"
             height={32}
@@ -41,7 +41,7 @@ export default function DesktopNav() {
             className="mt-1"
             height={32}
             src={theme === "dark" ? "/text_light.svg" : "/text_dark.svg"}
-            width={96}
+            width={90}
           />
         </Link>
       </Button>
