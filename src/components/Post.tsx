@@ -15,15 +15,21 @@ import {
 } from "@/actions/comment";
 import { deletePost } from "@/actions/post";
 import { toggleBookmark, toggleLike } from "@/actions/post";
+import Comment from "@/components/Comment";
+import LinkImage from "@/components/LinkImage";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import useToggle from "@/hooks/useToggle";
 import { COMMENT_MAX } from "@/limits";
 import { useUserStore } from "@/store/userStore";
-import Comment from "./Comment";
-import LinkImage from "./LinkImage";
-import { Button } from "./ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
-import { Separator } from "./ui/separator";
-import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
   comment: z
@@ -224,6 +230,7 @@ export default function Post({
               variant="ghost"
             >
               <Heart
+                className="size-8"
                 fill={liked ? "red" : "background"}
                 stroke={liked ? "red" : "currentColor"}
               />
@@ -236,7 +243,10 @@ export default function Post({
             size="icon"
             variant="ghost"
           >
-            <Bookmark fill={bookmarked ? "currentColor" : "background"} />
+            <Bookmark
+              className="size-8"
+              fill={bookmarked ? "currentColor" : "background"}
+            />
           </Button>
         </div>
       </div>

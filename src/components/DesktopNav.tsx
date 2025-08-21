@@ -50,7 +50,7 @@ export default function DesktopNav() {
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/">
-          <House />
+          <House className="size-8" />
           <p className="text-lg">Home</p>
         </Link>
       </Button>
@@ -59,7 +59,7 @@ export default function DesktopNav() {
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/search">
-          <Search />
+          <Search className="size-8" />
           <p className="text-lg">Search</p>
         </Link>
       </Button>
@@ -68,7 +68,7 @@ export default function DesktopNav() {
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/create">
-          <Plus />
+          <Plus className="size-8" />
           <p className="text-lg">Create</p>
         </Link>
       </Button>
@@ -77,7 +77,7 @@ export default function DesktopNav() {
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/browse">
-          <LayoutGrid />
+          <LayoutGrid className="size-8" />
           <p className="text-lg">Browse</p>
         </Link>
       </Button>
@@ -86,7 +86,7 @@ export default function DesktopNav() {
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/profile">
-          <User />
+          <User className="size-8" />
           <p className="text-lg">Profile</p>
         </Link>
       </Button>
@@ -96,7 +96,7 @@ export default function DesktopNav() {
         onClick={() => signOut()}
         variant="ghost"
       >
-        <LogOut />
+        <LogOut className="size-8" />
         <p className="text-lg">Sign out</p>
       </Button>
     </div>

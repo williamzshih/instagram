@@ -61,7 +61,10 @@ export default function Create() {
   return (
     <div className="flex flex-col items-center gap-4">
       <h1 className="text-2xl font-semibold">Create Post</h1>
-      <Label className="cursor-pointer group size-1/3 relative" htmlFor="image">
+      <Label
+        className="cursor-pointer group size-1/3 relative aspect-square"
+        htmlFor="image"
+      >
         {form.watch("image") ? (
           <Image
             alt="Uploaded image"
@@ -76,7 +79,7 @@ export default function Create() {
         ) : (
           <div
             className={cn(
-              "aspect-square bg-muted hover:brightness-75 transition-all",
+              "size-full bg-muted hover:brightness-75 transition-all",
               isUploading && "brightness-75"
             )}
           />
