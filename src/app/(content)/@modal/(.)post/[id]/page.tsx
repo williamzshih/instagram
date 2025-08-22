@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getInitialBookmark, getInitialLike, getPost } from "@/actions/post";
 import { auth } from "@/auth";
 import Modal from "@/components/Modal";
-import Post from "@/components/Post";
+import PostPage from "@/components/PostPage";
 
 export default async function PostModal({
   params,
@@ -28,7 +28,7 @@ export default async function PostModal({
 
   return (
     <Modal>
-      <Post
+      <PostPage
         initialBookmark={initialBookmark}
         initialLike={initialLike}
         post={post}

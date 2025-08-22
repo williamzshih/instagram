@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { getInitialBookmark, getInitialLike, getPost } from "@/actions/post";
 import { auth } from "@/auth";
-import Post from "@/components/Post";
+import PostPage from "@/components/PostPage";
 
-export default async function PostPage({
+export default async function Post({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -26,7 +26,7 @@ export default async function PostPage({
   });
 
   return (
-    <Post
+    <PostPage
       initialBookmark={initialBookmark}
       initialLike={initialLike}
       post={post}
