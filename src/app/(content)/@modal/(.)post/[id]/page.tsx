@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getInitialBookmarked, getInitialLiked, getPost } from "@/actions/post";
+import { getInitialBookmark, getInitialLike, getPost } from "@/actions/post";
 import { auth } from "@/auth";
 import Modal from "@/components/Modal";
 import Post from "@/components/Post";
@@ -16,21 +16,21 @@ export default async function PostModal({
   const post = await getPost(id);
   if (!post) return notFound();
 
-  const initialLiked = await getInitialLiked({
+  const initialBookmark = await getInitialBookmark({
     postId: post.id,
-    realUserId: session.user.id,
+    userId: session.user.id,
   });
 
-  const initialBookmarked = await getInitialBookmarked({
+  const initialLike = await getInitialLike({
     postId: post.id,
-    realUserId: session.user.id,
+    userId: session.user.id,
   });
 
   return (
     <Modal>
       <Post
-        initialBookmarked={initialBookmarked}
-        initialLiked={initialLiked}
+        initialBookmark={initialBookmark}
+        initialLike={initialLike}
         post={post}
       />
     </Modal>

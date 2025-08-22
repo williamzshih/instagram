@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { EllipsisVertical } from "lucide-react";
+import { User } from "next-auth";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,11 +14,7 @@ type Props = {
   createdAt: Date;
   onClick?: () => void;
   size: number;
-  user: {
-    image?: null | string;
-    name?: null | string;
-    username: string;
-  };
+  user: Pick<User, "image" | "name" | "username">;
 };
 
 export default function Comment({
@@ -31,7 +28,7 @@ export default function Comment({
     <div className="flex flex-col gap-4">
       {onClick ? (
         <div className="flex items-center justify-between">
-          <UserBlock size={size} user={user} />
+          <UserBlock link size={size} user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
@@ -52,7 +49,7 @@ export default function Comment({
       ) : (
         <UserBlock link size={size} user={user} />
       )}
-      {comment && <p className="bg-muted rounded-xl p-4">{comment}</p>}
+      <p className="bg-muted rounded-xl p-4">{comment}</p>
       <div className="text-muted-foreground text-right text-sm">
         {formatDistanceToNow(createdAt, {
           addSuffix: true,

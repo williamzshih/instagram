@@ -13,7 +13,7 @@ import {
   createComment,
   deleteComment as deleteCommentAction,
 } from "@/actions/comment";
-import { deletePost } from "@/actions/post";
+import { deletePost, getPost } from "@/actions/post";
 import { toggleBookmark, toggleLike } from "@/actions/post";
 import Comment from "@/components/Comment";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -43,7 +43,7 @@ const formSchema = z.object({
 type CommentStore = {
   addComment: (comment: Comment) => void;
   comments: Comment[];
-  deleteComment: (commentId: string) => void;
+  deleteComment: (id: string) => void;
   setComments: (comments: Comment[]) => void;
 };
 
@@ -51,88 +51,68 @@ const useCommentStore = create<CommentStore>((set) => ({
   addComment: (comment) =>
     set((state) => ({ comments: [...state.comments, comment] })),
   comments: [],
-  deleteComment: (commentId) =>
+  deleteComment: (id) =>
     set((state) => ({
-      comments: state.comments.filter((comment) => comment.id !== commentId),
+      comments: state.comments.filter((c) => c.id !== id),
     })),
   setComments: (comments) => set({ comments }),
 }));
 
-type Comment = {
-  comment: string;
-  createdAt: Date;
-  id: string;
-  realUser: {
-    id: string;
-    image?: null | string;
-    name?: null | string;
-    username: string;
-  };
-};
+type Comment = Post["comments"][number];
+type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 type Props = {
-  initialBookmarked: boolean;
-  initialLiked: boolean;
-  linked?: boolean;
-  post: {
-    _count: {
-      likes: number;
-    };
-    caption: string;
-    comments: Comment[];
-    createdAt: Date;
-    id: string;
-    image: string;
-    realUser: {
-      id: string;
-      image: null | string;
-      name: null | string;
-      username: string;
-    };
-  };
+  initialBookmark: boolean;
+  initialLike: boolean;
+  link?: boolean;
+  post: Post;
 };
 
 export default function Post({
-  initialBookmarked,
-  initialLiked,
-  linked,
+  initialBookmark,
+  initialLike,
+  link,
   post,
 }: Props) {
   const router = useRouter();
-  const [bookmarked, setBookmarked] = useState(initialBookmarked);
-  const [liked, setLiked] = useState(initialLiked);
+  const [bookmarked, setBookmarked] = useState(initialBookmark);
+  const [liked, setLiked] = useState(initialLike);
   const [likes, toggleLikes] = useToggle(
     post._count.likes,
-    post._count.likes + (initialLiked ? -1 : 1),
+    post._count.likes + (initialLike ? -1 : 1),
     post._count.likes
   );
 
   const form = useForm({
+    defaultValues: {
+      comment: "",
+    },
     resolver: zodResolver(formSchema),
   });
 
-  const user = useUserStore((state) => state.user);
+  const setComments = useCommentStore((state) => state.setComments);
+  useEffect(() => setComments(post.comments), [post.comments, setComments]);
+
   const comments = useCommentStore((state) => state.comments);
   const addComment = useCommentStore((state) => state.addComment);
   const deleteComment = useCommentStore((state) => state.deleteComment);
-  const setComments = useCommentStore((state) => state.setComments);
-  useEffect(() => setComments(post.comments), [post.comments, setComments]);
+
+  const user = useUserStore((state) => state.user);
   if (!user) return;
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      if (!user.id) return;
       form.reset();
       addComment({
         comment: data.comment,
         createdAt: new Date(),
-        id: "",
-        realUser: user,
+        id: crypto.randomUUID(),
+        user,
       });
       await createComment({
         comment: data.comment,
         postId: post.id,
-        realUserId: user.id,
+        userId: user.id,
       });
       toast.success("Comment created");
     } catch (error) {
@@ -150,10 +130,10 @@ export default function Post({
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
+  const handleDeleteComment = async (id: string) => {
     try {
-      deleteComment(commentId);
-      await deleteCommentAction(commentId);
+      deleteComment(id);
+      await deleteCommentAction(id);
       toast.success("Comment deleted");
     } catch (error) {
       toast.error((error as Error).message);
@@ -162,13 +142,12 @@ export default function Post({
 
   const handleLike = async () => {
     try {
-      if (!user.id) return;
       setLiked(!liked);
       toggleLikes();
       await toggleLike({
         liked,
         postId: post.id,
-        realUserId: user.id,
+        userId: user.id,
       });
       toast.success(liked ? "Unliked post" : "Liked post");
     } catch (error) {
@@ -178,12 +157,11 @@ export default function Post({
 
   const handleBookmark = async () => {
     try {
-      if (!user.id) return;
       setBookmarked(!bookmarked);
       await toggleBookmark({
         bookmarked,
         postId: post.id,
-        realUserId: user.id,
+        userId: user.id,
       });
       toast.success(bookmarked ? "Unbookmarked post" : "Bookmarked post");
     } catch (error) {
@@ -194,7 +172,7 @@ export default function Post({
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
-        {linked ? (
+        {link ? (
           <Link href={`/post/${post.id}`}>
             <Image
               alt="Post image"
@@ -245,24 +223,21 @@ export default function Post({
       <div className="flex flex-col gap-4">
         <Comment
           comment={post.caption}
-          createdAt={post.createdAt}
-          onClick={post.realUser.id === user.id ? handleDeletePost : undefined}
+          onClick={post.user.id === user.id ? handleDeletePost : undefined}
           size={16}
-          user={post.realUser}
+          {...post}
         />
         <Separator />
         {comments.map((comment) => (
           <Comment
-            comment={comment.comment}
-            createdAt={comment.createdAt}
             key={comment.id}
             onClick={
-              comment.realUser.id === user.id
+              comment.user.id === user.id
                 ? () => handleDeleteComment(comment.id)
                 : undefined
             }
             size={12}
-            user={comment.realUser}
+            {...comment}
           />
         ))}
         <div className="flex items-center gap-4">
