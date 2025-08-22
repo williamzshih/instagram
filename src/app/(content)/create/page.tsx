@@ -36,20 +36,21 @@ const formSchema = z.object({
 export default function Create() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
+
   const form = useForm({
     defaultValues: {
       caption: "",
     },
     resolver: zodResolver(formSchema),
   });
+
   const user = useUserStore((state) => state.user);
   if (!user) return;
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      if (!user.id) return;
       form.reset();
-      const id = await createPost({ realUserId: user.id, ...data });
+      const id = await createPost({ userId: user.id, ...data });
       toast.success("Post created");
       router.push(`/post/${id}`);
     } catch (error) {
@@ -68,7 +69,7 @@ export default function Create() {
           <Image
             alt="Uploaded image"
             className={cn(
-              "transition-all hover:brightness-75",
+              "transition-all group-hover:brightness-75",
               uploading && "brightness-75"
             )}
             height={500}
@@ -78,7 +79,7 @@ export default function Create() {
         ) : (
           <div
             className={cn(
-              "bg-muted size-full transition-all hover:brightness-75",
+              "bg-muted size-full transition-all group-hover:brightness-75",
               uploading && "brightness-75"
             )}
           />

@@ -5,7 +5,7 @@ import { prisma } from "@/db";
 export const createPost = async (data: {
   caption: string;
   image: string;
-  realUserId: string;
+  userId: string;
 }) => {
   try {
     return (

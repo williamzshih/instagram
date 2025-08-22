@@ -34,7 +34,7 @@ model User {
 model Post {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   image     String
-  caption   String?
+  caption   String
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String     @db.ObjectId
   comments  Comment[]
