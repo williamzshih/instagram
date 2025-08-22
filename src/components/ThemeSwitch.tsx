@@ -15,7 +15,7 @@ export default function ThemeSwitch() {
 
   return (
     <Button
-      className="size-14 rounded-full fixed bottom-24 lg:bottom-4 right-4 bg-background hover:bg-muted transition-colors border shadow-xl/50 shadow-muted-foreground cursor-pointer"
+      className="bg-background hover:bg-muted shadow-muted-foreground fixed right-4 bottom-24 size-14 cursor-pointer rounded-full border shadow-xl/50 transition-colors lg:bottom-4"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       variant="ghost"
     >

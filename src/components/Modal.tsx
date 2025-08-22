@@ -19,7 +19,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         <VisuallyHidden asChild>
           <DialogTitle>Post</DialogTitle>
         </VisuallyHidden>
-        <ScrollArea className="sm:max-h-[85vh] pr-4">{children}</ScrollArea>
+        <ScrollArea className="pr-4 sm:max-h-[85vh]">{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );

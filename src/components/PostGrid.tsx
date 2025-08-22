@@ -25,7 +25,7 @@ export default function PostGrid({ posts, type = "posts" }: Props) {
         1100: 3,
         default: 4,
       }}
-      className="flex -ml-4 w-full"
+      className="-ml-4 flex w-full"
       columnClassName="pl-4"
     >
       {posts.map((post) => (
@@ -35,7 +35,7 @@ export default function PostGrid({ posts, type = "posts" }: Props) {
               <Link href={`/post/${post.id}`}>
                 <Image
                   alt="Image of the post"
-                  className="hover:brightness-75 transition-all"
+                  className="transition-all hover:brightness-75"
                   height={500}
                   src={`${post.image}?img-width=500&img-height=500`}
                   width={500}

@@ -34,13 +34,13 @@ export default function Comment({
           <UserBlock size={size} user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="[&_svg]:size-4 px-2 py-4" variant="ghost">
+              <Button className="px-2 py-4 [&_svg]:size-4" variant="ghost">
                 <EllipsisVertical />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-4">
               <Button
-                className="cursor-pointer text-red-500 hover:text-red-500 w-full"
+                className="w-full cursor-pointer text-red-500 hover:text-red-500"
                 onClick={onClick}
                 variant="outline"
               >
@@ -52,8 +52,8 @@ export default function Comment({
       ) : (
         <UserBlock size={size} user={user} />
       )}
-      {comment && <p className="bg-muted p-4 rounded-xl">{comment}</p>}
-      <div className="text-sm text-muted-foreground text-right">
+      {comment && <p className="bg-muted rounded-xl p-4">{comment}</p>}
+      <div className="text-muted-foreground text-right text-sm">
         {formatDistanceToNow(createdAt, {
           addSuffix: true,
         })}

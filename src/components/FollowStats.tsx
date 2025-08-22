@@ -124,7 +124,7 @@ export default function FollowStats({
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="size-fit flex flex-col gap-0 cursor-pointer"
+            className="flex size-fit cursor-pointer flex-col gap-0"
             variant="ghost"
           >
             <p className="text-lg">
@@ -138,14 +138,14 @@ export default function FollowStats({
         </DialogTrigger>
         <DialogContent showCloseButton={false}>
           <DialogTitle className="text-xl">Followers</DialogTitle>
-          <ScrollArea className="sm:max-h-[85vh] pr-4">
+          <ScrollArea className="pr-4 sm:max-h-[85vh]">
             <div className="flex flex-col gap-4">
               {followers.length > 0 ? (
                 followers.map((follower) => (
                   <div className="relative" key={follower.id}>
                     <HoverCard>
                       <HoverCardTrigger asChild>
-                        <div className="bg-muted rounded-xl p-4 hover:brightness-95 transition-all">
+                        <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
                           <Link href={`/user/${follower.username}`}>
                             <UserBlock noLink size={10} user={follower} />
                           </Link>
@@ -160,7 +160,7 @@ export default function FollowStats({
                     </HoverCard>
                     {currentUser && (
                       <Button
-                        className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-500"
+                        className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-red-500 hover:text-red-500"
                         onClick={() => handleRemoveFollower(follower.id)}
                         variant="outline"
                       >
@@ -179,7 +179,7 @@ export default function FollowStats({
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="size-fit flex flex-col gap-0 cursor-pointer"
+            className="flex size-fit cursor-pointer flex-col gap-0"
             variant="ghost"
           >
             <p className="text-lg">{following.length}</p>
@@ -188,14 +188,14 @@ export default function FollowStats({
         </DialogTrigger>
         <DialogContent showCloseButton={false}>
           <DialogTitle className="text-xl">Following</DialogTitle>
-          <ScrollArea className="sm:max-h-[85vh] pr-4">
+          <ScrollArea className="pr-4 sm:max-h-[85vh]">
             <div className="flex flex-col gap-4">
               {following.length > 0 ? (
                 following.map((followee) => (
                   <div className="relative" key={followee.id}>
                     <HoverCard>
                       <HoverCardTrigger asChild>
-                        <div className="bg-muted rounded-xl p-4 hover:brightness-95 transition-all">
+                        <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
                           <Link href={`/user/${followee.username}`}>
                             <UserBlock noLink size={10} user={followee} />
                           </Link>
@@ -210,7 +210,7 @@ export default function FollowStats({
                     </HoverCard>
                     {currentUser && (
                       <Button
-                        className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-500"
+                        className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-red-500 hover:text-red-500"
                         onClick={() => handleUnfollow(followee.id)}
                         variant="outline"
                       >

@@ -69,7 +69,7 @@ export default function Search() {
             <div className="flex flex-wrap gap-4">
               {users.map((user) => (
                 <Link
-                  className="bg-muted rounded-lg p-4 hover:bg-muted-foreground/25 transition-colors"
+                  className="bg-muted hover:bg-muted-foreground/25 rounded-lg p-4 transition-colors"
                   href={`/user/${user.username}`}
                   key={user.id}
                 >
@@ -92,12 +92,12 @@ export default function Search() {
                 1100: 3,
                 default: 4,
               }}
-              className="flex -ml-4"
+              className="-ml-4 flex"
               columnClassName="pl-4"
             >
               {posts.map((post) => (
                 <Link
-                  className="bg-muted rounded-lg p-4 flex flex-col gap-4 mb-4"
+                  className="bg-muted mb-4 flex flex-col gap-4 rounded-lg p-4"
                   href={`/post/${post.id}`}
                   key={post.id}
                 >

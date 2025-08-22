@@ -16,7 +16,7 @@ export default function UserBlock({ noLink, size, user }: Props) {
       <LinkImage noLink={noLink} size={size} user={user} />
       <div className="flex flex-col">
         {user.name || ""}
-        <p className="text-sm text-muted-foreground">@{user.username}</p>
+        <p className="text-muted-foreground text-sm">@{user.username}</p>
       </div>
     </div>
   );

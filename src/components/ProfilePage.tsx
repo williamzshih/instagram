@@ -51,10 +51,10 @@ export default function ProfilePage({
   };
 
   return (
-    <div className="flex flex-col gap-4 items-center">
+    <div className="flex flex-col items-center gap-4">
       <ProfileHeader currentUser={currentUser} user={user} />
       <GradientRing>
-        <LinkImage noLink={currentUser} size={40} user={user} />
+        <LinkImage noLink size={40} user={user} />
       </GradientRing>
       <ProfileInfo user={user} />
       <FollowStats
@@ -66,21 +66,21 @@ export default function ProfilePage({
       {currentUser ? (
         <div className="flex gap-2">
           <Button
-            className="text-lg cursor-pointer"
+            className="cursor-pointer text-lg"
             onClick={() => setView("posts")}
             variant={view === "posts" ? "default" : "ghost"}
           >
             Posts
           </Button>
           <Button
-            className="text-lg cursor-pointer"
+            className="cursor-pointer text-lg"
             onClick={() => setView("likes")}
             variant={view === "likes" ? "default" : "ghost"}
           >
             Likes
           </Button>
           <Button
-            className="text-lg cursor-pointer"
+            className="cursor-pointer text-lg"
             onClick={() => setView("bookmarks")}
             variant={view === "bookmarks" ? "default" : "ghost"}
           >
@@ -89,7 +89,7 @@ export default function ProfilePage({
         </div>
       ) : following ? (
         <Button
-          className="bg-linear-to-tr from-ig-orange to-ig-red cursor-pointer"
+          className="from-ig-orange to-ig-red cursor-pointer bg-linear-to-tr"
           onClick={handleFollow}
           onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
           onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}

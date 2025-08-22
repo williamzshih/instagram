@@ -32,7 +32,7 @@ export default function LinkImage({ noLink, profilePage, size, user }: Props) {
       />
     </Avatar>
   ) : (
-    <Link className="rounded-full size-fit" href={`/user/${user.username}`}>
+    <Link className="size-fit rounded-full" href={`/user/${user.username}`}>
       <Avatar className={sizeClass}>
         <AvatarImage
           alt={`@${user.username}'s profile picture`}

@@ -4,8 +4,8 @@ export default function GradientRing({
   children: React.ReactNode;
 }) {
   return (
-    <div className="p-1 rounded-full bg-linear-to-tr from-ig-orange to-ig-red">
-      <div className="p-1 rounded-full bg-background">{children}</div>
+    <div className="from-ig-orange to-ig-red rounded-full bg-linear-to-tr p-1">
+      <div className="bg-background rounded-full p-1">{children}</div>
     </div>
   );
 }

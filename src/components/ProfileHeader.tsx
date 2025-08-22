@@ -27,7 +27,7 @@ export default function ProfileHeader({ currentUser, user }: Props) {
   const wait = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
   return (
-    <div className="flex items-center justify-between w-full h-full">
+    <div className="flex h-full w-full items-center justify-between">
       <Button className="invisible">
         <SettingsIcon className="size-8" />
       </Button>

@@ -123,7 +123,7 @@ export default function Settings({ close, user }: Props) {
     <div className="flex flex-col items-center gap-4">
       <GradientRing>
         <Label
-          className="rounded-full block cursor-pointer group relative"
+          className="group relative block cursor-pointer rounded-full"
           htmlFor="image"
         >
           <Avatar className="size-40">
@@ -135,15 +135,15 @@ export default function Settings({ close, user }: Props) {
               }
             />
           </Avatar>
-          <div className="absolute inset-0 rounded-full bg-black opacity-0 hover:opacity-25 transition-opacity" />
+          <div className="absolute inset-0 rounded-full bg-black opacity-0 transition-opacity hover:opacity-25" />
           {uploading ? (
             <LoaderCircle
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white animate-spin"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white"
               size={48}
             />
           ) : (
             <Upload
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover:block text-white"
+              className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-white group-hover:block"
               size={48}
             />
           )}
@@ -171,7 +171,7 @@ export default function Settings({ close, user }: Props) {
       </GradientRing>
       <Form {...form}>
         <form
-          className="flex flex-col gap-4 w-full"
+          className="flex w-full flex-col gap-4"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -253,7 +253,7 @@ export default function Settings({ close, user }: Props) {
           Delete account
         </Button>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Account created on {new Date(user.createdAt).toLocaleDateString()}
       </p>
     </div>

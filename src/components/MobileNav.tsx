@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 export default function MobileNav() {
   return (
-    <div className="fixed bottom-4 left-4 right-4 lg:hidden p-2 flex items-center justify-evenly rounded-full border border-muted backdrop-blur-md shadow-md shadow-muted-foreground/10 text-foreground">
+    <div className="border-muted shadow-muted-foreground/10 text-foreground fixed right-4 bottom-4 left-4 flex items-center justify-evenly rounded-full border p-2 shadow-md backdrop-blur-md lg:hidden">
       <Button
-        className="hover:bg-transparent hover:scale-105 transition-transform"
+        className="transition-transform hover:scale-105 hover:bg-transparent"
         size="icon"
         variant="ghost"
       >
@@ -15,7 +15,7 @@ export default function MobileNav() {
         </Link>
       </Button>
       <Button
-        className="hover:bg-transparent hover:scale-105 transition-transform"
+        className="transition-transform hover:scale-105 hover:bg-transparent"
         size="icon"
         variant="ghost"
       >
@@ -24,13 +24,13 @@ export default function MobileNav() {
         </Link>
       </Button>
       <Link
-        className="bg-gradient-to-r from-ig-orange to-ig-red rounded-full text-white size-12 flex items-center justify-center hover:scale-105 transition-transform"
+        className="from-ig-orange to-ig-red flex size-12 items-center justify-center rounded-full bg-gradient-to-r text-white transition-transform hover:scale-105"
         href="/create"
       >
         <Plus />
       </Link>
       <Button
-        className="hover:bg-transparent hover:scale-105 transition-transform"
+        className="transition-transform hover:scale-105 hover:bg-transparent"
         size="icon"
         variant="ghost"
       >
@@ -39,7 +39,7 @@ export default function MobileNav() {
         </Link>
       </Button>
       <Button
-        className="hover:bg-transparent hover:scale-105 transition-transform"
+        className="transition-transform hover:scale-105 hover:bg-transparent"
         size="icon"
         variant="ghost"
       >

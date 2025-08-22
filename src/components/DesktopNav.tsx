@@ -33,10 +33,10 @@ export default function DesktopNav() {
 
   return (
     <div
-      className={`hidden lg:flex flex-col h-fit gap-6 p-4 sticky m-6 shadow-md shadow-muted-foreground/25 rounded-xl backdrop-blur-md overflow-y-auto z-10 border border-muted ${googleSans.className}`}
+      className={`shadow-muted-foreground/25 border-muted sticky z-10 m-6 hidden h-fit flex-col gap-6 overflow-y-auto rounded-xl border p-4 shadow-md backdrop-blur-md lg:flex ${googleSans.className}`}
     >
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-3" href="/">
@@ -56,7 +56,7 @@ export default function DesktopNav() {
         </Link>
       </Button>
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/">
@@ -65,7 +65,7 @@ export default function DesktopNav() {
         </Link>
       </Button>
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/search">
@@ -74,7 +74,7 @@ export default function DesktopNav() {
         </Link>
       </Button>
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/create">
@@ -83,7 +83,7 @@ export default function DesktopNav() {
         </Link>
       </Button>
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/browse">
@@ -92,7 +92,7 @@ export default function DesktopNav() {
         </Link>
       </Button>
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform"
+        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
         <Link className="flex items-center gap-4" href="/profile">
@@ -102,7 +102,7 @@ export default function DesktopNav() {
       </Button>
       <div className="flex-1" />
       <Button
-        className="w-fit h-fit cursor-pointer hover:bg-transparent hover:scale-105 transition-transform flex items-center gap-4"
+        className="flex h-fit w-fit cursor-pointer items-center gap-4 transition-transform hover:scale-105 hover:bg-transparent"
         onClick={handleSignOut}
         variant="ghost"
       >

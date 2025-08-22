@@ -61,14 +61,14 @@ export default function Create() {
     <div className="flex flex-col items-center gap-4">
       <h1 className="text-2xl font-semibold">Create Post</h1>
       <Label
-        className="cursor-pointer group size-1/3 relative aspect-square"
+        className="group relative aspect-square size-1/3 cursor-pointer"
         htmlFor="image"
       >
         {form.watch("image") ? (
           <Image
             alt="Uploaded image"
             className={cn(
-              "hover:brightness-75 transition-all",
+              "transition-all hover:brightness-75",
               uploading && "brightness-75"
             )}
             height={500}
@@ -78,19 +78,19 @@ export default function Create() {
         ) : (
           <div
             className={cn(
-              "size-full bg-muted hover:brightness-75 transition-all",
+              "bg-muted size-full transition-all hover:brightness-75",
               uploading && "brightness-75"
             )}
           />
         )}
         {uploading ? (
           <LoaderCircle
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white animate-spin"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white"
             size={48}
           />
         ) : (
           <Upload
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover:block text-white"
+            className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-white group-hover:block"
             size={48}
           />
         )}
@@ -117,7 +117,7 @@ export default function Create() {
       />
       <Form {...form}>
         <form
-          className="flex flex-col gap-4 max-w-md w-full"
+          className="flex w-full max-w-md flex-col gap-4"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField

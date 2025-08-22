@@ -265,7 +265,7 @@ export default function Post({
             user={comment.realUser}
           />
         ))}
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <LinkImage size={10} user={user} />
           <Form {...form}>
             <form className="w-full">
