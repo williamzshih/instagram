@@ -10,17 +10,17 @@ const CustomPrismaAdapter = (p: PrismaClient): Adapter => {
   return {
     ...adapter,
     async createUser(user) {
-      user.username = await generateUsername(user.email, p);
+      user.username = await generateUsername(user.name, p);
       return adapter.createUser?.(user);
     },
   } as Adapter;
 };
 
 const generateUsername = async (
-  email: string,
+  name: string,
   p: PrismaClient
 ): Promise<string> => {
-  const base = email.split("@")[0].replaceAll(/[^a-zA-Z0-9]/g, "");
+  const base = name.toLowerCase().replaceAll(/[^a-zA-Z0-9]/g, "");
   let username = base;
   let counter = 0;
   while (true) {
@@ -40,6 +40,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           bookmarks: {
             select: {
               createdAt: true,
+              id: true,
               post: {
                 select: {
                   id: true,
@@ -51,32 +52,33 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           followers: {
             select: {
               createdAt: true,
-              realFollower: {
+              follower: {
                 select: {
-                  id: true,
                   image: true,
                   name: true,
                   username: true,
                 },
               },
+              id: true,
             },
           },
           following: {
             select: {
               createdAt: true,
-              realFollowee: {
+              followee: {
                 select: {
-                  id: true,
                   image: true,
                   name: true,
                   username: true,
                 },
               },
+              id: true,
             },
           },
           likes: {
             select: {
               createdAt: true,
+              id: true,
               post: {
                 select: {
                   id: true,
@@ -96,27 +98,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         where: { id: user.id },
       });
 
-      session.user.posts = data?.posts || [];
-      session.user.likes =
-        data?.likes.map((l) => ({
-          ...l.post,
-          createdAt: l.createdAt,
-        })) || [];
-      session.user.bookmarks =
-        data?.bookmarks.map((b) => ({
-          ...b.post,
-          createdAt: b.createdAt,
-        })) || [];
-      session.user.followers =
-        data?.followers.map((f) => ({
-          ...f.realFollower,
-          createdAt: f.createdAt,
-        })) || [];
-      session.user.following =
-        data?.following.map((f) => ({
-          ...f.realFollowee,
-          createdAt: f.createdAt,
-        })) || [];
+      user.bookmarks = data?.bookmarks || [];
+      user.followers = data?.followers || [];
+      user.following = data?.following || [];
+      user.likes = data?.likes || [];
+      user.posts = data?.posts || [];
 
       return session;
     },

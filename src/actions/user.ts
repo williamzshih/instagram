@@ -10,6 +10,7 @@ export const getUser = async (username: string) => {
         bookmarks: {
           select: {
             createdAt: true,
+            id: true,
             post: {
               select: {
                 id: true,
@@ -22,27 +23,27 @@ export const getUser = async (username: string) => {
         followers: {
           select: {
             createdAt: true,
-            realFollower: {
+            follower: {
               select: {
-                id: true,
                 image: true,
                 name: true,
                 username: true,
               },
             },
+            id: true,
           },
         },
         following: {
           select: {
             createdAt: true,
-            realFollowee: {
+            followee: {
               select: {
-                id: true,
                 image: true,
                 name: true,
                 username: true,
               },
             },
+            id: true,
           },
         },
         id: true,
@@ -50,6 +51,7 @@ export const getUser = async (username: string) => {
         likes: {
           select: {
             createdAt: true,
+            id: true,
             post: {
               select: {
                 id: true,
@@ -71,8 +73,8 @@ export const getUser = async (username: string) => {
       where: { username },
     });
   } catch (error) {
-    console.error("Error getting profile:", error);
-    throw new Error("Error getting profile:", { cause: error });
+    console.error("Error getting user:", error);
+    throw new Error("Error getting user:", { cause: error });
   }
 };
 

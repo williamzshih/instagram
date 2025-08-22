@@ -14,7 +14,7 @@ export default function UserInitializer({
   const setUser = useUserStore((state) => state.setUser);
 
   useEffect(() => {
-    if (user.id && user.id !== useUserStore.getState().user?.id) setUser(user);
+    if (user.id !== useUserStore.getState().user?.id) setUser(user);
   }, [user, setUser]);
 
   return children;

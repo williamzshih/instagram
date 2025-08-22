@@ -7,95 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User1 {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  email     String     @unique
-  username  String     @unique
-  name      String
-  bio       String     @default("")
-  avatar    String     @default("https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
-  posts     Post[]
-  comments  Comment[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  followers Follow[]   @relation("followers")
-  following Follow[]   @relation("following")
-  createdAt DateTime   @default(now())
-}
-
-model Post {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  image      String
-  caption    String // can be empty
-  user       User1?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String?    @db.ObjectId
-  realUser   User       @relation(fields: [realUserId], references: [id], onDelete: Cascade)
-  realUserId String     @db.ObjectId
-  comments   Comment[]
-  likes      Like[]
-  bookmarks  Bookmark[]
-  createdAt  DateTime   @default(now())
-}
-
-model Comment {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  comment    String
-  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String?  @db.ObjectId
-  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
-  realUserId String   @db.ObjectId
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId     String   @db.ObjectId
-  createdAt  DateTime @default(now())
-}
-
-model Like {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String?  @db.ObjectId
-  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
-  realUserId String   @db.ObjectId
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId     String   @db.ObjectId
-  createdAt  DateTime @default(now())
-
-  @@unique([realUserId, postId])
-}
-
-model Bookmark {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  user       User1?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String?  @db.ObjectId
-  realUser   User     @relation(fields: [realUserId], references: [id], onDelete: Cascade)
-  realUserId String   @db.ObjectId
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId     String   @db.ObjectId
-  createdAt  DateTime @default(now())
-
-  @@unique([realUserId, postId])
-}
-
-model Follow {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  follower       User1?   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
-  followerId     String?  @db.ObjectId
-  followee       User1?   @relation("followers", fields: [followeeId], references: [id], onDelete: Cascade)
-  followeeId     String?  @db.ObjectId
-  createdAt      DateTime @default(now())
-  realFollower   User     @relation("realFollowing", fields: [realFollowerId], references: [id], onDelete: Cascade)
-  realFollowerId String   @db.ObjectId
-  realFollowee   User     @relation("realFollowers", fields: [realFolloweeId], references: [id], onDelete: Cascade)
-  realFolloweeId String   @db.ObjectId
-
-  @@unique([realFollowerId, realFolloweeId])
-}
-
 model User {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
+  name          String
   email         String?         @unique
   emailVerified DateTime?
-  image         String?
+  image         String
   accounts      Account[]
   sessions      Session[]
   // Optional for WebAuthn support
@@ -105,13 +22,68 @@ model User {
   updatedAt DateTime @updatedAt
 
   username  String     @unique
-  bio       String     @default("")
+  bio       String?
   posts     Post[]
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
-  followers Follow[]   @relation("realFollowers")
-  following Follow[]   @relation("realFollowing")
+  followers Follow[]   @relation("followers")
+  following Follow[]   @relation("following")
+}
+
+model Post {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  image     String
+  caption   String?
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String     @db.ObjectId
+  comments  Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
+  createdAt DateTime   @default(now())
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Bookmark {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  follower   User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String   @db.ObjectId
+  followee   User     @relation("followers", fields: [followeeId], references: [id], onDelete: Cascade)
+  followeeId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+
+  @@unique([followerId, followeeId])
 }
 
 model Account {
