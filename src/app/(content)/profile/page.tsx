@@ -7,5 +7,5 @@ export default function Profile() {
   const user = useUserStore((state) => state.user);
   if (!user) return;
 
-  return <ProfilePage currentUser user={user} />;
+  return <ProfilePage type="profile" user={user} />;
 }

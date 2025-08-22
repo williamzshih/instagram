@@ -1,18 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import Masonry from "react-masonry-css";
+import { getUser } from "@/actions/user";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
+type Post = NonNullable<Awaited<ReturnType<typeof getUser>>>["posts"][number];
+
 type Props = {
-  posts: {
-    createdAt: Date;
-    id: string;
-    image: string;
-  }[];
+  posts: Post[];
   type?: "bookmarks" | "likes" | "posts";
 };
 

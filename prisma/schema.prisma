@@ -22,7 +22,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   username  String     @unique
-  bio       String?
+  bio       String     @default("")
   posts     Post[]
   comments  Comment[]
   likes     Like[]

@@ -1,9 +1,10 @@
 import { X } from "lucide-react";
+import { User } from "next-auth";
 import Link from "next/link";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { toggleFollow } from "@/actions/user";
+import { deleteFollow } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,99 +21,77 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import UserBlock from "@/components/UserBlock";
 
 type FollowerStore = {
-  deleteFollower: (followerId: string) => void;
-  followers: FollowUser[];
-  setFollowers: (followers: FollowUser[]) => void;
+  deleteFollower: (id: string) => void;
+  followers: Follower[];
+  setFollowers: (followers: Follower[]) => void;
 };
 
 const useFollowerStore = create<FollowerStore>((set) => ({
-  deleteFollower: (followerId) =>
+  deleteFollower: (id) =>
     set((state) => ({
-      followers: state.followers.filter(
-        (follower) => follower.id !== followerId
-      ),
+      followers: state.followers.filter((f) => f.id !== id),
     })),
   followers: [],
   setFollowers: (followers) => set({ followers }),
 }));
 
 type FolloweeStore = {
-  deleteFollowee: (followeeId: string) => void;
-  following: FollowUser[];
-  setFollowing: (following: FollowUser[]) => void;
+  deleteFollowee: (id: string) => void;
+  following: Followee[];
+  setFollowing: (following: Followee[]) => void;
 };
 
 const useFolloweeStore = create<FolloweeStore>((set) => ({
-  deleteFollowee: (followeeId) =>
+  deleteFollowee: (id) =>
     set((state) => ({
-      following: state.following.filter(
-        (followee) => followee.id !== followeeId
-      ),
+      following: state.following.filter((f) => f.id !== id),
     })),
   following: [],
   setFollowing: (following) => set({ following }),
 }));
 
-type FollowUser = {
-  createdAt: Date;
-  id: string;
-  image?: null | string;
-  name?: null | string;
-  username: string;
-};
+type Followee = User["following"][number];
+type Follower = User["followers"][number];
 
 type Props = {
-  currentUser?: boolean;
-  currentUserId?: string;
-  followers: number;
-  user: {
-    followers: FollowUser[];
-    following: FollowUser[];
-    id: string;
-  };
-};
+  user: Pick<User, "followers" | "following">;
+} & (
+  | {
+      followers: number;
+      type: "user";
+    }
+  | {
+      type: "profile";
+    }
+);
 
-export default function FollowStats({
-  currentUser,
-  currentUserId,
-  followers: numFollowers,
-  user,
-}: Props) {
-  const followers = useFollowerStore((state) => state.followers);
-  const following = useFolloweeStore((state) => state.following);
-  const deleteFollower = useFollowerStore((state) => state.deleteFollower);
-  const deleteFollowee = useFolloweeStore((state) => state.deleteFollowee);
+export default function FollowStats(props: Props) {
+  const { type, user } = props;
+
   const setFollowers = useFollowerStore((state) => state.setFollowers);
   const setFollowing = useFolloweeStore((state) => state.setFollowing);
   useEffect(() => setFollowers(user.followers), [user.followers, setFollowers]);
   useEffect(() => setFollowing(user.following), [user.following, setFollowing]);
 
-  const handleRemoveFollower = async (followerId: string) => {
+  const followers = useFollowerStore((state) => state.followers);
+  const following = useFolloweeStore((state) => state.following);
+  const deleteFollower = useFollowerStore((state) => state.deleteFollower);
+  const deleteFollowee = useFolloweeStore((state) => state.deleteFollowee);
+
+  const handleRemoveFollower = async (id: string) => {
     try {
-      if (currentUser) currentUserId = user.id;
-      if (!currentUserId) return;
-      deleteFollower(followerId);
-      await toggleFollow({
-        following: true,
-        realFolloweeId: currentUserId,
-        realFollowerId: followerId,
-      });
+      deleteFollower(id);
+      await deleteFollow(id);
       toast.success("Removed follower");
     } catch (error) {
       toast.error((error as Error).message);
     }
   };
 
-  const handleUnfollow = async (followeeId: string) => {
+  const handleUnfollow = async (id: string) => {
     try {
-      if (currentUser) currentUserId = user.id;
-      if (!currentUserId) return;
-      deleteFollowee(followeeId);
-      await toggleFollow({
-        following: true,
-        realFolloweeId: followeeId,
-        realFollowerId: currentUserId,
-      });
+      deleteFollowee(id);
+      await deleteFollow(id);
       toast.success("Unfollowed user");
     } catch (error) {
       toast.error((error as Error).message);
@@ -128,12 +107,12 @@ export default function FollowStats({
             variant="ghost"
           >
             <p className="text-lg">
-              {currentUser ? followers.length : numFollowers}
+              {type === "profile" ? followers.length : props.followers}
             </p>
             Follower
-            {currentUser
+            {type === "profile"
               ? followers.length === 1 && "s"
-              : numFollowers === 1 && "s"}
+              : props.followers === 1 && "s"}
           </Button>
         </DialogTrigger>
         <DialogContent showCloseButton={false}>
@@ -141,27 +120,27 @@ export default function FollowStats({
           <ScrollArea className="pr-4 sm:max-h-[85vh]">
             <div className="flex flex-col gap-4">
               {followers.length > 0 ? (
-                followers.map((follower) => (
-                  <div className="relative" key={follower.id}>
+                followers.map((follow) => (
+                  <div className="relative" key={follow.id}>
                     <HoverCard>
                       <HoverCardTrigger asChild>
                         <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
-                          <Link href={`/user/${follower.username}`}>
-                            <UserBlock size={12} user={follower} />
+                          <Link href={`/user/${follow.follower.username}`}>
+                            <UserBlock size={12} user={follow.follower} />
                           </Link>
                         </div>
                       </HoverCardTrigger>
-                      {currentUser && (
+                      {type === "profile" && (
                         <HoverCardContent className="w-fit">
                           Followed you on{" "}
-                          {new Date(follower.createdAt).toLocaleDateString()}
+                          {new Date(follow.createdAt).toLocaleDateString()}
                         </HoverCardContent>
                       )}
                     </HoverCard>
-                    {currentUser && (
+                    {type === "profile" && (
                       <Button
                         className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-red-500 hover:text-red-500"
-                        onClick={() => handleRemoveFollower(follower.id)}
+                        onClick={() => handleRemoveFollower(follow.id)}
                         variant="outline"
                       >
                         <X />
@@ -191,27 +170,27 @@ export default function FollowStats({
           <ScrollArea className="pr-4 sm:max-h-[85vh]">
             <div className="flex flex-col gap-4">
               {following.length > 0 ? (
-                following.map((followee) => (
-                  <div className="relative" key={followee.id}>
+                following.map((follow) => (
+                  <div className="relative" key={follow.id}>
                     <HoverCard>
                       <HoverCardTrigger asChild>
                         <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
-                          <Link href={`/user/${followee.username}`}>
-                            <UserBlock size={12} user={followee} />
+                          <Link href={`/user/${follow.followee.username}`}>
+                            <UserBlock size={12} user={follow.followee} />
                           </Link>
                         </div>
                       </HoverCardTrigger>
-                      {currentUser && (
+                      {type === "profile" && (
                         <HoverCardContent className="w-fit">
                           Followed you on{" "}
-                          {new Date(followee.createdAt).toLocaleDateString()}
+                          {new Date(follow.createdAt).toLocaleDateString()}
                         </HoverCardContent>
                       )}
                     </HoverCard>
-                    {currentUser && (
+                    {type === "profile" && (
                       <Button
                         className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-red-500 hover:text-red-500"
-                        onClick={() => handleUnfollow(followee.id)}
+                        onClick={() => handleUnfollow(follow.id)}
                         variant="outline"
                       >
                         <X />

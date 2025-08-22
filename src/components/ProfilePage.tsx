@@ -14,37 +14,43 @@ import { Button } from "@/components/ui/button";
 import useToggle from "@/hooks/useToggle";
 
 type Props = {
-  currentUser?: boolean;
-  currentUserId?: string;
-  initialFollowing?: boolean;
   user: User;
-};
+} & (
+  | {
+      currentUserId: string;
+      initialFollow: boolean;
+      type: "user";
+    }
+  | {
+      type: "profile";
+    }
+);
 
-export default function ProfilePage({
-  currentUser,
-  currentUserId,
-  initialFollowing = false,
-  user,
-}: Props) {
+export default function ProfilePage(props: Props) {
+  const { type, user } = props;
+
   const [view, setView] = useState("posts");
-  const [following, setFollowing] = useState(initialFollowing);
+  const [followed, setFollowed] = useState(
+    type === "user" ? props.initialFollow : false
+  );
   const [followers, toggleFollowers] = useToggle(
     user.followers.length,
-    user.followers.length + (initialFollowing ? -1 : 1),
+    user.followers.length +
+      (type === "user" ? (props.initialFollow ? -1 : 1) : 0),
     user.followers.length
   );
 
   const handleFollow = async () => {
     try {
-      if (!currentUserId) return;
-      setFollowing(!following);
+      if (type !== "user") return;
+      setFollowed(!followed);
       toggleFollowers();
       await toggleFollow({
-        following,
-        realFolloweeId: user.id,
-        realFollowerId: currentUserId,
+        followed,
+        followeeId: user.id,
+        followerId: props.currentUserId,
       });
-      toast.success(following ? "Unfollowed user" : "Followed user");
+      toast.success(followed ? "Unfollowed user" : "Followed user");
     } catch (error) {
       toast.error((error as Error).message);
     }
@@ -52,18 +58,17 @@ export default function ProfilePage({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <ProfileHeader currentUser={currentUser} user={user} />
+      <ProfileHeader {...props} />
       <GradientRing>
         <ProfilePicture size={40} user={user} />
       </GradientRing>
       <ProfileInfo user={user} />
-      <FollowStats
-        currentUser={currentUser}
-        currentUserId={currentUserId}
-        followers={followers}
-        user={user}
-      />
-      {currentUser ? (
+      {type === "profile" ? (
+        <FollowStats {...props} />
+      ) : (
+        <FollowStats followers={followers} {...props} />
+      )}
+      {type === "profile" ? (
         <div className="flex gap-2">
           <Button
             className="cursor-pointer text-lg"
@@ -87,7 +92,7 @@ export default function ProfilePage({
             Bookmarks
           </Button>
         </div>
-      ) : following ? (
+      ) : followed ? (
         <Button
           className="from-ig-orange to-ig-red cursor-pointer bg-linear-to-tr"
           onClick={handleFollow}
@@ -109,12 +114,24 @@ export default function ProfilePage({
         )
       ) : view === "likes" ? (
         user.likes.length > 0 ? (
-          <PostGrid posts={user.likes} type="likes" />
+          <PostGrid
+            posts={user.likes.map((like) => ({
+              ...like.post,
+              createdAt: like.createdAt,
+            }))}
+            type="likes"
+          />
         ) : (
           <div className="text-muted-foreground">No likes yet</div>
         )
       ) : user.bookmarks.length > 0 ? (
-        <PostGrid posts={user.bookmarks} type="bookmarks" />
+        <PostGrid
+          posts={user.bookmarks.map((bookmark) => ({
+            ...bookmark.post,
+            createdAt: bookmark.createdAt,
+          }))}
+          type="bookmarks"
+        />
       ) : (
         <div className="text-muted-foreground">No bookmarks yet</div>
       )}

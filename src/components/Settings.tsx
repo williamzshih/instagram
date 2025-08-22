@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle, Upload } from "lucide-react";
+import { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -36,32 +37,23 @@ import { useUserStore } from "@/store/userStore";
 
 type Props = {
   close: () => void;
-  user: {
-    bio: string;
-    createdAt: Date;
-    email?: null | string;
-    id?: string;
-    image?: null | string;
-    name?: null | string;
-    username: string;
-  };
+  user: Pick<User, "bio" | "createdAt" | "id" | "image" | "name" | "username">;
 };
 
 export default function Settings({ close, user }: Props) {
-  const updateUser = useUserStore((state) => state.updateUser);
   const [uploading, setUploading] = useState(false);
+  const updateUser = useUserStore((state) => state.updateUser);
 
   const formSchema = z.object({
     bio: z
       .string()
       .max(BIO_MAX, `Bio must be at most ${BIO_MAX} characters long`),
-    image: z.string().nullish(),
+    image: z.string(),
     name: z
       .string()
       .min(1, "Name is required")
       .min(NAME_MIN, `Name must be at least ${NAME_MIN} characters long`)
-      .max(NAME_MAX, `Name must be at most ${NAME_MAX} characters long`)
-      .nullish(),
+      .max(NAME_MAX, `Name must be at most ${NAME_MAX} characters long`),
     username: z
       .string()
       .min(1, "Username is required")
@@ -89,7 +81,6 @@ export default function Settings({ close, user }: Props) {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      if (!user.id) return;
       updateUser(data);
       await updateUserAction({ data, id: user.id });
       toast.success("Settings updated");
@@ -110,7 +101,6 @@ export default function Settings({ close, user }: Props) {
 
   const handleDeleteAccount = async () => {
     try {
-      if (!user.id) return;
       await signOut();
       await deleteUser(user.id);
       toast.success("Your account has been deleted");
@@ -127,13 +117,7 @@ export default function Settings({ close, user }: Props) {
           htmlFor="image"
         >
           <Avatar className="size-40">
-            <AvatarImage
-              alt="Your profile picture"
-              src={
-                form.watch("image") ||
-                "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
-              }
-            />
+            <AvatarImage alt="Your profile picture" src={form.watch("image")} />
           </Avatar>
           <div className="absolute inset-0 rounded-full bg-black opacity-0 transition-opacity hover:opacity-25" />
           {uploading ? (
@@ -200,15 +184,11 @@ export default function Settings({ close, user }: Props) {
                 <FormLabel className="flex justify-between">
                   Name
                   <p className="text-muted-foreground">
-                    {form.watch("name")?.length || 0}/{NAME_MAX}
+                    {form.watch("name").length}/{NAME_MAX}
                   </p>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Name"
-                    {...field}
-                    value={field.value || ""}
-                  />
+                  <Input placeholder="Name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

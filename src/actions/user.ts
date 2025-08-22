@@ -10,7 +10,6 @@ export const getUser = async (username: string) => {
         bookmarks: {
           select: {
             createdAt: true,
-            id: true,
             post: {
               select: {
                 id: true,
@@ -51,7 +50,6 @@ export const getUser = async (username: string) => {
         likes: {
           select: {
             createdAt: true,
-            id: true,
             post: {
               select: {
                 id: true,
@@ -78,14 +76,82 @@ export const getUser = async (username: string) => {
   }
 };
 
+export const getInitialFollow = async (followerId_followeeId: {
+  followeeId: string;
+  followerId: string;
+}) => {
+  try {
+    return !!(await prisma.follow.findUnique({
+      where: {
+        followerId_followeeId,
+      },
+    }));
+  } catch (error) {
+    console.error("Error getting initial follow:", error);
+    throw new Error("Error getting initial follow:", { cause: error });
+  }
+};
+
+export const toggleFollow = async ({
+  followed,
+  followeeId,
+  followerId,
+}: {
+  followed: boolean;
+  followeeId: string;
+  followerId: string;
+}) => {
+  try {
+    if (followed)
+      await prisma.follow.delete({
+        where: {
+          followerId_followeeId: {
+            followeeId,
+            followerId,
+          },
+        },
+      });
+    else
+      await prisma.follow.create({
+        data: { followeeId, followerId },
+      });
+  } catch (error) {
+    const message = followed
+      ? "Error unfollowing user:"
+      : "Error following user:";
+    console.error(message, error);
+    throw new Error(message, { cause: error });
+  }
+};
+
+export const deleteFollow = async (id: string) => {
+  try {
+    await prisma.follow.delete({ where: { id } });
+  } catch (error) {
+    console.error("Error removing follow:", error);
+    throw new Error("Error removing follow:", { cause: error });
+  }
+};
+
+export const checkUsername = async (username: string) => {
+  try {
+    return !(await prisma.user.findUnique({
+      where: { username },
+    }));
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    throw new Error("Error checking username availability:", { cause: error });
+  }
+};
+
 export const updateUser = async ({
   data,
   id,
 }: {
   data: {
     bio: string;
-    image?: null | string;
-    name?: null | string;
+    image: string;
+    name: string;
     username: string;
   };
   id: string;
@@ -106,64 +172,5 @@ export const deleteUser = async (id: string) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     throw new Error("Error deleting user:", { cause: error });
-  }
-};
-
-export const checkUsername = async (username: string) => {
-  try {
-    return !(await prisma.user.findUnique({
-      where: { username },
-    }));
-  } catch (error) {
-    console.error("Error checking username availability:", error);
-    throw new Error("Error checking username availability:", { cause: error });
-  }
-};
-
-export const getInitialFollowing = async (realFollowerId_realFolloweeId: {
-  realFolloweeId: string;
-  realFollowerId: string;
-}) => {
-  try {
-    return !!(await prisma.follow.findUnique({
-      where: {
-        realFollowerId_realFolloweeId,
-      },
-    }));
-  } catch (error) {
-    console.error("Error getting initial follow:", error);
-    throw new Error("Error getting initial follow:", { cause: error });
-  }
-};
-
-export const toggleFollow = async ({
-  following,
-  realFolloweeId,
-  realFollowerId,
-}: {
-  following: boolean;
-  realFolloweeId: string;
-  realFollowerId: string;
-}) => {
-  try {
-    if (following)
-      await prisma.follow.delete({
-        where: {
-          realFollowerId_realFolloweeId: {
-            realFolloweeId,
-            realFollowerId,
-          },
-        },
-      });
-    else
-      await prisma.follow.create({
-        data: { realFolloweeId, realFollowerId },
-      });
-  } catch (error) {
-    const message = following
-      ? "Error unfollowing user:"
-      : "Error following user:";
-    console.error(message, error);
-    throw new Error(message, { cause: error });
   }
 };

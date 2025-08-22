@@ -1,4 +1,5 @@
 import { SettingsIcon } from "lucide-react";
+import { User } from "next-auth";
 import { useState } from "react";
 import Settings from "@/components/Settings";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,11 @@ import {
 } from "@/components/ui/dialog";
 
 type Props = {
-  currentUser?: boolean;
-  user: {
-    bio: string;
-    createdAt: Date;
-    email?: null | string;
-    id?: string;
-    image?: null | string;
-    name?: null | string;
-    username: string;
-  };
+  type: "profile" | "user";
+  user: Pick<User, "bio" | "createdAt" | "id" | "image" | "name" | "username">;
 };
 
-export default function ProfileHeader({ currentUser, user }: Props) {
+export default function ProfileHeader({ type, user }: Props) {
   const [open, setOpen] = useState(false);
   const wait = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -32,7 +25,7 @@ export default function ProfileHeader({ currentUser, user }: Props) {
         <SettingsIcon className="size-8" />
       </Button>
       <p className="text-2xl font-semibold">@{user.username}</p>
-      {currentUser ? (
+      {type === "profile" ? (
         <Dialog onOpenChange={setOpen} open={open}>
           <DialogTrigger asChild>
             <Button className="size-fit cursor-pointer" variant="ghost">

@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getInitialFollowing, getUser } from "@/actions/user";
+import { getInitialFollow, getUser } from "@/actions/user";
 import { auth } from "@/auth";
 import ProfilePage from "@/components/ProfilePage";
 
@@ -15,36 +15,17 @@ export default async function User({
   const user = await getUser(username);
   if (!user) return notFound();
 
-  const transformedUser = {
-    ...user,
-    bookmarks: user.bookmarks.map((bookmark) => ({
-      ...bookmark.post,
-      createdAt: bookmark.createdAt,
-    })),
-    followers: user.followers.map((follow) => ({
-      ...follow.realFollower,
-      createdAt: follow.createdAt,
-    })),
-    following: user.following.map((follow) => ({
-      ...follow.realFollowee,
-      createdAt: follow.createdAt,
-    })),
-    likes: user.likes.map((like) => ({
-      ...like.post,
-      createdAt: like.createdAt,
-    })),
-  };
-
-  const initialFollowing = await getInitialFollowing({
-    realFolloweeId: user.id,
-    realFollowerId: session.user.id,
+  const initialFollow = await getInitialFollow({
+    followeeId: user.id,
+    followerId: session.user.id,
   });
 
   return (
     <ProfilePage
       currentUserId={session.user.id}
-      initialFollowing={initialFollowing}
-      user={transformedUser}
+      initialFollow={initialFollow}
+      type="user"
+      user={user}
     />
   );
 }

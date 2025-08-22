@@ -68,7 +68,7 @@ type Props = {
   post: Post;
 };
 
-export default function Post({
+export default function PostPage({
   initialBookmark,
   initialLike,
   link,
