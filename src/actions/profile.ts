@@ -217,68 +217,6 @@ export const getFollowing = async (id: string) => {
   }
 };
 
-export const toggleFollow = async (followeeId: string, following: boolean) => {
-  try {
-    const userId = await getUserId();
-    if (following) await removeFollow(userId, followeeId, "unfollow");
-    else await addFollow(userId, followeeId);
-  } catch (error) {
-    console.error("Error toggling follow:", error);
-    throw new Error("Error toggling follow:", { cause: error });
-  }
-};
-
-export const removeFollow = async (
-  followerId: string,
-  followeeId: string,
-  type: "remove" | "unfollow"
-) => {
-  try {
-    await prisma.follow.delete({
-      where: {
-        followerId_followeeId: {
-          followeeId,
-          followerId,
-        },
-      },
-    });
-  } catch (error) {
-    const message =
-      type === "remove"
-        ? "Error removing follower:"
-        : "Error unfollowing user:";
-    console.error(message, error);
-    throw new Error(message, { cause: error });
-  }
-};
-
-const addFollow = async (followerId: string, followeeId: string) => {
-  try {
-    await prisma.follow.create({
-      data: { followeeId, followerId },
-    });
-  } catch (error) {
-    console.error("Error following user:", error);
-    throw new Error("Error following user:", { cause: error });
-  }
-};
-
-export const checkFollow = async (followeeId: string) => {
-  try {
-    return !!(await prisma.follow.findUnique({
-      where: {
-        followerId_followeeId: {
-          followeeId,
-          followerId: await getUserId(),
-        },
-      },
-    }));
-  } catch (error) {
-    console.error("Error checking if following:", error);
-    throw new Error("Error checking if following:", { cause: error });
-  }
-};
-
 export const createUser = async (data: {
   avatar?: string;
   email: string;
