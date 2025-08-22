@@ -100,7 +100,6 @@ export default function DesktopNav() {
           <p className="text-lg">Profile</p>
         </Link>
       </Button>
-      <div className="flex-1" />
       <Button
         className="flex h-fit w-fit cursor-pointer items-center gap-4 transition-transform hover:scale-105 hover:bg-transparent"
         onClick={handleSignOut}

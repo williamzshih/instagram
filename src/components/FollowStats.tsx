@@ -124,7 +124,7 @@ export default function FollowStats({
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="flex size-fit cursor-pointer flex-col gap-0"
+            className="size-fit cursor-pointer flex-col gap-0"
             variant="ghost"
           >
             <p className="text-lg">
@@ -179,7 +179,7 @@ export default function FollowStats({
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="flex size-fit cursor-pointer flex-col gap-0"
+            className="size-fit cursor-pointer flex-col gap-0"
             variant="ghost"
           >
             <p className="text-lg">{following.length}</p>

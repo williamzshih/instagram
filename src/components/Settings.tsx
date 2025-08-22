@@ -237,7 +237,7 @@ export default function Settings({ close, user }: Props) {
           </Button>
         </form>
       </Form>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         <Button
           className="cursor-pointer text-red-500 hover:text-red-500"
           onClick={handleSignOut}
