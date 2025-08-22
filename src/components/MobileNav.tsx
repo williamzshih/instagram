@@ -11,7 +11,7 @@ export default function MobileNav() {
         variant="ghost"
       >
         <Link href="/">
-          <House />
+          <House className="size-8" />
         </Link>
       </Button>
       <Button
@@ -20,7 +20,7 @@ export default function MobileNav() {
         variant="ghost"
       >
         <Link href="/search">
-          <Search />
+          <Search className="size-8" />
         </Link>
       </Button>
       <Link
@@ -35,7 +35,7 @@ export default function MobileNav() {
         variant="ghost"
       >
         <Link href="/browse">
-          <LayoutGrid />
+          <LayoutGrid className="size-8" />
         </Link>
       </Button>
       <Button
@@ -44,7 +44,7 @@ export default function MobileNav() {
         variant="ghost"
       >
         <Link href="/profile">
-          <User />
+          <User className="size-8" />
         </Link>
       </Button>
     </div>

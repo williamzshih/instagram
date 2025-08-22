@@ -247,7 +247,7 @@ export default function Post({
           comment={post.caption}
           createdAt={post.createdAt}
           onClick={post.realUser.id === user.id ? handleDeletePost : undefined}
-          size={12}
+          size={16}
           user={post.realUser}
         />
         <Separator />
@@ -261,12 +261,12 @@ export default function Post({
                 ? () => handleDeleteComment(comment.id)
                 : undefined
             }
-            size={10}
+            size={12}
             user={comment.realUser}
           />
         ))}
         <div className="flex items-center gap-4">
-          <ProfilePicture size={10} user={user} />
+          <ProfilePicture size={12} user={user} />
           <Form {...form}>
             <form className="w-full">
               <FormField

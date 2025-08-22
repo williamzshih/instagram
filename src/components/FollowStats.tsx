@@ -147,7 +147,7 @@ export default function FollowStats({
                       <HoverCardTrigger asChild>
                         <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
                           <Link href={`/user/${follower.username}`}>
-                            <UserBlock size={10} user={follower} />
+                            <UserBlock size={12} user={follower} />
                           </Link>
                         </div>
                       </HoverCardTrigger>
@@ -197,7 +197,7 @@ export default function FollowStats({
                       <HoverCardTrigger asChild>
                         <div className="bg-muted rounded-xl p-4 transition-all hover:brightness-95">
                           <Link href={`/user/${followee.username}`}>
-                            <UserBlock size={10} user={followee} />
+                            <UserBlock size={12} user={followee} />
                           </Link>
                         </div>
                       </HoverCardTrigger>

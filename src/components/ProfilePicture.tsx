@@ -11,18 +11,15 @@ type Props = {
 };
 
 export default function ProfilePicture({ link, size, user }: Props) {
-  const sizeClass =
-    size === 10
-      ? "size-10"
-      : size === 12
-        ? "size-12"
-        : size === 16
-          ? "size-16"
-          : "size-40";
+  const sizes: Record<number, string> = {
+    12: "size-12",
+    16: "size-16",
+    40: "size-40",
+  };
 
   return link ? (
     <Link className="size-fit rounded-full" href={`/user/${user.username}`}>
-      <Avatar className={sizeClass}>
+      <Avatar className={sizes[size]}>
         <AvatarImage
           alt={`@${user.username}'s profile picture`}
           src={
@@ -33,7 +30,7 @@ export default function ProfilePicture({ link, size, user }: Props) {
       </Avatar>
     </Link>
   ) : (
-    <Avatar className={sizeClass}>
+    <Avatar className={sizes[size]}>
       <AvatarImage
         alt={`@${user.username}'s profile picture`}
         src={

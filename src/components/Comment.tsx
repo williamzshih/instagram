@@ -34,7 +34,7 @@ export default function Comment({
           <UserBlock size={size} user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="px-2 py-4 [&_svg]:size-4" variant="ghost">
+              <Button variant="ghost">
                 <EllipsisVertical />
               </Button>
             </DropdownMenuTrigger>
