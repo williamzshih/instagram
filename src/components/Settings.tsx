@@ -49,7 +49,7 @@ type Props = {
 
 export default function Settings({ close, user }: Props) {
   const updateUser = useUserStore((state) => state.updateUser);
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const formSchema = z.object({
     bio: z
@@ -136,7 +136,7 @@ export default function Settings({ close, user }: Props) {
             />
           </Avatar>
           <div className="absolute inset-0 rounded-full bg-black opacity-0 hover:opacity-25 transition-opacity" />
-          {isUploading ? (
+          {uploading ? (
             <LoaderCircle
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white animate-spin"
               size={48}
@@ -154,7 +154,7 @@ export default function Settings({ close, user }: Props) {
           id="image"
           onChange={async (e) => {
             if (e.target.files?.[0]) {
-              setIsUploading(true);
+              setUploading(true);
               try {
                 const url = await uploadFile(e.target.files[0]);
                 form.setValue("image", url);
@@ -162,7 +162,7 @@ export default function Settings({ close, user }: Props) {
               } catch (error) {
                 toast.error((error as Error).message);
               } finally {
-                setIsUploading(false);
+                setUploading(false);
               }
             }
           }}

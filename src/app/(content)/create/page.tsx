@@ -35,7 +35,7 @@ const formSchema = z.object({
 
 export default function Create() {
   const router = useRouter();
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const form = useForm({
     defaultValues: {
       caption: "",
@@ -69,7 +69,7 @@ export default function Create() {
             alt="Uploaded image"
             className={cn(
               "hover:brightness-75 transition-all",
-              isUploading && "brightness-75"
+              uploading && "brightness-75"
             )}
             height={500}
             src={`${form.watch("image")}?img-width=500&img-height=500`}
@@ -79,11 +79,11 @@ export default function Create() {
           <div
             className={cn(
               "size-full bg-muted hover:brightness-75 transition-all",
-              isUploading && "brightness-75"
+              uploading && "brightness-75"
             )}
           />
         )}
-        {isUploading ? (
+        {uploading ? (
           <LoaderCircle
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white animate-spin"
             size={48}
@@ -101,7 +101,7 @@ export default function Create() {
         id="image"
         onChange={async (e) => {
           if (e.target.files?.[0]) {
-            setIsUploading(true);
+            setUploading(true);
             try {
               const url = await uploadFile(e.target.files[0]);
               form.setValue("image", url);
@@ -109,7 +109,7 @@ export default function Create() {
             } catch (error) {
               toast.error((error as Error).message);
             } finally {
-              setIsUploading(false);
+              setUploading(false);
             }
           }
         }}
