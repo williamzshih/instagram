@@ -16,7 +16,7 @@ import {
 import { deletePost } from "@/actions/post";
 import { toggleBookmark, toggleLike } from "@/actions/post";
 import Comment from "@/components/Comment";
-import LinkImage from "@/components/LinkImage";
+import ProfilePicture from "@/components/ProfilePicture";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -197,7 +197,7 @@ export default function Post({
         {linked ? (
           <Link href={`/post/${post.id}`}>
             <Image
-              alt="Image of the post"
+              alt="Post image"
               height={1000}
               priority
               src={`${post.image}?img-width=1000&img-height=1000`}
@@ -206,7 +206,7 @@ export default function Post({
           </Link>
         ) : (
           <Image
-            alt="Image of the post"
+            alt="Post image"
             height={1000}
             priority
             src={`${post.image}?img-width=1000&img-height=1000`}
@@ -266,7 +266,7 @@ export default function Post({
           />
         ))}
         <div className="flex items-center gap-4">
-          <LinkImage size={10} user={user} />
+          <ProfilePicture size={10} user={user} />
           <Form {...form}>
             <form className="w-full">
               <FormField

@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import { toggleFollow } from "@/actions/user";
 import FollowStats from "@/components/FollowStats";
 import GradientRing from "@/components/GradientRing";
-import LinkImage from "@/components/LinkImage";
 import PostGrid from "@/components/PostGrid";
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileInfo from "@/components/ProfileInfo";
+import ProfilePicture from "@/components/ProfilePicture";
 import { Button } from "@/components/ui/button";
 import useToggle from "@/hooks/useToggle";
 
@@ -54,7 +54,7 @@ export default function ProfilePage({
     <div className="flex flex-col items-center gap-4">
       <ProfileHeader currentUser={currentUser} user={user} />
       <GradientRing>
-        <LinkImage noLink size={40} user={user} />
+        <ProfilePicture size={40} user={user} />
       </GradientRing>
       <ProfileInfo user={user} />
       <FollowStats

@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 type Props = {
-  noLink?: boolean;
-  profilePage?: boolean;
+  link?: boolean;
   size: number;
   user: {
     image?: null | string;
@@ -11,7 +10,7 @@ type Props = {
   };
 };
 
-export default function LinkImage({ noLink, profilePage, size, user }: Props) {
+export default function ProfilePicture({ link, size, user }: Props) {
   const sizeClass =
     size === 10
       ? "size-10"
@@ -21,17 +20,7 @@ export default function LinkImage({ noLink, profilePage, size, user }: Props) {
           ? "size-16"
           : "size-40";
 
-  return noLink || profilePage ? (
-    <Avatar className={sizeClass}>
-      <AvatarImage
-        alt={`@${user.username}'s profile picture`}
-        src={
-          user.image ||
-          "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
-        }
-      />
-    </Avatar>
-  ) : (
+  return link ? (
     <Link className="size-fit rounded-full" href={`/user/${user.username}`}>
       <Avatar className={sizeClass}>
         <AvatarImage
@@ -43,5 +32,15 @@ export default function LinkImage({ noLink, profilePage, size, user }: Props) {
         />
       </Avatar>
     </Link>
+  ) : (
+    <Avatar className={sizeClass}>
+      <AvatarImage
+        alt={`@${user.username}'s profile picture`}
+        src={
+          user.image ||
+          "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
+        }
+      />
+    </Avatar>
   );
 }

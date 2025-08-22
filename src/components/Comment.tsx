@@ -50,7 +50,7 @@ export default function Comment({
           </DropdownMenu>
         </div>
       ) : (
-        <UserBlock size={size} user={user} />
+        <UserBlock link size={size} user={user} />
       )}
       {comment && <p className="bg-muted rounded-xl p-4">{comment}</p>}
       <div className="text-muted-foreground text-right text-sm">

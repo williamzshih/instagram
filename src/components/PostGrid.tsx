@@ -34,7 +34,7 @@ export default function PostGrid({ posts, type = "posts" }: Props) {
             <HoverCardTrigger asChild>
               <Link href={`/post/${post.id}`}>
                 <Image
-                  alt="Image of the post"
+                  alt="Post image"
                   className="transition-all hover:brightness-75"
                   height={500}
                   src={`${post.image}?img-width=500&img-height=500`}
