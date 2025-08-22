@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/db";
+import { Prisma } from "@prisma/client";
 
 export const getPost = async (id: string) => {
   try {
@@ -46,6 +47,48 @@ export const getPost = async (id: string) => {
   } catch (error) {
     console.error("Error getting post:", error);
     throw new Error("Error getting post:", { cause: error });
+  }
+};
+
+export const getSortedPosts = async (sort: string) => {
+  try {
+    let orderBy: Prisma.PostOrderByWithRelationInput;
+
+    switch (sort) {
+      case "Newest":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "Oldest":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "Most likes":
+        orderBy = { likes: { _count: "desc" } };
+        break;
+      case "Least likes":
+        orderBy = { likes: { _count: "asc" } };
+        break;
+      case "Most comments":
+        orderBy = { comments: { _count: "desc" } };
+        break;
+      case "Least comments":
+        orderBy = { comments: { _count: "asc" } };
+        break;
+      default:
+        orderBy = { createdAt: "desc" };
+        break;
+    }
+
+    return await prisma.post.findMany({
+      orderBy,
+      select: {
+        id: true,
+        image: true,
+        createdAt: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error getting sorted posts:", error);
+    throw new Error("Error getting sorted posts:", { cause: error });
   }
 };
 
