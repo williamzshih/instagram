@@ -1,6 +1,8 @@
 "use client";
 
-import { getUser } from "@/actions/user";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { getSortedPosts } from "@/actions/post";
 import PostGrid from "@/components/PostGrid";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +12,6 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { getSortedPosts } from "@/actions/post";
 
 const sortOptions = [
   "Newest",
@@ -29,9 +28,9 @@ export default function BrowsePage({ initialData }: { initialData: Post[] }) {
   const [sort, setSort] = useState("Newest");
 
   const { data } = useQuery({
-    queryKey: ["posts", sort],
-    queryFn: () => getSortedPosts(sort),
     initialData,
+    queryFn: () => getSortedPosts(sort),
+    queryKey: ["posts", sort],
   });
 
   return (

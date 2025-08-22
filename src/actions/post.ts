@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/db";
 import { Prisma } from "@prisma/client";
+import { prisma } from "@/db";
 
 export const getPost = async (id: string) => {
   try {
@@ -55,14 +55,8 @@ export const getSortedPosts = async (sort: string) => {
     let orderBy: Prisma.PostOrderByWithRelationInput;
 
     switch (sort) {
-      case "Newest":
-        orderBy = { createdAt: "desc" };
-        break;
-      case "Oldest":
-        orderBy = { createdAt: "asc" };
-        break;
-      case "Most likes":
-        orderBy = { likes: { _count: "desc" } };
+      case "Least comments":
+        orderBy = { comments: { _count: "asc" } };
         break;
       case "Least likes":
         orderBy = { likes: { _count: "asc" } };
@@ -70,8 +64,14 @@ export const getSortedPosts = async (sort: string) => {
       case "Most comments":
         orderBy = { comments: { _count: "desc" } };
         break;
-      case "Least comments":
-        orderBy = { comments: { _count: "asc" } };
+      case "Most likes":
+        orderBy = { likes: { _count: "desc" } };
+        break;
+      case "Newest":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "Oldest":
+        orderBy = { createdAt: "asc" };
         break;
       default:
         orderBy = { createdAt: "desc" };
@@ -81,9 +81,10 @@ export const getSortedPosts = async (sort: string) => {
     return await prisma.post.findMany({
       orderBy,
       select: {
+        caption: true,
+        createdAt: true,
         id: true,
         image: true,
-        createdAt: true,
       },
     });
   } catch (error) {

@@ -38,11 +38,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const data = await prisma.user.findUnique({
         select: {
           bookmarks: {
+            orderBy: {
+              createdAt: "desc",
+            },
             select: {
               createdAt: true,
               id: true,
               post: {
                 select: {
+                  caption: true,
                   id: true,
                   image: true,
                 },
@@ -50,6 +54,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
           },
           followers: {
+            orderBy: {
+              createdAt: "desc",
+            },
             select: {
               createdAt: true,
               follower: {
@@ -63,6 +70,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
           },
           following: {
+            orderBy: {
+              createdAt: "desc",
+            },
             select: {
               createdAt: true,
               followee: {
@@ -76,11 +86,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
           },
           likes: {
+            orderBy: {
+              createdAt: "desc",
+            },
             select: {
               createdAt: true,
               id: true,
               post: {
                 select: {
+                  caption: true,
                   id: true,
                   image: true,
                 },
@@ -88,7 +102,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
           },
           posts: {
+            orderBy: {
+              createdAt: "desc",
+            },
             select: {
+              caption: true,
               createdAt: true,
               id: true,
               image: true,

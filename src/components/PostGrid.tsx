@@ -41,14 +41,17 @@ export default function PostGrid({ posts, type = "posts" }: Props) {
                 />
               </Link>
             </HoverCardTrigger>
-            <HoverCardContent className="w-fit">
-              {type === "posts"
-                ? "Posted"
-                : type === "likes"
-                  ? "Liked"
-                  : "Bookmarked"}
-              {" on "}
-              {new Date(post.createdAt).toLocaleDateString()}
+            <HoverCardContent className="flex w-full max-w-md flex-col gap-2">
+              {post.caption && <p className="line-clamp-3">{post.caption}</p>}
+              <p className="text-muted-foreground text-sm">
+                {type === "posts"
+                  ? "Posted"
+                  : type === "likes"
+                    ? "Liked"
+                    : "Bookmarked"}
+                {" on "}
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
             </HoverCardContent>
           </HoverCard>
         </div>

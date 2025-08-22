@@ -8,10 +8,14 @@ export const getUser = async (username: string) => {
       select: {
         bio: true,
         bookmarks: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
             createdAt: true,
             post: {
               select: {
+                caption: true,
                 id: true,
                 image: true,
               },
@@ -20,6 +24,9 @@ export const getUser = async (username: string) => {
         },
         createdAt: true,
         followers: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
             createdAt: true,
             follower: {
@@ -33,6 +40,9 @@ export const getUser = async (username: string) => {
           },
         },
         following: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
             createdAt: true,
             followee: {
@@ -48,10 +58,14 @@ export const getUser = async (username: string) => {
         id: true,
         image: true,
         likes: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
             createdAt: true,
             post: {
               select: {
+                caption: true,
                 id: true,
                 image: true,
               },
@@ -60,7 +74,11 @@ export const getUser = async (username: string) => {
         },
         name: true,
         posts: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
+            caption: true,
             createdAt: true,
             id: true,
             image: true,

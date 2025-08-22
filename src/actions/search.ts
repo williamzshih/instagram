@@ -2,22 +2,22 @@
 
 import { prisma } from "@/db";
 
-export const searchUsers = async (q: string) => {
+export const searchUsers = async (search: string) => {
   try {
-    return await prisma.user1.findMany({
+    return await prisma.user.findMany({
       orderBy: {
-        username: "asc",
+        name: "asc",
       },
       select: {
-        avatar: true,
         id: true,
+        image: true,
         name: true,
         username: true,
       },
       where: {
         OR: [
-          { username: { contains: q, mode: "insensitive" } },
-          { name: { contains: q, mode: "insensitive" } },
+          { username: { contains: search, mode: "insensitive" } },
+          { name: { contains: search, mode: "insensitive" } },
         ],
       },
     });
@@ -27,7 +27,7 @@ export const searchUsers = async (q: string) => {
   }
 };
 
-export const searchPosts = async (q: string) => {
+export const searchPosts = async (search: string) => {
   try {
     return await prisma.post.findMany({
       orderBy: {
@@ -38,18 +38,28 @@ export const searchPosts = async (q: string) => {
         createdAt: true,
         id: true,
         image: true,
-        user: {
-          select: {
-            avatar: true,
-            name: true,
-            username: true,
-          },
-        },
       },
       where: {
-        caption: {
-          contains: q,
-        },
+        OR: [
+          {
+            caption: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            user: {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+              username: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
       },
     });
   } catch (error) {
