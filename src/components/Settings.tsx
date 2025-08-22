@@ -179,7 +179,7 @@ export default function Settings({ close, user }: Props) {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center justify-between">
+                <FormLabel className="flex justify-between">
                   Username
                   <p className="text-muted-foreground">
                     {form.watch("username").length}/{USERNAME_MAX}
@@ -197,7 +197,7 @@ export default function Settings({ close, user }: Props) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center justify-between">
+                <FormLabel className="flex justify-between">
                   Name
                   <p className="text-muted-foreground">
                     {form.watch("name")?.length || 0}/{NAME_MAX}
@@ -219,7 +219,7 @@ export default function Settings({ close, user }: Props) {
             name="bio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center justify-between">
+                <FormLabel className="flex justify-between">
                   Bio
                   <p className="text-muted-foreground">
                     {form.watch("bio").length}/{BIO_MAX}

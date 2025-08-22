@@ -39,7 +39,7 @@ export default function DesktopNav() {
         className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
         variant="ghost"
       >
-        <Link className="flex items-center gap-3" href="/">
+        <Link className="flex gap-3" href="/">
           <Image
             alt="Instagram logo"
             height={32}

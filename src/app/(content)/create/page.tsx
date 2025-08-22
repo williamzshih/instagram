@@ -125,7 +125,7 @@ export default function Create() {
             name="caption"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center justify-between">
+                <FormLabel className="flex justify-between">
                   Caption
                   <p className="text-muted-foreground">
                     {form.watch("caption").length}/{CAPTION_MAX}
