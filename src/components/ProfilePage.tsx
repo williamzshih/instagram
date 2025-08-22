@@ -1,133 +1,120 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { redirect, useSearchParams } from "next/navigation";
-import { getBookmarks, getLikes, getPosts } from "@/actions/profile";
-import Loading from "@/components/Loading";
+import { User } from "next-auth";
+import { useState } from "react";
+import { toast } from "sonner";
+import { toggleFollow } from "@/actions/user";
+import FollowStats from "@/components/FollowStats";
+import GradientRing from "@/components/GradientRing";
+import LinkImage from "@/components/LinkImage";
 import PostGrid from "@/components/PostGrid";
+import ProfileHeader from "@/components/ProfileHeader";
 import ProfileInfo from "@/components/ProfileInfo";
 import { Button } from "@/components/ui/button";
+import useToggle from "@/hooks/useToggle";
 
 type Props = {
   currentUser?: boolean;
-  following?: boolean;
-  profile: {
-    _count: {
-      followers: number;
-      following: number;
-    };
-    avatar: string;
-    bio: string;
-    createdAt: Date;
-    id: string;
-    name: string;
-    username: string;
-  };
+  currentUserId?: string;
+  initialFollowing?: boolean;
+  user: User;
 };
 
 export default function ProfilePage({
   currentUser,
-  following,
-  profile,
+  currentUserId,
+  initialFollowing = false,
+  user,
 }: Props) {
-  const searchParams = useSearchParams();
-  const view = searchParams.get("view") || "posts";
+  const [view, setView] = useState("posts");
+  const [following, setFollowing] = useState(initialFollowing);
+  const [followers, toggleFollowers] = useToggle(
+    user.followers.length,
+    user.followers.length + (initialFollowing ? -1 : 1),
+    user.followers.length
+  );
 
-  const {
-    data: posts,
-    error: postsError,
-    isPending: postsPending,
-  } = useQuery({
-    enabled: view === "posts" || !currentUser,
-    queryFn: () => getPosts(profile.id),
-    queryKey: ["posts", profile.id],
-  });
-
-  const {
-    data: likes,
-    error: likesError,
-    isPending: likesPending,
-  } = useQuery({
-    enabled: view === "likes" && currentUser,
-    queryFn: () => getLikes(profile.id),
-    queryKey: ["likes", profile.id],
-  });
-
-  const {
-    data: bookmarks,
-    error: bookmarksError,
-    isPending: bookmarksPending,
-  } = useQuery({
-    enabled: view === "bookmarks" && currentUser,
-    queryFn: () => getBookmarks(profile.id),
-    queryKey: ["bookmarks", profile.id],
-  });
-
-  if (postsError) {
-    console.error("Error getting posts:", postsError);
-    throw new Error("Error getting posts:", { cause: postsError });
-  }
-  if (likesError) {
-    console.error("Error getting likes:", likesError);
-    throw new Error("Error getting likes:", { cause: likesError });
-  }
-  if (bookmarksError) {
-    console.error("Error getting bookmarks:", bookmarksError);
-    throw new Error("Error getting bookmarks:", { cause: bookmarksError });
-  }
+  const handleFollow = async () => {
+    try {
+      if (!currentUserId) return;
+      setFollowing(!following);
+      toggleFollowers();
+      await toggleFollow({
+        following,
+        realFolloweeId: user.id,
+        realFollowerId: currentUserId,
+      });
+      toast.success(following ? "Unfollowed user" : "Followed user");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <ProfileInfo
+    <div className="flex flex-col gap-4 items-center">
+      <ProfileHeader currentUser={currentUser} user={user} />
+      <GradientRing>
+        <LinkImage noLink={currentUser} size={40} user={user} />
+      </GradientRing>
+      <ProfileInfo user={user} />
+      <FollowStats
         currentUser={currentUser}
-        following={following}
-        profile={profile}
+        currentUserId={currentUserId}
+        followers={followers}
+        user={user}
       />
-      {currentUser && (
-        <div className="flex items-center justify-center gap-2">
+      {currentUser ? (
+        <div className="flex gap-2">
           <Button
             className="text-lg cursor-pointer"
-            onClick={() => redirect(`?view=posts`)}
+            onClick={() => setView("posts")}
             variant={view === "posts" ? "default" : "ghost"}
           >
             Posts
           </Button>
           <Button
             className="text-lg cursor-pointer"
-            onClick={() => redirect(`?view=likes`)}
+            onClick={() => setView("likes")}
             variant={view === "likes" ? "default" : "ghost"}
           >
             Likes
           </Button>
           <Button
             className="text-lg cursor-pointer"
-            onClick={() => redirect(`?view=bookmarks`)}
+            onClick={() => setView("bookmarks")}
             variant={view === "bookmarks" ? "default" : "ghost"}
           >
             Bookmarks
           </Button>
         </div>
+      ) : following ? (
+        <Button
+          className="bg-linear-to-tr from-ig-orange to-ig-red cursor-pointer"
+          onClick={handleFollow}
+          onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
+          onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}
+        >
+          Following
+        </Button>
+      ) : (
+        <Button className="cursor-pointer" onClick={handleFollow}>
+          Follow
+        </Button>
       )}
       {view === "posts" ? (
-        postsPending ? (
-          <Loading />
-        ) : posts.length > 0 ? (
-          <PostGrid posts={posts} type="posts" />
+        user.posts.length > 0 ? (
+          <PostGrid posts={user.posts} />
         ) : (
           <div className="text-muted-foreground">No posts yet</div>
         )
       ) : view === "likes" ? (
-        likesPending ? (
-          <Loading />
-        ) : likes.length > 0 ? (
-          <PostGrid posts={likes} type="likes" />
+        user.likes.length > 0 ? (
+          <PostGrid posts={user.likes} type="likes" />
         ) : (
           <div className="text-muted-foreground">No likes yet</div>
         )
-      ) : bookmarksPending ? (
-        <Loading />
-      ) : bookmarks.length > 0 ? (
-        <PostGrid posts={bookmarks} type="bookmarks" />
+      ) : user.bookmarks.length > 0 ? (
+        <PostGrid posts={user.bookmarks} type="bookmarks" />
       ) : (
         <div className="text-muted-foreground">No bookmarks yet</div>
       )}

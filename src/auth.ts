@@ -39,9 +39,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         select: {
           bookmarks: {
             select: {
+              createdAt: true,
               post: {
                 select: {
-                  createdAt: true,
                   id: true,
                   image: true,
                 },
@@ -50,9 +50,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           },
           followers: {
             select: {
+              createdAt: true,
               realFollower: {
                 select: {
-                  createdAt: true,
                   id: true,
                   image: true,
                   name: true,
@@ -63,9 +63,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           },
           following: {
             select: {
+              createdAt: true,
               realFollowee: {
                 select: {
-                  createdAt: true,
                   id: true,
                   image: true,
                   name: true,
@@ -76,9 +76,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           },
           likes: {
             select: {
+              createdAt: true,
               post: {
                 select: {
-                  createdAt: true,
                   id: true,
                   image: true,
                 },
@@ -97,11 +97,27 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       });
 
       session.user.posts = data?.posts || [];
-      session.user.likes = data?.likes.map((l) => l.post) || [];
-      session.user.bookmarks = data?.bookmarks.map((b) => b.post) || [];
+      session.user.likes =
+        data?.likes.map((l) => ({
+          ...l.post,
+          createdAt: l.createdAt,
+        })) || [];
+      session.user.bookmarks =
+        data?.bookmarks.map((b) => ({
+          ...b.post,
+          createdAt: b.createdAt,
+        })) || [];
+      session.user.followers =
+        data?.followers.map((f) => ({
+          ...f.realFollower,
+          createdAt: f.createdAt,
+        })) || [];
+      session.user.following =
+        data?.following.map((f) => ({
+          ...f.realFollowee,
+          createdAt: f.createdAt,
+        })) || [];
 
-      session.user.followers = data?.followers.map((f) => f.realFollower) || [];
-      session.user.following = data?.following.map((f) => f.realFollowee) || [];
       return session;
     },
   },

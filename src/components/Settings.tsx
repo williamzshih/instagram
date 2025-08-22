@@ -6,7 +6,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { uploadFile } from "@/actions/upload";
-import { checkUsername, deleteUser, updateUser } from "@/actions/user";
+import {
+  checkUsername,
+  deleteUser,
+  updateUser as updateUserAction,
+} from "@/actions/user";
 import GradientRing from "@/components/GradientRing";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,8 +32,10 @@ import {
   USERNAME_MAX,
   USERNAME_MIN,
 } from "@/limits";
+import { useUserStore } from "@/store/userStore";
 
 type Props = {
+  close: () => void;
   user: {
     bio: string;
     createdAt: Date;
@@ -41,7 +47,8 @@ type Props = {
   };
 };
 
-export default function Settings({ user }: Props) {
+export default function Settings({ close, user }: Props) {
+  const updateUser = useUserStore((state) => state.updateUser);
   const [isUploading, setIsUploading] = useState(false);
 
   const formSchema = z.object({
@@ -66,9 +73,13 @@ export default function Settings({ user }: Props) {
         USERNAME_MAX,
         `Username must be at most ${USERNAME_MAX} characters long`
       )
-      .refine(async (username) => await checkUsername(username), {
-        message: "This username is already taken",
-      }),
+      .refine(
+        async (username) =>
+          username === user.username || (await checkUsername(username)),
+        {
+          message: "This username is already taken",
+        }
+      ),
   });
 
   const form = useForm({
@@ -79,8 +90,10 @@ export default function Settings({ user }: Props) {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (!user.id) return;
-      await updateUser({ data, id: user.id });
+      updateUser(data);
+      await updateUserAction({ data, id: user.id });
       toast.success("Settings updated");
+      close();
     } catch (error) {
       toast.error((error as Error).message);
     }

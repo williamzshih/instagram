@@ -1,4 +1,5 @@
 import { SettingsIcon } from "lucide-react";
+import { useState } from "react";
 import Settings from "@/components/Settings";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,9 @@ type Props = {
 };
 
 export default function ProfileHeader({ currentUser, user }: Props) {
+  const [open, setOpen] = useState(false);
+  const wait = () => new Promise((resolve) => setTimeout(resolve, 1000));
+
   return (
     <div className="flex items-center justify-between w-full h-full">
       <Button className="invisible">
@@ -29,7 +33,7 @@ export default function ProfileHeader({ currentUser, user }: Props) {
       </Button>
       <p className="text-2xl font-semibold">@{user.username}</p>
       {currentUser ? (
-        <Dialog>
+        <Dialog onOpenChange={setOpen} open={open}>
           <DialogTrigger asChild>
             <Button className="size-fit cursor-pointer" variant="ghost">
               <SettingsIcon className="size-8" />
@@ -37,11 +41,16 @@ export default function ProfileHeader({ currentUser, user }: Props) {
           </DialogTrigger>
           <DialogContent showCloseButton={false}>
             <DialogTitle className="text-xl">Settings</DialogTitle>
-            <Settings user={user} />
+            <Settings
+              close={() => {
+                wait().then(() => setOpen(false));
+              }}
+              user={user}
+            />
           </DialogContent>
         </Dialog>
       ) : (
-        <Button className="invisible">
+        <Button className="invisible size-fit">
           <SettingsIcon className="size-8" />
         </Button>
       )}

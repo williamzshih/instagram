@@ -23,6 +23,7 @@ declare module "next-auth" {
       name: null | string;
       username: string;
     }[];
+    id: string;
     likes: {
       createdAt: Date;
       id: string;

@@ -87,7 +87,7 @@ model Follow {
   realFollowee   User     @relation("realFollowers", fields: [realFolloweeId], references: [id], onDelete: Cascade)
   realFolloweeId String   @db.ObjectId
 
-  @@unique([followerId, followeeId])
+  @@unique([realFollowerId, realFolloweeId])
 }
 
 model User {

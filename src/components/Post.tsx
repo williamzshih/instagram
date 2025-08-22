@@ -103,7 +103,7 @@ export default function Post({
   const [liked, setLiked] = useState(initialLiked);
   const [likes, toggleLikes] = useToggle(
     post._count.likes,
-    post._count.likes + (liked ? -1 : 1),
+    post._count.likes + (initialLiked ? -1 : 1),
     post._count.likes
   );
 
@@ -127,10 +127,7 @@ export default function Post({
         comment: data.comment,
         createdAt: new Date(),
         id: "",
-        realUser: {
-          id: user.id,
-          ...user,
-        },
+        realUser: user,
       });
       await createComment({
         comment: data.comment,
