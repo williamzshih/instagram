@@ -1,6 +1,6 @@
 "use server";
 
-import { pinata } from "@/utils/config";
+import { pinata } from "@/pinata";
 
 export const uploadFile = async (file: File) => {
   try {

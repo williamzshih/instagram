@@ -3,7 +3,7 @@ import type { Adapter } from "next-auth/adapters";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { prisma } from "@/db";
+import { prisma } from "@/prisma";
 
 const CustomPrismaAdapter = (p: PrismaClient): Adapter => {
   const adapter = PrismaAdapter(p);
@@ -31,6 +31,25 @@ const generateUsername = async (
   }
 };
 
+const postGridTransformSelect = {
+  createdAt: true,
+  post: {
+    select: {
+      caption: true,
+      id: true,
+      image: true,
+    },
+  },
+};
+
+const followUser = {
+  select: {
+    image: true,
+    name: true,
+    username: true,
+  },
+};
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: CustomPrismaAdapter(prisma),
   callbacks: {
@@ -41,17 +60,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             orderBy: {
               createdAt: "desc",
             },
-            select: {
-              createdAt: true,
-              id: true,
-              post: {
-                select: {
-                  caption: true,
-                  id: true,
-                  image: true,
-                },
-              },
-            },
+            select: postGridTransformSelect,
           },
           followers: {
             orderBy: {
@@ -59,13 +68,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
             select: {
               createdAt: true,
-              follower: {
-                select: {
-                  image: true,
-                  name: true,
-                  username: true,
-                },
-              },
+              follower: followUser,
               id: true,
             },
           },
@@ -75,13 +78,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
             select: {
               createdAt: true,
-              followee: {
-                select: {
-                  image: true,
-                  name: true,
-                  username: true,
-                },
-              },
+              followee: followUser,
               id: true,
             },
           },
@@ -89,17 +86,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             orderBy: {
               createdAt: "desc",
             },
-            select: {
-              createdAt: true,
-              id: true,
-              post: {
-                select: {
-                  caption: true,
-                  id: true,
-                  image: true,
-                },
-              },
-            },
+            select: postGridTransformSelect,
           },
           posts: {
             orderBy: {

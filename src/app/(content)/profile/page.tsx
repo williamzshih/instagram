@@ -1,7 +1,7 @@
 "use client";
 
 import ProfilePage from "@/components/ProfilePage";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user";
 
 export default function Profile() {
   const user = useUserStore((state) => state.user);

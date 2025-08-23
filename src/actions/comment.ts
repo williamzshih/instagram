@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/db";
+import { prisma } from "@/prisma";
 
 export const createComment = async (data: {
   comment: string;

@@ -11,7 +11,7 @@ import ProfileHeader from "@/components/ProfileHeader";
 import ProfileInfo from "@/components/ProfileInfo";
 import ProfilePicture from "@/components/ProfilePicture";
 import { Button } from "@/components/ui/button";
-import useToggle from "@/hooks/useToggle";
+import { useToggle } from "@/hooks/useToggle";
 
 type Props = {
   user: User;
@@ -36,8 +36,7 @@ export default function ProfilePage(props: Props) {
   const [followers, toggleFollowers] = useToggle(
     user.followers.length,
     user.followers.length +
-      (type === "user" ? (props.initialFollow ? -1 : 1) : 0),
-    user.followers.length
+      (type === "user" ? (props.initialFollow ? -1 : 1) : 0)
   );
 
   const handleFollow = async () => {

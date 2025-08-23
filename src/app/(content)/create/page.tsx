@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { CAPTION_MAX } from "@/limits";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user";
 
 const googleSans = localFont({
   src: "../../fonts/GoogleSansCodeVF.ttf",

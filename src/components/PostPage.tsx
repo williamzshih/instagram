@@ -27,10 +27,10 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import useToggle from "@/hooks/useToggle";
+import { useToggle } from "@/hooks/useToggle";
 import { cn } from "@/lib/utils";
 import { COMMENT_MAX } from "@/limits";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user";
 
 const formSchema = z.object({
   comment: z
@@ -63,8 +63,7 @@ export default function PostPage({
   const [liked, setLiked] = useState(initialLike);
   const [likes, toggleLikes] = useToggle(
     post._count.likes,
-    post._count.likes + (initialLike ? -1 : 1),
-    post._count.likes
+    post._count.likes + (initialLike ? -1 : 1)
   );
 
   const form = useForm({

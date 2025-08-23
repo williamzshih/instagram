@@ -33,7 +33,7 @@ import {
   USERNAME_MAX,
   USERNAME_MIN,
 } from "@/limits";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user";
 
 type Props = {
   close: () => void;

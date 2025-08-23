@@ -1,7 +1,7 @@
 import { User } from "next-auth";
 import Link from "next/link";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user";
 
 type Props = {
   link?: boolean;
