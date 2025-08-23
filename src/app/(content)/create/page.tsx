@@ -64,7 +64,7 @@ export default function Create() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex h-full flex-col items-center gap-4">
       <div className="flex gap-4">
         <Plus className="size-8" />
         <p className={`text-2xl font-semibold ${googleSans.className}`}>
@@ -72,24 +72,25 @@ export default function Create() {
         </p>
       </div>
       <Label
-        className="group relative aspect-square size-1/3 cursor-pointer"
+        className="group relative flex size-full cursor-pointer justify-center overflow-hidden"
         htmlFor="image"
       >
         {form.watch("image") ? (
           <Image
             alt="Uploaded image"
             className={cn(
-              "transition-all group-hover:brightness-75",
+              "object-contain transition-all group-hover:brightness-75",
               uploading && "brightness-75"
             )}
-            height={500}
-            src={`${form.watch("image")}?img-width=500&img-height=500`}
-            width={500}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            src={form.watch("image")}
           />
         ) : (
           <div
             className={cn(
-              "bg-muted size-full transition-all group-hover:brightness-75",
+              "bg-muted h-full w-1/2 transition-all group-hover:brightness-75",
               uploading && "brightness-75"
             )}
           />

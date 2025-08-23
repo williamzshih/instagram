@@ -1,6 +1,6 @@
 "use client";
 
-import { House, LayoutGrid, LogOut, Plus, Search, User } from "lucide-react";
+import { LayoutGrid, LogOut, Plus, Search, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import localFont from "next/font/local";
@@ -71,6 +71,7 @@ export default function DesktopNav() {
         <Image
           alt="Instagram logo"
           height={32}
+          priority
           src={theme === "dark" ? "/logo.svg" : "/logo-dark.svg"}
           width={32}
         />
@@ -78,6 +79,7 @@ export default function DesktopNav() {
           alt="Instagram text"
           className="mt-1"
           height={32}
+          priority
           src={theme === "dark" ? "/text.svg" : "/text-dark.svg"}
           width={90}
         />

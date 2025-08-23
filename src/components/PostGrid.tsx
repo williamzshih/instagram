@@ -35,9 +35,10 @@ export default function PostGrid({ posts, type = "posts" }: Props) {
                 <Image
                   alt="Post image"
                   className="transition-all hover:brightness-75"
-                  height={500}
-                  src={`${post.image}?img-width=500&img-height=500`}
-                  width={500}
+                  height={1000}
+                  priority
+                  src={`${post.image}?img-width=1000&img-height=1000`}
+                  width={1000}
                 />
               </Link>
             </HoverCardTrigger>

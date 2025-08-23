@@ -108,7 +108,7 @@ export default function PostPage({
     try {
       await deletePost(post.id);
       toast.success("Post deleted");
-      router.push("/");
+      router.back();
     } catch (error) {
       toast.error((error as Error).message);
     }
