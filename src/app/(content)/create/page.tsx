@@ -35,7 +35,7 @@ const formSchema = z.object({
   caption: z
     .string()
     .max(CAPTION_MAX, `Caption must be at most ${CAPTION_MAX} characters long`),
-  image: z.string(),
+  image: z.url(),
 });
 
 export default function Create() {
@@ -90,7 +90,7 @@ export default function Create() {
         ) : (
           <div
             className={cn(
-              "bg-muted h-full w-1/2 transition-all group-hover:brightness-75",
+              "bg-muted size-full transition-all group-hover:brightness-75",
               uploading && "brightness-75"
             )}
           />

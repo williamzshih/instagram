@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import {
   BIO_MAX,
   NAME_MAX,
@@ -48,7 +49,7 @@ export default function Settings({ close, user }: Props) {
     bio: z
       .string()
       .max(BIO_MAX, `Bio must be at most ${BIO_MAX} characters long`),
-    image: z.string(),
+    image: z.url(),
     name: z
       .string()
       .min(1, "Name is required")
@@ -116,7 +117,12 @@ export default function Settings({ close, user }: Props) {
           className="group relative block cursor-pointer rounded-full"
           htmlFor="image"
         >
-          <Avatar className="size-40 after:absolute after:inset-0 after:rounded-full after:bg-black after:opacity-0 after:transition-opacity hover:after:opacity-25">
+          <Avatar
+            className={cn(
+              "size-40 after:absolute after:inset-0 after:rounded-full after:bg-black after:opacity-0 after:transition-opacity group-hover:after:opacity-25",
+              uploading && "after:opacity-25"
+            )}
+          >
             <AvatarImage alt="Your profile picture" src={form.watch("image")} />
           </Avatar>
           {uploading ? (
