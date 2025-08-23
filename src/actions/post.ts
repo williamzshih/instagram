@@ -50,6 +50,69 @@ export const getPost = async (id: string) => {
   }
 };
 
+export const getFollowingPosts = async (followerId: string) => {
+  try {
+    const follows = await prisma.follow.findMany({
+      select: {
+        followeeId: true,
+      },
+      where: {
+        followerId,
+      },
+    });
+
+    return await prisma.post.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+        caption: true,
+        comments: {
+          select: {
+            comment: true,
+            createdAt: true,
+            id: true,
+            user: {
+              select: {
+                id: true,
+                image: true,
+                name: true,
+                username: true,
+              },
+            },
+          },
+        },
+        createdAt: true,
+        id: true,
+        image: true,
+        user: {
+          select: {
+            id: true,
+            image: true,
+            name: true,
+            username: true,
+          },
+        },
+      },
+      where: {
+        userId: {
+          in: follows.map((follow) => follow.followeeId),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error getting your followed users' posts:", error);
+    throw new Error("Error getting your followed users' posts:", {
+      cause: error,
+    });
+  }
+};
+
 export const getSortedPosts = async (sort: string) => {
   try {
     let orderBy: Prisma.PostOrderByWithRelationInput;

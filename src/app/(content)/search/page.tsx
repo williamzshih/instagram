@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, SearchIcon } from "lucide-react";
+import localFont from "next/font/local";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { searchPosts, searchUsers } from "@/actions/search";
@@ -10,6 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserBlock from "@/components/UserBlock";
+
+const googleSans = localFont({
+  src: "../../fonts/GoogleSansCodeVF.ttf",
+});
 
 export default function Search() {
   const [view, setView] = useState("users");
@@ -53,14 +58,24 @@ export default function Search() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-2xl font-semibold">Search Posts</p>
+      <div className="flex gap-4 lg:ml-6">
+        <SearchIcon className="size-8" />
+        <p className={`text-2xl font-semibold ${googleSans.className}`}>
+          Search
+        </p>
+      </div>
       <Input
+        className="lg:ml-6"
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search"
         value={search}
       />
       {debouncedSearch && (
-        <Tabs className="gap-4" defaultValue="users" onValueChange={setView}>
+        <Tabs
+          className="gap-4 lg:ml-6"
+          defaultValue="users"
+          onValueChange={setView}
+        >
           <TabsList className="w-full">
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -103,7 +118,9 @@ export default function Search() {
                   Search results for: {debouncedSearch}
                 </p>
                 <Separator />
-                <PostGrid posts={posts} />
+                <div className="lg:-ml-6">
+                  <PostGrid posts={posts} />
+                </div>
               </div>
             ) : (
               <p className="text-muted-foreground">No posts found</p>

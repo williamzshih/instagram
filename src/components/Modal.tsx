@@ -8,6 +8,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function Modal({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest("a");
+    if (link?.href) {
+      router.back();
+      setTimeout(() => router.push(link.href), 0);
+    }
+  };
+
   return (
     <Dialog
       defaultOpen
@@ -19,7 +28,9 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         <VisuallyHidden asChild>
           <DialogTitle>Post</DialogTitle>
         </VisuallyHidden>
-        <ScrollArea className="pr-4 sm:max-h-[85vh]">{children}</ScrollArea>
+        <ScrollArea className="pr-4 sm:max-h-[85vh]" onClick={handleClick}>
+          {children}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

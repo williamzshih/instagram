@@ -44,6 +44,28 @@
   --radius-sm: calc(var(--radius) - 4px);
 }
 
+/* Glass hover effect */
+.glass-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--relative-x) var(--relative-y),
+    rgba(0, 0, 0, 0.05),
+    transparent 50%
+  );
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+.dark .glass-hover::before {
+  background: radial-gradient(
+    circle at var(--relative-x) var(--relative-y),
+    rgba(255, 255, 255, 0.1),
+    transparent 50%
+  );
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still

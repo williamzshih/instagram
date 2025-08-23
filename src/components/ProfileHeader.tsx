@@ -1,5 +1,6 @@
-import { SettingsIcon } from "lucide-react";
+import { SettingsIcon, UserIcon } from "lucide-react";
 import { User } from "next-auth";
+import localFont from "next/font/local";
 import { useState } from "react";
 import Settings from "@/components/Settings";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+const googleSans = localFont({
+  src: "../app/fonts/GoogleSansCodeVF.ttf",
+});
 
 type Props = {
   type: "profile" | "user";
@@ -24,7 +29,12 @@ export default function ProfileHeader({ type, user }: Props) {
       <Button className="invisible">
         <SettingsIcon className="size-8" />
       </Button>
-      <p className="text-2xl font-semibold">@{user.username}</p>
+      <div className="flex gap-4">
+        <UserIcon className="size-8" />
+        <p className={`text-2xl font-semibold ${googleSans.className}`}>
+          @{user.username}
+        </p>
+      </div>
       {type === "profile" ? (
         <Dialog onOpenChange={setOpen} open={open}>
           <DialogTrigger asChild>

@@ -18,9 +18,11 @@ export default async function ContentLayout({
     <>
       <UserInitializer user={session.user}>
         {modal}
-        <div className="flex">
+        <div className="flex h-full">
           <DesktopNav />
-          <div className="mb-24 flex-1 p-4 lg:mb-0">{children}</div>
+          <div className="mb-12 flex-1 overflow-y-scroll p-4 lg:mb-0">
+            {children}
+          </div>
         </div>
         <MobileNav />
       </UserInitializer>

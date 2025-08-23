@@ -106,37 +106,37 @@ export default function ProfilePage(props: Props) {
           Follow
         </Button>
       )}
-      {view === "posts" ? (
-        user.posts.length > 0 ? (
-          <PostGrid posts={user.posts} />
-        ) : (
-          <div className="text-muted-foreground">No posts yet</div>
-        )
-      ) : view === "likes" ? (
-        user.likes.length > 0 ? (
+      <div className="size-full text-center">
+        {view === "posts" ? (
+          user.posts.length > 0 ? (
+            <PostGrid posts={user.posts} />
+          ) : (
+            <div className="text-muted-foreground">No posts yet</div>
+          )
+        ) : view === "likes" ? (
+          user.likes.length > 0 ? (
+            <PostGrid
+              posts={user.likes.map((like) => ({
+                ...like.post,
+                createdAt: like.createdAt,
+              }))}
+              type="likes"
+            />
+          ) : (
+            <div className="text-muted-foreground">No likes yet</div>
+          )
+        ) : user.bookmarks.length > 0 ? (
           <PostGrid
-            posts={user.likes.map((like) => ({
-              ...like.post,
-              createdAt: like.createdAt,
+            posts={user.bookmarks.map((bookmark) => ({
+              ...bookmark.post,
+              createdAt: bookmark.createdAt,
             }))}
-            type="likes"
+            type="bookmarks"
           />
         ) : (
-          <div className="text-muted-foreground">No likes yet</div>
-        )
-      ) : user.bookmarks.length > 0 ? (
-        <PostGrid
-          posts={user.bookmarks.map((bookmark) => ({
-            ...bookmark.post,
-            createdAt: bookmark.createdAt,
-          }))}
-          type="bookmarks"
-        />
-      ) : (
-        <div className="text-muted-foreground">No bookmarks yet</div>
-      )}
+          <div className="text-muted-foreground">No bookmarks yet</div>
+        )}
+      </div>
     </div>
   );
 }
-
-// TODO: add comments

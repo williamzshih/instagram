@@ -28,7 +28,7 @@ export default function Comment({
     <div className="flex flex-col gap-4">
       {onClick ? (
         <div className="flex items-center justify-between">
-          <UserBlock link size={size} user={user} />
+          <UserBlock size={size} user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">

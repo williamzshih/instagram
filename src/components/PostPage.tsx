@@ -1,14 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bookmark, Heart, Link } from "lucide-react";
+import { Bookmark, Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { create } from "zustand";
 import {
   createComment,
   deleteComment as deleteCommentAction,
@@ -28,6 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import useToggle from "@/hooks/useToggle";
+import { cn } from "@/lib/utils";
 import { COMMENT_MAX } from "@/limits";
 import { useUserStore } from "@/store/userStore";
 
@@ -40,41 +41,24 @@ const formSchema = z.object({
     }),
 });
 
-type CommentStore = {
-  addComment: (comment: Comment) => void;
-  comments: Comment[];
-  deleteComment: (id: string) => void;
-  setComments: (comments: Comment[]) => void;
-};
-
-const useCommentStore = create<CommentStore>((set) => ({
-  addComment: (comment) =>
-    set((state) => ({ comments: [...state.comments, comment] })),
-  comments: [],
-  deleteComment: (id) =>
-    set((state) => ({
-      comments: state.comments.filter((c) => c.id !== id),
-    })),
-  setComments: (comments) => set({ comments }),
-}));
-
 type Comment = Post["comments"][number];
 type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 type Props = {
+  home?: boolean;
   initialBookmark: boolean;
   initialLike: boolean;
-  link?: boolean;
   post: Post;
 };
 
 export default function PostPage({
+  home,
   initialBookmark,
   initialLike,
-  link,
   post,
 }: Props) {
   const router = useRouter();
+  const [commentsVisible, setCommentsVisible] = useState(!home);
   const [bookmarked, setBookmarked] = useState(initialBookmark);
   const [liked, setLiked] = useState(initialLike);
   const [likes, toggleLikes] = useToggle(
@@ -90,12 +74,13 @@ export default function PostPage({
     resolver: zodResolver(formSchema),
   });
 
-  const setComments = useCommentStore((state) => state.setComments);
-  useEffect(() => setComments(post.comments), [post.comments, setComments]);
+  const [comments, setComments] = useState(post.comments);
 
-  const comments = useCommentStore((state) => state.comments);
-  const addComment = useCommentStore((state) => state.addComment);
-  const deleteComment = useCommentStore((state) => state.deleteComment);
+  const addComment = (comment: Comment) =>
+    setComments((prev) => [...prev, comment]);
+
+  const deleteComment = (id: string) =>
+    setComments((prev) => prev.filter((c) => c.id !== id));
 
   const user = useUserStore((state) => state.user);
   if (!user) return;
@@ -172,7 +157,7 @@ export default function PostPage({
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
-        {link ? (
+        {home ? (
           <Link href={`/post/${post.id}`}>
             <Image
               alt="Post image"
@@ -192,7 +177,7 @@ export default function PostPage({
           />
         )}
         <div className="flex justify-between">
-          <div className="flex items-center gap-2">
+          <div className={cn("flex items-center gap-2", home && "lg:ml-4")}>
             <Button
               className="cursor-pointer"
               onClick={handleLike}
@@ -228,18 +213,30 @@ export default function PostPage({
           {...post}
         />
         <Separator />
-        {comments.map((comment) => (
-          <Comment
-            key={comment.id}
-            onClick={
-              comment.user.id === user.id
-                ? () => handleDeleteComment(comment.id)
-                : undefined
-            }
-            size={12}
-            {...comment}
-          />
-        ))}
+        {commentsVisible &&
+          comments.map((comment) => (
+            <Comment
+              key={comment.id}
+              onClick={
+                comment.user.id === user.id
+                  ? () => handleDeleteComment(comment.id)
+                  : undefined
+              }
+              size={12}
+              {...comment}
+            />
+          ))}
+        {comments.length > 0 && (
+          <div className="flex justify-center">
+            <Button
+              className="cursor-pointer"
+              onClick={() => setCommentsVisible(!commentsVisible)}
+              variant="ghost"
+            >
+              {commentsVisible ? "Hide comments" : "Show comments"}
+            </Button>
+          </div>
+        )}
         <div className="flex items-center gap-4">
           <ProfilePicture size={12} user={user} />
           <Form {...form}>

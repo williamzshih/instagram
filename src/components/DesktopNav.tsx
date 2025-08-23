@@ -6,9 +6,10 @@ import { useTheme } from "next-themes";
 import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useMousePosition } from "@/hooks/useMousePosition";
 
 const googleSans = localFont({
   src: "../app/fonts/GoogleSansCodeVF.ttf",
@@ -17,6 +18,27 @@ const googleSans = localFont({
 export default function DesktopNav() {
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
+  const mousePosition = useMousePosition();
+  const [relativePosition, setRelativePosition] = useState({
+    x: "50%",
+    y: "50%",
+  });
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const rect = ref.current.getBoundingClientRect();
+    const x = ((mousePosition.x - rect.left) / rect.width) * 100;
+    const y = ((mousePosition.y - rect.top) / rect.height) * 100;
+
+    if (x < -100 || y < -100 || x > 200 || y > 200) return;
+
+    setRelativePosition({
+      x: `${x}%`,
+      y: `${y}%`,
+    });
+  }, [mousePosition.x, mousePosition.y]);
 
   useEffect(() => setMounted(true), []);
 
@@ -33,7 +55,14 @@ export default function DesktopNav() {
 
   return (
     <div
-      className={`shadow-muted-foreground/25 border-muted sticky z-10 m-6 hidden h-fit flex-col gap-6 overflow-y-auto rounded-xl border p-4 shadow-md backdrop-blur-md lg:flex ${googleSans.className}`}
+      className={`glass-hover shadow-muted-foreground/25 border-muted sticky inset-6 z-10 hidden h-fit flex-col gap-6 rounded-xl border p-4 shadow-md backdrop-blur-md transition-transform hover:scale-101 lg:flex ${googleSans.className}`}
+      ref={ref}
+      style={
+        {
+          "--relative-x": relativePosition.x,
+          "--relative-y": relativePosition.y,
+        } as React.CSSProperties
+      }
     >
       <Button
         className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"

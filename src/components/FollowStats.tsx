@@ -1,9 +1,8 @@
 import { X } from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { create } from "zustand";
 import { deleteFollow } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,39 +19,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserBlock from "@/components/UserBlock";
 
-type FollowerStore = {
-  deleteFollower: (id: string) => void;
-  followers: Follower[];
-  setFollowers: (followers: Follower[]) => void;
-};
-
-const useFollowerStore = create<FollowerStore>((set) => ({
-  deleteFollower: (id) =>
-    set((state) => ({
-      followers: state.followers.filter((f) => f.id !== id),
-    })),
-  followers: [],
-  setFollowers: (followers) => set({ followers }),
-}));
-
-type FolloweeStore = {
-  deleteFollowee: (id: string) => void;
-  following: Followee[];
-  setFollowing: (following: Followee[]) => void;
-};
-
-const useFolloweeStore = create<FolloweeStore>((set) => ({
-  deleteFollowee: (id) =>
-    set((state) => ({
-      following: state.following.filter((f) => f.id !== id),
-    })),
-  following: [],
-  setFollowing: (following) => set({ following }),
-}));
-
-type Followee = User["following"][number];
-type Follower = User["followers"][number];
-
 type Props = {
   user: Pick<User, "followers" | "following">;
 } & (
@@ -68,15 +34,16 @@ type Props = {
 export default function FollowStats(props: Props) {
   const { type, user } = props;
 
-  const setFollowers = useFollowerStore((state) => state.setFollowers);
-  const setFollowing = useFolloweeStore((state) => state.setFollowing);
-  useEffect(() => setFollowers(user.followers), [user.followers, setFollowers]);
-  useEffect(() => setFollowing(user.following), [user.following, setFollowing]);
+  const [followers, setFollowers] = useState(user.followers);
+  const [following, setFollowing] = useState(user.following);
 
-  const followers = useFollowerStore((state) => state.followers);
-  const following = useFolloweeStore((state) => state.following);
-  const deleteFollower = useFollowerStore((state) => state.deleteFollower);
-  const deleteFollowee = useFolloweeStore((state) => state.deleteFollowee);
+  const deleteFollower = (id: string) => {
+    setFollowers((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const deleteFollowee = (id: string) => {
+    setFollowing((prev) => prev.filter((f) => f.id !== id));
+  };
 
   const handleRemoveFollower = async (id: string) => {
     try {

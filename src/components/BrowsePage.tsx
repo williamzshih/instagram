@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { LayoutGrid } from "lucide-react";
+import localFont from "next/font/local";
 import { useState } from "react";
 import { getSortedPosts } from "@/actions/post";
 import PostGrid from "@/components/PostGrid";
@@ -12,6 +14,10 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const googleSans = localFont({
+  src: "../app/fonts/GoogleSansCodeVF.ttf",
+});
 
 const sortOptions = [
   "Newest",
@@ -35,8 +41,13 @@ export default function BrowsePage({ initialData }: { initialData: Post[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-2xl font-semibold">Browse Posts</p>
-      <div className="flex items-center gap-4">
+      <div className="flex gap-4 lg:ml-6">
+        <LayoutGrid className="size-8" />
+        <p className={`text-2xl font-semibold ${googleSans.className}`}>
+          Browse
+        </p>
+      </div>
+      <div className="flex items-center gap-4 lg:ml-6">
         Sort by:
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

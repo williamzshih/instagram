@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle, Upload } from "lucide-react";
+import { LoaderCircle, Plus, Upload } from "lucide-react";
+import localFont from "next/font/local";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +26,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { CAPTION_MAX } from "@/limits";
 import { useUserStore } from "@/store/userStore";
+
+const googleSans = localFont({
+  src: "../../fonts/GoogleSansCodeVF.ttf",
+});
 
 const formSchema = z.object({
   caption: z
@@ -60,7 +65,12 @@ export default function Create() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <h1 className="text-2xl font-semibold">Create Post</h1>
+      <div className="flex gap-4">
+        <Plus className="size-8" />
+        <p className={`text-2xl font-semibold ${googleSans.className}`}>
+          Create
+        </p>
+      </div>
       <Label
         className="group relative aspect-square size-1/3 cursor-pointer"
         htmlFor="image"
