@@ -3,7 +3,6 @@
 import { House, LayoutGrid, Plus, Search, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
 export default function MobileNav() {
@@ -40,48 +39,24 @@ export default function MobileNav() {
         } as React.CSSProperties
       }
     >
-      <Button
-        className="transition-transform hover:scale-105 hover:bg-transparent"
-        size="icon"
-        variant="ghost"
-      >
-        <Link href="/">
-          <House className="size-8" />
-        </Link>
-      </Button>
-      <Button
-        className="transition-transform hover:scale-105 hover:bg-transparent"
-        size="icon"
-        variant="ghost"
-      >
-        <Link href="/search">
-          <Search className="size-8" />
-        </Link>
-      </Button>
+      <Link className="transition-transform hover:scale-105" href="/">
+        <House className="size-8" />
+      </Link>
+      <Link className="transition-transform hover:scale-105" href="/search">
+        <Search className="size-8" />
+      </Link>
       <Link
         className="from-ig-orange to-ig-red flex size-12 items-center justify-center rounded-full bg-gradient-to-r text-white transition-transform hover:scale-105"
         href="/create"
       >
         <Plus />
       </Link>
-      <Button
-        className="transition-transform hover:scale-105 hover:bg-transparent"
-        size="icon"
-        variant="ghost"
-      >
-        <Link href="/browse">
-          <LayoutGrid className="size-8" />
-        </Link>
-      </Button>
-      <Button
-        className="transition-transform hover:scale-105 hover:bg-transparent"
-        size="icon"
-        variant="ghost"
-      >
-        <Link href="/profile">
-          <User className="size-8" />
-        </Link>
-      </Button>
+      <Link className="transition-transform hover:scale-105" href="/browse">
+        <LayoutGrid className="size-8" />
+      </Link>
+      <Link className="transition-transform hover:scale-105" href="/profile">
+        <User className="size-8" />
+      </Link>
     </div>
   );
 }

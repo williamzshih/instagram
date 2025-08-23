@@ -4,7 +4,7 @@ import { pinata } from "@/pinata";
 
 export const uploadFile = async (file: File) => {
   try {
-    const { cid } = await pinata.upload
+    const { cid } = await pinata.upload.private
       .file(file)
       .group(process.env.PINATA_GROUP_ID!);
     return `https://${process.env.NEXT_PUBLIC_GATEWAY_URL}/files/${cid}`;

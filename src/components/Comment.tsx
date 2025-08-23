@@ -49,7 +49,7 @@ export default function Comment({
       ) : (
         <UserBlock link size={size} user={user} />
       )}
-      <p className="bg-muted rounded-xl p-4">{comment}</p>
+      {comment && <p className="bg-muted rounded-xl p-4">{comment}</p>}
       <div className="text-muted-foreground text-right text-sm">
         {formatDistanceToNow(createdAt, {
           addSuffix: true,

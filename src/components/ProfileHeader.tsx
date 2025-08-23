@@ -25,7 +25,7 @@ export default function ProfileHeader({ type, user }: Props) {
   const wait = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
   return (
-    <div className="flex h-full w-full items-center justify-between">
+    <div className="flex w-full items-center justify-between">
       <Button className="invisible">
         <SettingsIcon className="size-8" />
       </Button>
@@ -42,7 +42,10 @@ export default function ProfileHeader({ type, user }: Props) {
               <SettingsIcon className="size-8" />
             </Button>
           </DialogTrigger>
-          <DialogContent showCloseButton={false}>
+          <DialogContent
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            showCloseButton={false}
+          >
             <DialogTitle className="text-xl">Settings</DialogTitle>
             <Settings
               close={() => {

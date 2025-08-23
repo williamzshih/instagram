@@ -55,7 +55,7 @@ export default function DesktopNav() {
 
   return (
     <div
-      className={`glass-hover shadow-muted-foreground/25 border-muted sticky inset-6 z-10 hidden h-fit flex-col gap-6 rounded-xl border p-4 shadow-md backdrop-blur-md transition-transform hover:scale-101 lg:flex ${googleSans.className}`}
+      className={`glass-hover shadow-muted-foreground/25 border-muted sticky inset-6 z-10 hidden h-fit flex-col items-center gap-8 rounded-xl border p-4 shadow-md backdrop-blur-md transition-transform hover:scale-101 lg:flex ${googleSans.className}`}
       ref={ref}
       style={
         {
@@ -64,73 +64,54 @@ export default function DesktopNav() {
         } as React.CSSProperties
       }
     >
-      <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
+      <Link
+        className="flex items-center gap-3 transition-transform hover:scale-105"
+        href="/"
       >
-        <Link className="flex gap-3" href="/">
-          <Image
-            alt="Instagram logo"
-            height={32}
-            src={theme === "dark" ? "/logo_light.svg" : "/logo_dark.svg"}
-            width={32}
-          />
-          <Image
-            alt="Instagram text"
-            className="mt-1"
-            height={32}
-            src={theme === "dark" ? "/text_light.svg" : "/text_dark.svg"}
-            width={90}
-          />
-        </Link>
-      </Button>
-      <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
+        <Image
+          alt="Instagram logo"
+          height={32}
+          src={theme === "dark" ? "/logo.svg" : "/logo-dark.svg"}
+          width={32}
+        />
+        <Image
+          alt="Instagram text"
+          className="mt-1"
+          height={32}
+          src={theme === "dark" ? "/text.svg" : "/text-dark.svg"}
+          width={90}
+        />
+      </Link>
+      <Link
+        className="flex items-center gap-4 transition-transform hover:scale-105"
+        href="/search"
       >
-        <Link className="flex items-center gap-4" href="/">
-          <House className="size-8" />
-          <p className="text-lg">Home</p>
-        </Link>
-      </Button>
-      <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
+        <Search className="size-8" />
+        <p className="text-lg">Search</p>
+      </Link>
+      <Link
+        className="flex items-center gap-4 transition-transform hover:scale-105"
+        href="/create"
       >
-        <Link className="flex items-center gap-4" href="/search">
-          <Search className="size-8" />
-          <p className="text-lg">Search</p>
-        </Link>
-      </Button>
-      <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
+        <Plus className="size-8" />
+        <p className="text-lg">Create</p>
+      </Link>
+      <Link
+        className="flex items-center gap-4 transition-transform hover:scale-105"
+        href="/browse"
       >
-        <Link className="flex items-center gap-4" href="/create">
-          <Plus className="size-8" />
-          <p className="text-lg">Create</p>
-        </Link>
-      </Button>
-      <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
+        <LayoutGrid className="size-8" />
+        <p className="text-lg">Browse</p>
+      </Link>
+      <Link
+        className="flex items-center gap-4 transition-transform hover:scale-105"
+        href="/profile"
       >
-        <Link className="flex items-center gap-4" href="/browse">
-          <LayoutGrid className="size-8" />
-          <p className="text-lg">Browse</p>
-        </Link>
-      </Button>
+        <User className="size-8" />
+        <p className="text-lg">Profile</p>
+      </Link>
       <Button
-        className="h-fit w-fit cursor-pointer transition-transform hover:scale-105 hover:bg-transparent"
-        variant="ghost"
-      >
-        <Link className="flex items-center gap-4" href="/profile">
-          <User className="size-8" />
-          <p className="text-lg">Profile</p>
-        </Link>
-      </Button>
-      <Button
-        className="flex h-fit w-fit cursor-pointer items-center gap-4 transition-transform hover:scale-105 hover:bg-transparent"
+        className="flex cursor-pointer items-center gap-4 transition-transform hover:scale-105 hover:bg-transparent dark:hover:bg-transparent"
         onClick={handleSignOut}
         variant="ghost"
       >
