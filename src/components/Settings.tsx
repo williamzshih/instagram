@@ -116,10 +116,9 @@ export default function Settings({ close, user }: Props) {
           className="group relative block cursor-pointer rounded-full"
           htmlFor="image"
         >
-          <Avatar className="size-40">
+          <Avatar className="size-40 after:absolute after:inset-0 after:rounded-full after:bg-black after:opacity-0 after:transition-opacity hover:after:opacity-25">
             <AvatarImage alt="Your profile picture" src={form.watch("image")} />
           </Avatar>
-          <div className="absolute inset-0 rounded-full bg-black opacity-0 transition-opacity hover:opacity-25" />
           {uploading ? (
             <LoaderCircle
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white"

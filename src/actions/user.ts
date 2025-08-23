@@ -2,6 +2,32 @@
 
 import { prisma } from "@/db";
 
+const postGridTransformSelect = {
+  createdAt: true,
+  post: {
+    select: {
+      caption: true,
+      id: true,
+      image: true,
+    },
+  },
+};
+
+const followUser = {
+  select: {
+    image: true,
+    name: true,
+    username: true,
+  },
+};
+
+const commentUserSelect = {
+  id: true,
+  image: true,
+  name: true,
+  username: true,
+};
+
 export const getUser = async (username: string) => {
   try {
     return await prisma.user.findUnique({
@@ -11,16 +37,7 @@ export const getUser = async (username: string) => {
           orderBy: {
             createdAt: "desc",
           },
-          select: {
-            createdAt: true,
-            post: {
-              select: {
-                caption: true,
-                id: true,
-                image: true,
-              },
-            },
-          },
+          select: postGridTransformSelect,
         },
         createdAt: true,
         followers: {
@@ -29,13 +46,7 @@ export const getUser = async (username: string) => {
           },
           select: {
             createdAt: true,
-            follower: {
-              select: {
-                image: true,
-                name: true,
-                username: true,
-              },
-            },
+            follower: followUser,
             id: true,
           },
         },
@@ -45,13 +56,7 @@ export const getUser = async (username: string) => {
           },
           select: {
             createdAt: true,
-            followee: {
-              select: {
-                image: true,
-                name: true,
-                username: true,
-              },
-            },
+            followee: followUser,
             id: true,
           },
         },
@@ -61,16 +66,7 @@ export const getUser = async (username: string) => {
           orderBy: {
             createdAt: "desc",
           },
-          select: {
-            createdAt: true,
-            post: {
-              select: {
-                caption: true,
-                id: true,
-                image: true,
-              },
-            },
-          },
+          select: postGridTransformSelect,
         },
         name: true,
         posts: {
@@ -91,6 +87,57 @@ export const getUser = async (username: string) => {
   } catch (error) {
     console.error("Error getting user:", error);
     throw new Error("Error getting user:", { cause: error });
+  }
+};
+
+export const searchUsers = async (search: string) => {
+  try {
+    return await prisma.user.findMany({
+      orderBy: {
+        name: "asc",
+      },
+      select: commentUserSelect,
+      where: {
+        OR: [
+          { username: { contains: search, mode: "insensitive" } },
+          { name: { contains: search, mode: "insensitive" } },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    throw new Error("Error searching users:", { cause: error });
+  }
+};
+
+export const updateUser = async ({
+  data,
+  id,
+}: {
+  data: {
+    bio: string;
+    image: string;
+    name: string;
+    username: string;
+  };
+  id: string;
+}) => {
+  try {
+    await prisma.user.update({ data, where: { id } });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw new Error("Error updating user:", { cause: error });
+  }
+};
+
+export const deleteUser = async (id: string) => {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw new Error("Error deleting user:", { cause: error });
   }
 };
 
@@ -159,36 +206,5 @@ export const checkUsername = async (username: string) => {
   } catch (error) {
     console.error("Error checking username availability:", error);
     throw new Error("Error checking username availability:", { cause: error });
-  }
-};
-
-export const updateUser = async ({
-  data,
-  id,
-}: {
-  data: {
-    bio: string;
-    image: string;
-    name: string;
-    username: string;
-  };
-  id: string;
-}) => {
-  try {
-    await prisma.user.update({ data, where: { id } });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    throw new Error("Error updating user:", { cause: error });
-  }
-};
-
-export const deleteUser = async (id: string) => {
-  try {
-    await prisma.user.delete({
-      where: { id },
-    });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    throw new Error("Error deleting user:", { cause: error });
   }
 };

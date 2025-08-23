@@ -1,45 +1,51 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/db";
+
+const commentUser = {
+  select: {
+    id: true,
+    image: true,
+    name: true,
+    username: true,
+  },
+};
+
+const postPageSelect = {
+  _count: {
+    select: {
+      likes: true,
+    },
+  },
+  caption: true,
+  comments: {
+    orderBy: {
+      createdAt: "desc" as const,
+    },
+    select: {
+      comment: true,
+      createdAt: true,
+      id: true,
+      user: commentUser,
+    },
+  },
+  createdAt: true,
+  id: true,
+  image: true,
+  user: commentUser,
+};
+
+const postGridSelect = {
+  caption: true,
+  createdAt: true,
+  id: true,
+  image: true,
+};
 
 export const getPost = async (id: string) => {
   try {
     return await prisma.post.findUnique({
-      select: {
-        _count: {
-          select: {
-            likes: true,
-          },
-        },
-        caption: true,
-        comments: {
-          select: {
-            comment: true,
-            createdAt: true,
-            id: true,
-            user: {
-              select: {
-                id: true,
-                image: true,
-                name: true,
-                username: true,
-              },
-            },
-          },
-        },
-        createdAt: true,
-        id: true,
-        image: true,
-        user: {
-          select: {
-            id: true,
-            image: true,
-            name: true,
-            username: true,
-          },
-        },
-      },
+      select: postPageSelect,
       where: {
         id,
       },
@@ -65,40 +71,7 @@ export const getFollowingPosts = async (followerId: string) => {
       orderBy: {
         createdAt: "desc",
       },
-      select: {
-        _count: {
-          select: {
-            likes: true,
-          },
-        },
-        caption: true,
-        comments: {
-          select: {
-            comment: true,
-            createdAt: true,
-            id: true,
-            user: {
-              select: {
-                id: true,
-                image: true,
-                name: true,
-                username: true,
-              },
-            },
-          },
-        },
-        createdAt: true,
-        id: true,
-        image: true,
-        user: {
-          select: {
-            id: true,
-            image: true,
-            name: true,
-            username: true,
-          },
-        },
-      },
+      select: postPageSelect,
       where: {
         userId: {
           in: follows.map((follow) => follow.followeeId),
@@ -114,45 +87,93 @@ export const getFollowingPosts = async (followerId: string) => {
 };
 
 export const getSortedPosts = async (sort: string) => {
+  let orderBy;
+
+  switch (sort) {
+    case "Least comments":
+      orderBy = { comments: { _count: "asc" as const } };
+      break;
+    case "Least likes":
+      orderBy = { likes: { _count: "asc" as const } };
+      break;
+    case "Most comments":
+      orderBy = { comments: { _count: "desc" as const } };
+      break;
+    case "Most likes":
+      orderBy = { likes: { _count: "desc" as const } };
+      break;
+    case "Newest":
+      orderBy = { createdAt: "desc" as const };
+      break;
+    case "Oldest":
+      orderBy = { createdAt: "asc" as const };
+      break;
+    default:
+      orderBy = { createdAt: "desc" as const };
+      break;
+  }
+
   try {
-    let orderBy: Prisma.PostOrderByWithRelationInput;
-
-    switch (sort) {
-      case "Least comments":
-        orderBy = { comments: { _count: "asc" } };
-        break;
-      case "Least likes":
-        orderBy = { likes: { _count: "asc" } };
-        break;
-      case "Most comments":
-        orderBy = { comments: { _count: "desc" } };
-        break;
-      case "Most likes":
-        orderBy = { likes: { _count: "desc" } };
-        break;
-      case "Newest":
-        orderBy = { createdAt: "desc" };
-        break;
-      case "Oldest":
-        orderBy = { createdAt: "asc" };
-        break;
-      default:
-        orderBy = { createdAt: "desc" };
-        break;
-    }
-
     return await prisma.post.findMany({
       orderBy,
-      select: {
-        caption: true,
-        createdAt: true,
-        id: true,
-        image: true,
-      },
+      select: postGridSelect,
     });
   } catch (error) {
     console.error("Error getting sorted posts:", error);
     throw new Error("Error getting sorted posts:", { cause: error });
+  }
+};
+
+export const searchPosts = async (search: string) => {
+  try {
+    return await prisma.post.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: postGridSelect,
+      where: {
+        OR: [
+          {
+            caption: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            user: {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+              username: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error("Error searching posts:", error);
+    throw new Error("Error searching posts:", { cause: error });
+  }
+};
+
+export const createPost = async (data: {
+  caption: string;
+  image: string;
+  userId: string;
+}) => {
+  try {
+    return (
+      await prisma.post.create({
+        data,
+      })
+    ).id;
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw new Error("Error creating post:", { cause: error });
   }
 };
 

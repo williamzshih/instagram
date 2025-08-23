@@ -36,14 +36,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
         <ThemeProvider attribute="class">
-          <QueryProvider>
-            <ThemeSwitch />
-            <Toaster position="bottom-left" />
-            {children}
-          </QueryProvider>
+          <QueryProvider>{children}</QueryProvider>
+          <ThemeSwitch />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
+        <Toaster position="bottom-left" />
       </body>
     </html>
   );

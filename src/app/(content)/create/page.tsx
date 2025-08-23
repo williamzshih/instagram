@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { createPost } from "@/actions/create";
+import { createPost } from "@/actions/post";
 import { uploadFile } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
 import {
