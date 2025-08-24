@@ -1,4 +1,3 @@
-import { User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserLoading() {
@@ -7,12 +6,12 @@ export default function UserLoading() {
       <div className="flex w-full items-center justify-between">
         <Skeleton className="h-9 w-9 rounded-md" />
         <div className="flex gap-4">
-          <User className="size-8" />
+          <Skeleton className="size-8 rounded-md" />
           <Skeleton className="h-8 w-32" />
         </div>
         <Skeleton className="h-9 w-9 rounded-md" />
       </div>
-      <div className="from-ig-orange to-ig-red rounded-full bg-linear-to-tr p-1">
+      <div className="rounded-full bg-gray-200 p-1">
         <div className="bg-background rounded-full p-1">
           <Skeleton className="size-40 rounded-full" />
         </div>
