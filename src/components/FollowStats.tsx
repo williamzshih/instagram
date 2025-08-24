@@ -78,8 +78,8 @@ export default function FollowStats(props: Props) {
             </p>
             Follower
             {type === "profile"
-              ? followers.length === 1 && "s"
-              : props.followers === 1 && "s"}
+              ? followers.length !== 1 && "s"
+              : props.followers !== 1 && "s"}
           </Button>
         </DialogTrigger>
         <DialogContent showCloseButton={false}>
@@ -151,7 +151,7 @@ export default function FollowStats(props: Props) {
                       </HoverCardTrigger>
                       {type === "profile" && (
                         <HoverCardContent className="w-fit">
-                          Followed you on{" "}
+                          You followed on{" "}
                           {new Date(follow.createdAt).toLocaleDateString()}
                         </HoverCardContent>
                       )}
