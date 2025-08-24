@@ -69,7 +69,13 @@ export default function BrowsePage({ initialData }: { initialData: Post[] }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <PostGrid posts={data} />
+      {data.length > 0 ? (
+        <PostGrid posts={data} />
+      ) : (
+        <p className="text-muted-foreground flex justify-center">
+          No posts yet. Be the first to create a post!
+        </p>
+      )}
     </div>
   );
 }

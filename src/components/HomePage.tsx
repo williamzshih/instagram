@@ -26,12 +26,18 @@ export default function HomePage({ posts }: Props) {
         <p className={`text-2xl font-semibold ${googleSans.className}`}>Home</p>
       </div>
       <div className="flex flex-col gap-8">
-        {posts.map((post) => (
-          <div className="flex flex-col gap-8" key={post.post.id}>
-            <PostPage home {...post} />
-            <Separator />
-          </div>
-        ))}
+        {posts.length > 0 ? (
+          posts.map((post) => (
+            <div className="flex flex-col gap-8" key={post.post.id}>
+              <PostPage home {...post} />
+              <Separator />
+            </div>
+          ))
+        ) : (
+          <p className="text-muted-foreground flex justify-center">
+            Follow more users to see their posts here!
+          </p>
+        )}
       </div>
     </div>
   );

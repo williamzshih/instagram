@@ -116,7 +116,9 @@ export default function FollowStats(props: Props) {
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground">No followers yet</p>
+                <p className="text-muted-foreground flex justify-center">
+                  No followers yet
+                </p>
               )}
             </div>
           </ScrollArea>
@@ -166,7 +168,7 @@ export default function FollowStats(props: Props) {
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground flex justify-center">
                   Not following anyone yet
                 </p>
               )}

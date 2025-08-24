@@ -105,7 +105,9 @@ export default function Search() {
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground">No users found</p>
+              <p className="text-muted-foreground flex justify-center">
+                No users found
+              </p>
             )}
           </TabsContent>
           <TabsContent value="posts">
@@ -124,7 +126,9 @@ export default function Search() {
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground">No posts found</p>
+              <p className="text-muted-foreground flex justify-center">
+                No posts found
+              </p>
             )}
           </TabsContent>
         </Tabs>
