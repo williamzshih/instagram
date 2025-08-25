@@ -1,25 +1,30 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { LoaderCircle, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import localFont from "next/font/local";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { searchPosts } from "@/actions/post";
 import { searchUsers } from "@/actions/user";
 import PostGrid from "@/components/PostGrid";
+import PostGridLoading from "@/components/PostGridLoading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserBlock from "@/components/UserBlock";
+import UserGridLoading from "@/components/UserGridLoading";
 
 const googleSans = localFont({
   src: "../../fonts/GoogleSansCodeVF.ttf",
 });
 
 export default function Search() {
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
   const [view, setView] = useState("users");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(q);
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
@@ -34,7 +39,7 @@ export default function Search() {
   } = useQuery({
     enabled: !!debouncedSearch && view === "users",
     queryFn: () => searchUsers(debouncedSearch),
-    queryKey: ["users", debouncedSearch],
+    queryKey: ["search", "users", debouncedSearch],
   });
 
   const {
@@ -44,7 +49,7 @@ export default function Search() {
   } = useQuery({
     enabled: !!debouncedSearch && view === "posts",
     queryFn: () => searchPosts(debouncedSearch),
-    queryKey: ["posts", debouncedSearch],
+    queryKey: ["search", "posts", debouncedSearch],
   });
 
   if (usersError) {
@@ -83,9 +88,7 @@ export default function Search() {
           </TabsList>
           <TabsContent value="users">
             {usersPending ? (
-              <div className="mt-16 flex justify-center">
-                <LoaderCircle className="animate-spin" size={48} />
-              </div>
+              <UserGridLoading />
             ) : users.length > 0 ? (
               <div className="flex flex-col gap-4">
                 <p className="text-muted-foreground">
@@ -112,9 +115,7 @@ export default function Search() {
           </TabsContent>
           <TabsContent value="posts">
             {postsPending ? (
-              <div className="mt-16 flex justify-center">
-                <LoaderCircle className="animate-spin" size={48} />
-              </div>
+              <PostGridLoading />
             ) : posts.length > 0 ? (
               <div className="flex flex-col gap-4">
                 <p className="text-muted-foreground">

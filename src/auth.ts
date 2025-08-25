@@ -31,17 +31,6 @@ const generateUsername = async (
   }
 };
 
-const postGridTransformSelect = {
-  createdAt: true,
-  post: {
-    select: {
-      caption: true,
-      id: true,
-      image: true,
-    },
-  },
-};
-
 const followUser = {
   select: {
     image: true,
@@ -56,12 +45,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async session({ session, user }) {
       const data = await prisma.user.findUnique({
         select: {
-          bookmarks: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            select: postGridTransformSelect,
-          },
           followers: {
             orderBy: {
               createdAt: "desc",
@@ -82,32 +65,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               id: true,
             },
           },
-          likes: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            select: postGridTransformSelect,
-          },
-          posts: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            select: {
-              caption: true,
-              createdAt: true,
-              id: true,
-              image: true,
-            },
-          },
         },
         where: { id: user.id },
       });
 
-      user.bookmarks = data?.bookmarks || [];
       user.followers = data?.followers || [];
       user.following = data?.following || [];
-      user.likes = data?.likes || [];
-      user.posts = data?.posts || [];
 
       return session;
     },

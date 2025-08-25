@@ -2,6 +2,13 @@
 
 import { prisma } from "@/prisma";
 
+const postGridSelect = {
+  caption: true,
+  createdAt: true,
+  id: true,
+  image: true,
+};
+
 const postGridTransformSelect = {
   createdAt: true,
   post: {
@@ -33,12 +40,6 @@ export const getUser = async (username: string) => {
     return await prisma.user.findUnique({
       select: {
         bio: true,
-        bookmarks: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          select: postGridTransformSelect,
-        },
         createdAt: true,
         followers: {
           orderBy: {
@@ -62,24 +63,7 @@ export const getUser = async (username: string) => {
         },
         id: true,
         image: true,
-        likes: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          select: postGridTransformSelect,
-        },
         name: true,
-        posts: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          select: {
-            caption: true,
-            createdAt: true,
-            id: true,
-            image: true,
-          },
-        },
         username: true,
       },
       where: { username },
@@ -87,6 +71,51 @@ export const getUser = async (username: string) => {
   } catch (error) {
     console.error("Error getting user:", error);
     throw new Error("Error getting user:", { cause: error });
+  }
+};
+
+export const getPosts = async (userId: string) => {
+  try {
+    return await prisma.post.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: postGridSelect,
+      where: { userId },
+    });
+  } catch (error) {
+    console.error("Error getting posts:", error);
+    throw new Error("Error getting posts:", { cause: error });
+  }
+};
+
+export const getLikes = async (userId: string) => {
+  try {
+    return await prisma.like.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: postGridTransformSelect,
+      where: { userId },
+    });
+  } catch (error) {
+    console.error("Error getting likes:", error);
+    throw new Error("Error getting likes:", { cause: error });
+  }
+};
+
+export const getBookmarks = async (userId: string) => {
+  try {
+    return await prisma.bookmark.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: postGridTransformSelect,
+      where: { userId },
+    });
+  } catch (error) {
+    console.error("Error getting bookmarks:", error);
+    throw new Error("Error getting bookmarks:", { cause: error });
   }
 };
 

@@ -1,12 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { User } from "next-auth";
+import { redirect, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { toggleFollow } from "@/actions/user";
+import { getBookmarks, getLikes, getPosts, toggleFollow } from "@/actions/user";
 import FollowStats from "@/components/FollowStats";
 import GradientRing from "@/components/GradientRing";
 import PostGrid from "@/components/PostGrid";
+import PostGridLoading from "@/components/PostGridLoading";
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileInfo from "@/components/ProfileInfo";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -29,7 +32,9 @@ type Props = {
 export default function ProfilePage(props: Props) {
   const { type, user } = props;
 
-  const [view, setView] = useState("posts");
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") || "posts";
+
   const [followed, setFollowed] = useState(
     type === "user" ? props.initialFollow : false
   );
@@ -38,6 +43,49 @@ export default function ProfilePage(props: Props) {
     user.followers.length +
       (type === "user" ? (props.initialFollow ? -1 : 1) : 0)
   );
+
+  const {
+    data: posts,
+    error: postsError,
+    isPending: postsPending,
+  } = useQuery({
+    enabled: type === "user" || (type === "profile" && view === "posts"),
+    queryFn: () => getPosts(user.id),
+    queryKey: ["profilePage", "posts", user.id],
+  });
+
+  const {
+    data: likes,
+    error: likesError,
+    isPending: likesPending,
+  } = useQuery({
+    enabled: type === "profile" && view === "likes",
+    queryFn: () => getLikes(user.id),
+    queryKey: ["profilePage", "likes", user.id],
+  });
+
+  const {
+    data: bookmarks,
+    error: bookmarksError,
+    isPending: bookmarksPending,
+  } = useQuery({
+    enabled: type === "profile" && view === "bookmarks",
+    queryFn: () => getBookmarks(user.id),
+    queryKey: ["profilePage", "bookmarks", user.id],
+  });
+
+  if (postsError) {
+    console.error("Error getting posts:", postsError);
+    throw new Error("Error getting posts:", { cause: postsError });
+  }
+  if (likesError) {
+    console.error("Error getting likes:", likesError);
+    throw new Error("Error getting likes:", { cause: likesError });
+  }
+  if (bookmarksError) {
+    console.error("Error getting bookmarks:", bookmarksError);
+    throw new Error("Error getting bookmarks:", { cause: bookmarksError });
+  }
 
   const handleFollow = async () => {
     try {
@@ -71,21 +119,21 @@ export default function ProfilePage(props: Props) {
         <div className="flex gap-2">
           <Button
             className="cursor-pointer text-lg"
-            onClick={() => setView("posts")}
+            onClick={() => redirect("?view=posts")}
             variant={view === "posts" ? "default" : "ghost"}
           >
             Posts
           </Button>
           <Button
             className="cursor-pointer text-lg"
-            onClick={() => setView("likes")}
+            onClick={() => redirect("?view=likes")}
             variant={view === "likes" ? "default" : "ghost"}
           >
             Likes
           </Button>
           <Button
             className="cursor-pointer text-lg"
-            onClick={() => setView("bookmarks")}
+            onClick={() => redirect("?view=bookmarks")}
             variant={view === "bookmarks" ? "default" : "ghost"}
           >
             Bookmarks
@@ -107,15 +155,19 @@ export default function ProfilePage(props: Props) {
       )}
       <div className="size-full text-center">
         {view === "posts" ? (
-          user.posts.length > 0 ? (
-            <PostGrid posts={user.posts} />
+          postsPending ? (
+            <PostGridLoading />
+          ) : posts.length > 0 ? (
+            <PostGrid posts={posts} />
           ) : (
             <div className="text-muted-foreground">No posts yet</div>
           )
         ) : view === "likes" ? (
-          user.likes.length > 0 ? (
+          likesPending ? (
+            <PostGridLoading />
+          ) : likes.length > 0 ? (
             <PostGrid
-              posts={user.likes.map((like) => ({
+              posts={likes.map((like) => ({
                 ...like.post,
                 createdAt: like.createdAt,
               }))}
@@ -124,9 +176,11 @@ export default function ProfilePage(props: Props) {
           ) : (
             <div className="text-muted-foreground">No likes yet</div>
           )
-        ) : user.bookmarks.length > 0 ? (
+        ) : bookmarksPending ? (
+          <PostGridLoading />
+        ) : bookmarks.length > 0 ? (
           <PostGrid
-            posts={user.bookmarks.map((bookmark) => ({
+            posts={bookmarks.map((bookmark) => ({
               ...bookmark.post,
               createdAt: bookmark.createdAt,
             }))}
