@@ -51,8 +51,8 @@
   inset: 0;
   background: radial-gradient(
     circle at var(--relative-x) var(--relative-y),
-    rgba(0, 0, 0, 0.05),
-    transparent 50%
+    rgba(0, 0, 0, 0.1),
+    transparent 25%
   );
   pointer-events: none;
   transition: opacity 0.5s;
@@ -62,7 +62,7 @@
   background: radial-gradient(
     circle at var(--relative-x) var(--relative-y),
     rgba(255, 255, 255, 0.1),
-    transparent 50%
+    transparent 25%
   );
 }
 
