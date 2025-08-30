@@ -35,7 +35,7 @@ export default function Search() {
   const {
     data: users,
     error: usersError,
-    isPending: usersPending,
+    isPending: searchingUsers,
   } = useQuery({
     enabled: !!debouncedSearch && view === "users",
     queryFn: () => searchUsers(debouncedSearch),
@@ -45,7 +45,7 @@ export default function Search() {
   const {
     data: posts,
     error: postsError,
-    isPending: postsPending,
+    isPending: searchingPosts,
   } = useQuery({
     enabled: !!debouncedSearch && view === "posts",
     queryFn: () => searchPosts(debouncedSearch),
@@ -87,7 +87,7 @@ export default function Search() {
             <TabsTrigger value="posts">Posts</TabsTrigger>
           </TabsList>
           <TabsContent value="users">
-            {usersPending ? (
+            {searchingUsers ? (
               <UserGridLoading />
             ) : users.length > 0 ? (
               <div className="flex flex-col gap-4">
@@ -114,7 +114,7 @@ export default function Search() {
             )}
           </TabsContent>
           <TabsContent value="posts">
-            {postsPending ? (
+            {searchingPosts ? (
               <PostGridLoading />
             ) : posts.length > 0 ? (
               <div className="flex flex-col gap-4">

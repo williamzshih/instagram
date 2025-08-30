@@ -47,7 +47,7 @@ export default function ProfilePage(props: Props) {
   const {
     data: posts,
     error: postsError,
-    isPending: postsPending,
+    isPending: gettingPosts,
   } = useQuery({
     enabled: type === "user" || (type === "profile" && view === "posts"),
     queryFn: () => getPosts(user.id),
@@ -57,7 +57,7 @@ export default function ProfilePage(props: Props) {
   const {
     data: likes,
     error: likesError,
-    isPending: likesPending,
+    isPending: gettingLikes,
   } = useQuery({
     enabled: type === "profile" && view === "likes",
     queryFn: () => getLikes(user.id),
@@ -67,7 +67,7 @@ export default function ProfilePage(props: Props) {
   const {
     data: bookmarks,
     error: bookmarksError,
-    isPending: bookmarksPending,
+    isPending: gettingBookmarks,
   } = useQuery({
     enabled: type === "profile" && view === "bookmarks",
     queryFn: () => getBookmarks(user.id),
@@ -155,7 +155,7 @@ export default function ProfilePage(props: Props) {
       )}
       <div className="size-full text-center">
         {view === "posts" ? (
-          postsPending ? (
+          gettingPosts ? (
             <PostGridLoading />
           ) : posts.length > 0 ? (
             <PostGrid posts={posts} />
@@ -163,7 +163,7 @@ export default function ProfilePage(props: Props) {
             <div className="text-muted-foreground">No posts yet</div>
           )
         ) : view === "likes" ? (
-          likesPending ? (
+          gettingLikes ? (
             <PostGridLoading />
           ) : likes.length > 0 ? (
             <PostGrid
@@ -176,7 +176,7 @@ export default function ProfilePage(props: Props) {
           ) : (
             <div className="text-muted-foreground">No likes yet</div>
           )
-        ) : bookmarksPending ? (
+        ) : gettingBookmarks ? (
           <PostGridLoading />
         ) : bookmarks.length > 0 ? (
           <PostGrid

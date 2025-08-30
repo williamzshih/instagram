@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bookmark, Heart } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bookmark, Heart, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,10 +10,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  createComment,
-  deleteComment as deleteCommentAction,
-} from "@/actions/comment";
+import { createComment, deleteComment, getComments } from "@/actions/comment";
 import { deletePost, getPost } from "@/actions/post";
 import { toggleBookmark, toggleLike } from "@/actions/post";
 import Comment from "@/components/Comment";
@@ -41,7 +39,6 @@ const formSchema = z.object({
     }),
 });
 
-type Comment = Post["comments"][number];
 type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 type Props = {
@@ -57,6 +54,7 @@ export default function PostPage({
   initialLike,
   post,
 }: Props) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [commentsVisible, setCommentsVisible] = useState(!home);
   const [bookmarked, setBookmarked] = useState(initialBookmark);
@@ -73,31 +71,55 @@ export default function PostPage({
     resolver: zodResolver(formSchema),
   });
 
-  const [comments, setComments] = useState(post.comments);
+  const {
+    data,
+    error,
+    isPending: gettingComments,
+  } = useQuery({
+    queryFn: () => getComments(post.id),
+    queryKey: ["postPage", post.id],
+  });
 
-  const addComment = (comment: Comment) =>
-    setComments((prev) => [...prev, comment]);
+  const {
+    isPending: creatingComment,
+    mutate: createCommentMutation,
+    variables: creatingCommentComment,
+  } = useMutation({
+    mutationFn: (comment: string) => {
+      if (!user) return Promise.resolve();
+      createComment({
+        comment,
+        postId: post.id,
+        userId: user.id,
+      });
+      return Promise.resolve();
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["postPage", post.id] }),
+  });
 
-  const deleteComment = (id: string) =>
-    setComments((prev) => prev.filter((c) => c.id !== id));
+  const {
+    isPending: deletingComment,
+    mutate: deleteCommentMutation,
+    variables: deletingCommentId,
+  } = useMutation({
+    mutationFn: (id: string) => deleteComment(id),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["postPage", post.id] }),
+  });
 
   const user = useUserStore((state) => state.user);
   if (!user) return;
 
+  if (error) {
+    console.error("Error getting comments:", error);
+    throw new Error("Error getting comments:", { cause: error });
+  }
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       form.reset();
-      addComment({
-        comment: data.comment,
-        createdAt: new Date(),
-        id: crypto.randomUUID(),
-        user,
-      });
-      await createComment({
-        comment: data.comment,
-        postId: post.id,
-        userId: user.id,
-      });
+      createCommentMutation(data.comment);
       toast.success("Comment created");
     } catch (error) {
       toast.error((error as Error).message);
@@ -116,8 +138,7 @@ export default function PostPage({
 
   const handleDeleteComment = async (id: string) => {
     try {
-      deleteComment(id);
-      await deleteCommentAction(id);
+      deleteCommentMutation(id);
       toast.success("Comment deleted");
     } catch (error) {
       toast.error((error as Error).message);
@@ -213,28 +234,53 @@ export default function PostPage({
         />
         <Separator />
         {commentsVisible &&
-          comments.map((comment) => (
-            <Comment
+          !gettingComments &&
+          data.map((comment) => (
+            <div
+              className={cn(
+                deletingComment &&
+                  deletingCommentId === comment.id &&
+                  "opacity-50"
+              )}
               key={comment.id}
-              onClick={
-                comment.user.id === user.id
-                  ? () => handleDeleteComment(comment.id)
-                  : undefined
-              }
-              size={12}
-              {...comment}
-            />
-          ))}
-        {comments.length > 0 && (
-          <div className="flex justify-center">
-            <Button
-              className="cursor-pointer"
-              onClick={() => setCommentsVisible(!commentsVisible)}
-              variant="ghost"
             >
-              {commentsVisible ? "Hide comments" : "Show comments"}
-            </Button>
+              <Comment
+                onClick={
+                  comment.user.id === user.id
+                    ? () => handleDeleteComment(comment.id)
+                    : undefined
+                }
+                size={12}
+                {...comment}
+              />
+            </div>
+          ))}
+        {creatingComment && (
+          <div className="opacity-50">
+            <Comment
+              comment={creatingCommentComment}
+              createdAt={new Date()}
+              size={12}
+              user={user}
+            />
           </div>
+        )}
+        {gettingComments ? (
+          <div className="flex justify-center">
+            <LoaderCircle className="animate-spin" size={48} />
+          </div>
+        ) : (
+          data.length > 0 && (
+            <div className="flex justify-center">
+              <Button
+                className="cursor-pointer"
+                onClick={() => setCommentsVisible(!commentsVisible)}
+                variant="ghost"
+              >
+                {commentsVisible ? "Hide comments" : "Show comments"}
+              </Button>
+            </div>
+          )
         )}
         <div className="flex items-center gap-4">
           <ProfilePicture size={12} user={user} />

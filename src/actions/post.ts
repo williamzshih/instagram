@@ -2,15 +2,6 @@
 
 import { prisma } from "@/prisma";
 
-const commentUser = {
-  select: {
-    id: true,
-    image: true,
-    name: true,
-    username: true,
-  },
-};
-
 const postPageSelect = {
   _count: {
     select: {
@@ -18,21 +9,17 @@ const postPageSelect = {
     },
   },
   caption: true,
-  comments: {
-    orderBy: {
-      createdAt: "desc" as const,
-    },
-    select: {
-      comment: true,
-      createdAt: true,
-      id: true,
-      user: commentUser,
-    },
-  },
   createdAt: true,
   id: true,
   image: true,
-  user: commentUser,
+  user: {
+    select: {
+      id: true,
+      image: true,
+      name: true,
+      username: true,
+    },
+  },
 };
 
 const postGridSelect = {
