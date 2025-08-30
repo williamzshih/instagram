@@ -2,9 +2,16 @@
 
 import { prisma } from "@/prisma";
 
-export const getComments = async (postId: string) => {
+export const getComments = async ({
+  id,
+  postId,
+}: {
+  id?: string;
+  postId: string;
+}) => {
   try {
     return await prisma.comment.findMany({
+      ...(id && { cursor: { id } }),
       orderBy: {
         createdAt: "asc",
       },
@@ -21,6 +28,8 @@ export const getComments = async (postId: string) => {
           },
         },
       },
+      skip: id ? 1 : 0,
+      take: 3,
       where: { postId },
     });
   } catch (error) {

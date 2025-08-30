@@ -1,12 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DefaultError, InfiniteData, QueryKey } from "@tanstack/query-core";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Bookmark, Heart, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,6 +44,7 @@ const formSchema = z.object({
     }),
 });
 
+type Comments = Awaited<ReturnType<typeof getComments>>;
 type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 type Props = {
@@ -56,6 +62,7 @@ export default function PostPage({
 }: Props) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
   const [commentsVisible, setCommentsVisible] = useState(!home);
   const [bookmarked, setBookmarked] = useState(initialBookmark);
   const [liked, setLiked] = useState(initialLike);
@@ -74,11 +81,37 @@ export default function PostPage({
   const {
     data,
     error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isPending: gettingComments,
-  } = useQuery({
-    queryFn: () => getComments(post.id),
+  } = useInfiniteQuery<
+    Comments,
+    DefaultError,
+    InfiniteData<Comments>,
+    QueryKey,
+    string | undefined
+  >({
+    getNextPageParam: (lastPage) => lastPage[lastPage.length - 1]?.id,
+    initialPageParam: undefined,
+    queryFn: ({ pageParam }) =>
+      getComments({
+        id: pageParam,
+        postId: post.id,
+      }),
     queryKey: ["postPage", post.id],
   });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      const target = entries[0];
+      if (target.isIntersecting && hasNextPage) fetchNextPage();
+    });
+
+    if (ref.current) observer.observe(ref.current);
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage]);
 
   const {
     isPending: creatingComment,
@@ -225,7 +258,7 @@ export default function PostPage({
         <Separator />
         {commentsVisible &&
           !gettingComments &&
-          data.map((comment) => (
+          data.pages.flat().map((comment) => (
             <div
               className={cn(
                 deletingComment &&
@@ -245,6 +278,12 @@ export default function PostPage({
               />
             </div>
           ))}
+        {isFetchingNextPage && (
+          <div className="flex justify-center">
+            <LoaderCircle className="animate-spin" size={48} />
+          </div>
+        )}
+        {commentsVisible && hasNextPage && <div ref={ref} />}
         {creatingComment && (
           <div className="opacity-50">
             <Comment
@@ -260,7 +299,7 @@ export default function PostPage({
             <LoaderCircle className="animate-spin" size={48} />
           </div>
         ) : (
-          data.length > 0 && (
+          data.pages.flat().length > 0 && (
             <div className="flex justify-center">
               <Button
                 className="cursor-pointer"

@@ -67,7 +67,7 @@ export const getFollowingPosts = async ({
       },
       select: postPageSelect,
       skip: id ? 1 : 0,
-      take: 5,
+      take: 3,
       where: {
         userId: {
           in: follows.map((follow) => follow.followeeId),
