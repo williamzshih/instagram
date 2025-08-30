@@ -33,23 +33,5 @@ const generateUsername = async (
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: CustomPrismaAdapter(prisma),
-  callbacks: {
-    async session({ session, user }) {
-      const data = await prisma.user.findUnique({
-        select: {
-          _count: {
-            select: {
-              followers: true,
-            },
-          },
-        },
-        where: { id: user.id },
-      });
-
-      user._count = data?._count || { followers: 0 };
-
-      return session;
-    },
-  },
   providers: [Google],
 });

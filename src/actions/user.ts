@@ -39,11 +39,6 @@ export const getUser = async (username: string) => {
   try {
     return await prisma.user.findUnique({
       select: {
-        _count: {
-          select: {
-            followers: true,
-          },
-        },
         bio: true,
         createdAt: true,
         id: true,
