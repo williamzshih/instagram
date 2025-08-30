@@ -94,8 +94,10 @@ export default function PostPage({
       });
       return Promise.resolve();
     },
+    onError: (error) => toast.error(error.message),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ["postPage", post.id] }),
+    onSuccess: () => toast.success("Comment created"),
   });
 
   const {
@@ -104,8 +106,10 @@ export default function PostPage({
     variables: deletingCommentId,
   } = useMutation({
     mutationFn: (id: string) => deleteComment(id),
+    onError: (error) => toast.error(error.message),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ["postPage", post.id] }),
+    onSuccess: () => toast.success("Comment deleted"),
   });
 
   const user = useUserStore((state) => state.user);
@@ -117,13 +121,8 @@ export default function PostPage({
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      form.reset();
-      createCommentMutation(data.comment);
-      toast.success("Comment created");
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
+    form.reset();
+    createCommentMutation(data.comment);
   };
 
   const handleDeletePost = async () => {
@@ -131,15 +130,6 @@ export default function PostPage({
       await deletePost(post.id);
       toast.success("Post deleted");
       router.back();
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
-
-  const handleDeleteComment = async (id: string) => {
-    try {
-      deleteCommentMutation(id);
-      toast.success("Comment deleted");
     } catch (error) {
       toast.error((error as Error).message);
     }
@@ -247,7 +237,7 @@ export default function PostPage({
               <Comment
                 onClick={
                   comment.user.id === user.id
-                    ? () => handleDeleteComment(comment.id)
+                    ? () => deleteCommentMutation(comment.id)
                     : undefined
                 }
                 size={12}

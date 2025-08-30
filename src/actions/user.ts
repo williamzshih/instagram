@@ -39,28 +39,13 @@ export const getUser = async (username: string) => {
   try {
     return await prisma.user.findUnique({
       select: {
+        _count: {
+          select: {
+            followers: true,
+          },
+        },
         bio: true,
         createdAt: true,
-        followers: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          select: {
-            createdAt: true,
-            follower: followUser,
-            id: true,
-          },
-        },
-        following: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          select: {
-            createdAt: true,
-            followee: followUser,
-            id: true,
-          },
-        },
         id: true,
         image: true,
         name: true,
@@ -116,6 +101,44 @@ export const getBookmarks = async (userId: string) => {
   } catch (error) {
     console.error("Error getting bookmarks:", error);
     throw new Error("Error getting bookmarks:", { cause: error });
+  }
+};
+
+export const getFollowers = async (followeeId: string) => {
+  try {
+    return await prisma.follow.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        createdAt: true,
+        follower: followUser,
+        id: true,
+      },
+      where: { followeeId },
+    });
+  } catch (error) {
+    console.error("Error getting followers:", error);
+    throw new Error("Error getting followers:", { cause: error });
+  }
+};
+
+export const getFollowing = async (followerId: string) => {
+  try {
+    return await prisma.follow.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        createdAt: true,
+        followee: followUser,
+        id: true,
+      },
+      where: { followerId },
+    });
+  } catch (error) {
+    console.error("Error getting following:", error);
+    throw new Error("Error getting following:", { cause: error });
   }
 };
 

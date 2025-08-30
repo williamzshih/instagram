@@ -31,46 +31,22 @@ const generateUsername = async (
   }
 };
 
-const followUser = {
-  select: {
-    image: true,
-    name: true,
-    username: true,
-  },
-};
-
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: CustomPrismaAdapter(prisma),
   callbacks: {
     async session({ session, user }) {
       const data = await prisma.user.findUnique({
         select: {
-          followers: {
-            orderBy: {
-              createdAt: "desc",
-            },
+          _count: {
             select: {
-              createdAt: true,
-              follower: followUser,
-              id: true,
-            },
-          },
-          following: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            select: {
-              createdAt: true,
-              followee: followUser,
-              id: true,
+              followers: true,
             },
           },
         },
         where: { id: user.id },
       });
 
-      user.followers = data?.followers || [];
-      user.following = data?.following || [];
+      user._count = data?._count || { followers: 0 };
 
       return session;
     },

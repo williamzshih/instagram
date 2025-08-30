@@ -3,9 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { User } from "next-auth";
 import { redirect, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
-import { getBookmarks, getLikes, getPosts, toggleFollow } from "@/actions/user";
+import { getBookmarks, getLikes, getPosts } from "@/actions/user";
 import FollowStats from "@/components/FollowStats";
 import GradientRing from "@/components/GradientRing";
 import PostGrid from "@/components/PostGrid";
@@ -14,7 +12,6 @@ import ProfileHeader from "@/components/ProfileHeader";
 import ProfileInfo from "@/components/ProfileInfo";
 import ProfilePicture from "@/components/ProfilePicture";
 import { Button } from "@/components/ui/button";
-import { useToggle } from "@/hooks/useToggle";
 
 type Props = {
   user: User;
@@ -34,15 +31,6 @@ export default function ProfilePage(props: Props) {
 
   const searchParams = useSearchParams();
   const view = searchParams.get("view") || "posts";
-
-  const [followed, setFollowed] = useState(
-    type === "user" ? props.initialFollow : false
-  );
-  const [followers, toggleFollowers] = useToggle(
-    user.followers.length,
-    user.followers.length +
-      (type === "user" ? (props.initialFollow ? -1 : 1) : 0)
-  );
 
   const {
     data: posts,
@@ -87,22 +75,6 @@ export default function ProfilePage(props: Props) {
     throw new Error("Error getting bookmarks:", { cause: bookmarksError });
   }
 
-  const handleFollow = async () => {
-    try {
-      if (type !== "user") return;
-      setFollowed(!followed);
-      toggleFollowers();
-      await toggleFollow({
-        followed,
-        followeeId: user.id,
-        followerId: props.currentUserId,
-      });
-      toast.success(followed ? "Unfollowed user" : "Followed user");
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
-
   return (
     <div className="flex flex-col items-center gap-4">
       <ProfileHeader {...props} />
@@ -110,12 +82,8 @@ export default function ProfilePage(props: Props) {
         <ProfilePicture size={40} user={user} />
       </GradientRing>
       <ProfileInfo user={user} />
-      {type === "profile" ? (
-        <FollowStats {...props} />
-      ) : (
-        <FollowStats followers={followers} {...props} />
-      )}
-      {type === "profile" ? (
+      <FollowStats {...props} />
+      {type === "profile" && (
         <div className="flex gap-2">
           <Button
             className="cursor-pointer text-lg"
@@ -139,19 +107,6 @@ export default function ProfilePage(props: Props) {
             Bookmarks
           </Button>
         </div>
-      ) : followed ? (
-        <Button
-          className="from-ig-orange to-ig-red cursor-pointer bg-linear-to-tr"
-          onClick={handleFollow}
-          onMouseEnter={(e) => (e.currentTarget.textContent = "Unfollow")}
-          onMouseLeave={(e) => (e.currentTarget.textContent = "Following")}
-        >
-          Following
-        </Button>
-      ) : (
-        <Button className="cursor-pointer" onClick={handleFollow}>
-          Follow
-        </Button>
       )}
       <div className="size-full text-center">
         {view === "posts" ? (

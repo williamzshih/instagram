@@ -22,8 +22,8 @@ export default function UserLoading() {
         <Skeleton className="h-6 w-48" />
       </div>
       <div className="flex gap-2">
-        <Skeleton className="h-16 w-20 rounded-md" />
-        <Skeleton className="h-16 w-20 rounded-md" />
+        <Skeleton className="h-12 w-16 rounded-md" />
+        <Skeleton className="h-12 w-16 rounded-md" />
       </div>
       <Skeleton className="h-9 w-20 rounded-md" />
       <PostGridLoading />
