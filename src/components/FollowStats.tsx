@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, X } from "lucide-react";
-import { User } from "next-auth";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -29,7 +28,7 @@ import { useToggle } from "@/hooks/useToggle";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  user: Pick<User, "id">;
+  userId: string;
 } & (
   | {
       currentUserId: string;
@@ -42,7 +41,7 @@ type Props = {
 );
 
 export default function FollowStats(props: Props) {
-  const { type, user } = props;
+  const { type, userId } = props;
   const queryClient = useQueryClient();
 
   const {
@@ -50,8 +49,8 @@ export default function FollowStats(props: Props) {
     error: followersError,
     isPending: gettingFollowers,
   } = useQuery({
-    queryFn: () => getFollowers(user.id),
-    queryKey: ["followStats", "followers", user.id],
+    queryFn: () => getFollowers(userId),
+    queryKey: ["followStats", "followers", userId],
   });
 
   const {
@@ -59,8 +58,8 @@ export default function FollowStats(props: Props) {
     error: followingError,
     isPending: gettingFollowing,
   } = useQuery({
-    queryFn: () => getFollowing(user.id),
-    queryKey: ["followStats", "following", user.id],
+    queryFn: () => getFollowing(userId),
+    queryKey: ["followStats", "following", userId],
   });
 
   const {
@@ -106,7 +105,7 @@ export default function FollowStats(props: Props) {
       toggleToggledFollowers();
       await toggleFollow({
         followed,
-        followeeId: user.id,
+        followeeId: userId,
         followerId: props.currentUserId,
       });
       toast.success(followed ? "Unfollowed user" : "Followed user");

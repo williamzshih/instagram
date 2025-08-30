@@ -1,32 +1,11 @@
-import { redirect } from "next/navigation";
-import {
-  getFollowingPosts,
-  getInitialBookmark,
-  getInitialLike,
-} from "@/actions/post";
-import { auth } from "@/auth";
+"use client";
+
 import HomePage from "@/components/HomePage";
+import { useUserStore } from "@/store/user";
 
-export default async function Home() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in");
+export default function Home() {
+  const user = useUserStore((state) => state.user);
+  if (!user) return;
 
-  const userId = session.user.id;
-  const posts = await getFollowingPosts(userId);
-
-  const transformedPosts = await Promise.all(
-    posts.map(async (post) => ({
-      initialBookmark: await getInitialBookmark({
-        postId: post.id,
-        userId,
-      }),
-      initialLike: await getInitialLike({
-        postId: post.id,
-        userId,
-      }),
-      post,
-    }))
-  );
-
-  return <HomePage posts={transformedPosts} />;
+  return <HomePage followerId={user.id} />;
 }

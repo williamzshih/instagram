@@ -82,7 +82,7 @@ export default function ProfilePage(props: Props) {
         <ProfilePicture size={40} user={user} />
       </GradientRing>
       <ProfileInfo user={user} />
-      <FollowStats {...props} />
+      <FollowStats {...props} userId={user.id} />
       {type === "profile" && (
         <div className="flex gap-2">
           <Button

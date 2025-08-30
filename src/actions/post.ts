@@ -43,7 +43,13 @@ export const getPost = async (id: string) => {
   }
 };
 
-export const getFollowingPosts = async (followerId: string) => {
+export const getFollowingPosts = async ({
+  followerId,
+  id,
+}: {
+  followerId: string;
+  id?: string;
+}) => {
   try {
     const follows = await prisma.follow.findMany({
       select: {
@@ -54,17 +60,34 @@ export const getFollowingPosts = async (followerId: string) => {
       },
     });
 
-    return await prisma.post.findMany({
+    const posts = await prisma.post.findMany({
+      ...(id && { cursor: { id } }),
       orderBy: {
         createdAt: "desc",
       },
       select: postPageSelect,
+      skip: id ? 1 : 0,
+      take: 5,
       where: {
         userId: {
           in: follows.map((follow) => follow.followeeId),
         },
       },
     });
+
+    return await Promise.all(
+      posts.map(async (post) => ({
+        initialBookmark: await getInitialBookmark({
+          postId: post.id,
+          userId: followerId,
+        }),
+        initialLike: await getInitialLike({
+          postId: post.id,
+          userId: followerId,
+        }),
+        post,
+      }))
+    );
   } catch (error) {
     console.error("Error getting your followed users' posts:", error);
     throw new Error("Error getting your followed users' posts:", {
