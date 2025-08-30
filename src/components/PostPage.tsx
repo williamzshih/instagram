@@ -103,6 +103,7 @@ export default function PostPage({
   });
 
   useEffect(() => {
+    if (!commentsVisible) return;
     const observer = new IntersectionObserver((entries) => {
       const target = entries[0];
       if (target.isIntersecting && hasNextPage) fetchNextPage();
@@ -111,7 +112,7 @@ export default function PostPage({
     if (ref.current) observer.observe(ref.current);
 
     return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage]);
+  }, [fetchNextPage, hasNextPage, commentsVisible]);
 
   const {
     isPending: creatingComment,
@@ -256,43 +257,46 @@ export default function PostPage({
           {...post}
         />
         <Separator />
-        {commentsVisible &&
-          !gettingComments &&
-          data.pages.flat().map((comment) => (
-            <div
-              className={cn(
-                deletingComment &&
-                  deletingCommentId === comment.id &&
-                  "opacity-50"
-              )}
-              key={comment.id}
-            >
-              <Comment
-                onClick={
-                  comment.user.id === user.id
-                    ? () => deleteCommentMutation(comment.id)
-                    : undefined
-                }
-                size={12}
-                {...comment}
-              />
-            </div>
-          ))}
-        {isFetchingNextPage && (
-          <div className="flex justify-center">
-            <LoaderCircle className="animate-spin" size={48} />
-          </div>
-        )}
-        {commentsVisible && hasNextPage && <div ref={ref} />}
-        {creatingComment && (
-          <div className="opacity-50">
-            <Comment
-              comment={creatingCommentComment}
-              createdAt={new Date()}
-              size={12}
-              user={user}
-            />
-          </div>
+        {commentsVisible && (
+          <>
+            {!gettingComments &&
+              data.pages.flat().map((comment) => (
+                <div
+                  className={cn(
+                    deletingComment &&
+                      deletingCommentId === comment.id &&
+                      "opacity-50"
+                  )}
+                  key={comment.id}
+                >
+                  <Comment
+                    onClick={
+                      comment.user.id === user.id
+                        ? () => deleteCommentMutation(comment.id)
+                        : undefined
+                    }
+                    size={12}
+                    {...comment}
+                  />
+                </div>
+              ))}
+            {isFetchingNextPage && (
+              <div className="flex justify-center">
+                <LoaderCircle className="animate-spin" size={48} />
+              </div>
+            )}
+            {hasNextPage && <div ref={ref} />}
+            {creatingComment && (
+              <div className="opacity-50">
+                <Comment
+                  comment={creatingCommentComment}
+                  createdAt={new Date()}
+                  size={12}
+                  user={user}
+                />
+              </div>
+            )}
+          </>
         )}
         {gettingComments ? (
           <div className="flex justify-center">
