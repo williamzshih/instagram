@@ -96,7 +96,13 @@ export const getFollowingPosts = async ({
   }
 };
 
-export const getSortedPosts = async (sort: string) => {
+export const getSortedPosts = async ({
+  id,
+  sort,
+}: {
+  id?: string;
+  sort: string;
+}) => {
   let orderBy;
 
   switch (sort) {
@@ -125,8 +131,11 @@ export const getSortedPosts = async (sort: string) => {
 
   try {
     return await prisma.post.findMany({
+      ...(id && { cursor: { id } }),
       orderBy,
       select: postGridSelect,
+      skip: id ? 1 : 0,
+      take: 12,
     });
   } catch (error) {
     console.error("Error getting sorted posts:", error);
