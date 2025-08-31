@@ -221,7 +221,7 @@ export default function PostPage({
           />
         )}
         <div className="flex justify-between">
-          <div className={cn("flex items-center gap-2", home && "lg:ml-4")}>
+          <div className="flex items-center gap-2">
             <Button
               className="cursor-pointer"
               onClick={handleLike}
